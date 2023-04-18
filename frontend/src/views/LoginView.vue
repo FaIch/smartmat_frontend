@@ -10,7 +10,7 @@
           <label id="login" for="chk" aria-hidden="true">Logg inn</label>
           <input class="input" type="text" autocomplete="email" name="email" placeholder="Email"
             v-model="loginInputs.email" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Password" v-model="loginInputs.password"
+          <input class="input" type="password" name="pswd" placeholder="Passord" v-model="loginInputs.password"
             @input="resetUpdate">
           <button type="submit">Logg inn</button>
         </form>
@@ -20,9 +20,9 @@
           <label id="signup" for="chk" aria-hidden="true">Registrer deg</label>
           <input class="input" type="text" autocomplete="email" name="email" placeholder="Email"
             v-model="signupInput.email" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Password"
+          <input class="input" type="password" name="pswd" placeholder="Passord"
             v-model="signupInput.password" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Confirm password"
+          <input class="input" type="password" name="pswd" placeholder="Bekreft passord"
             v-model="signupInput.confirmPassword" @input="resetUpdate">
           <button id="sign-up-button" type="submit">Registrer</button>
         </form>
@@ -176,7 +176,7 @@ function submitSignup () {
 .container {
   display: flex;
   justify-content: center;
-  padding-top: 75px;
+  padding-top: 15vh;
   height: 100vh;
   background-color: white;
 }
@@ -195,6 +195,7 @@ function submitSignup () {
 }
 
 .main {
+  scale: 1.5;
   width: 450px;
   position: relative;
   display: flex;
@@ -240,6 +241,7 @@ label {
 
 .input {
   height: 40px;
+  font-size: 1.2rem;
   background: #e0dede;
   margin: 10px;
   padding-left: 10px;
@@ -322,6 +324,18 @@ button:disabled {
 
 button:disabled:hover {
   background-color: #573b8a;
+}
+
+@media screen and (max-width: 700px) {
+  .main {
+    scale: 1.2;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .main {
+    scale: 1;
+  }
 }
 
 @media screen and (max-width: 450px) {
