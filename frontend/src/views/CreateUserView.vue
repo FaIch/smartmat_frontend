@@ -1,33 +1,3 @@
-<script lang="ts">
-import { login, createuser } from "../utils/loginutils";
-
-export default {
-  name: "LoginView",
-
-  /*methods: {
-        async userlogin() {
-            login(this.username, this.password);
-        },
-
-        async makeuser() {
-            //fix "confirm password" check
-            createuser(this.username, this.password);
-        }
-
-        @click="userlogin"
-         @click="makeuser"
-    }, */
-
-  data() {
-    return {
-      username: "",
-      password: "",
-      loginStatus: "",
-    };
-  },
-};
-</script>
-
 <template>
   <div id="Registry" class="tabcontent">
     <label for="username"> Brukernavn: </label>
@@ -57,11 +27,21 @@ export default {
       aria-required="true"
       data-ok="false"
       placeholder="Skriv passord her..."
-      v-model="password"
+      v-model="confirmPassword"
     />
     <p></p>
     <button id="loginbutton">Lag bruker</button>
   </div>
 </template>
+
+<script setup lang="ts">
+// import { login, createuser } from '../utils/loginutils'
+import { ref } from 'vue'
+
+const username = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+
+</script>
 
 <style></style>

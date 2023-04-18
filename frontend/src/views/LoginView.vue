@@ -26,23 +26,10 @@
 </template>
 
 <script setup lang="ts">
-//import { login, createuser } from "../utils/loginutils";
-import { ref } from "vue";
+// import { login, createuser } from "../utils/loginutils"
+import { ref } from 'vue'
 
-const username = ref("");
-const password = ref("");
+const username = ref('')
+const password = ref('')
 
-/*methods: {
-      async userlogin() {
-          login(this.username, this.password);
-      },
-
-      async makeuser() {
-          //fix "confirm password" check
-          createuser(this.username, this.password);
-      }
-
-      @click="userlogin"
-        @click="makeuser"
-  }, */
 </script>
