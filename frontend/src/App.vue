@@ -1,10 +1,11 @@
 <template>
-  <nav>
-    <router-link to="/">Logg inn</router-link> |
-    <router-link to="/createuser">Lag ny bruker</router-link>
-  </nav>
+  <navbar-comp />
   <router-view />
 </template>
+
+<script setup lang="ts">
+import NavbarComp from './components/NavbarComp.vue'
+</script>
 
 <style>
 #app {
@@ -13,18 +14,22 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin: 0;
+  padding: 0;
 }
 
-nav {
-  padding: 30px;
+body,html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
 }
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
+body {
+  overflow-y: scroll;
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
+* {
+    box-sizing: border-box;
 }
 </style>

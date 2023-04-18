@@ -27,9 +27,28 @@
 
 <script setup lang="ts">
 // import { login, createuser } from "../utils/loginutils"
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useUtilityStore } from '../stores/UtilityStore'
 
+const store = useUtilityStore()
 const username = ref('')
 const password = ref('')
+
+function setTransparentStatus () {
+  if (window.scrollY > 80) {
+    store.setTransparentStatus(false)
+  } else {
+    store.setTransparentStatus(true)
+  }
+}
+onMounted(() => {
+  window.addEventListener('scroll', setTransparentStatus)
+  store.setTransparentStatus(false)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', setTransparentStatus)
+  store.setTransparentStatus(false)
+})
 
 </script>
