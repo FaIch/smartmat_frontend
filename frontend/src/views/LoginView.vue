@@ -326,6 +326,12 @@ button:disabled:hover {
   background-color: #573b8a;
 }
 
+@media screen and (max-width: 1700px) {
+  .main {
+    scale: 1.1;
+  }
+}
+
 @media screen and (max-width: 700px) {
   .main {
     scale: 1.2;
