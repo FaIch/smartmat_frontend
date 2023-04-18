@@ -18,7 +18,8 @@
     "paths": {
       "@/*": [
         "src/*"
-      ]
+      ],
+      "crypto-js": ["node_modules/crypto-js"]
     },
     "lib": [
       "esnext",

@@ -154,7 +154,7 @@ function removeUnderLine (event: any) {
     width: 100%;
 }
 .navbar.is-opaque {
-    background-color: #26a23b;
+    background-color: #1A7028;
     transition: background-color 0.1s ease-in-out;
 }
 .navbar:not(.is-opaque) {
