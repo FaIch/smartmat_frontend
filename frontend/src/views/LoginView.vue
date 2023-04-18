@@ -1,33 +1,3 @@
-<script lang="ts">
-import { login, createuser } from "../utils/loginutils";
-
-export default {
-  name: "LoginView",
-
-  /*methods: {
-        async userlogin() {
-            login(this.username, this.password);
-        },
-
-        async makeuser() {
-            //fix "confirm password" check
-            createuser(this.username, this.password);
-        }
-
-        @click="userlogin"
-         @click="makeuser"
-    }, */
-
-  data() {
-    return {
-      username: "",
-      password: "",
-      loginStatus: "",
-    };
-  },
-};
-</script>
-
 <template>
   <!-- Tab content -->
   <div id="Login" class="tabcontent">
@@ -54,3 +24,25 @@ export default {
     <button id="loginbutton">Logg inn</button>
   </div>
 </template>
+
+<script setup lang="ts">
+//import { login, createuser } from "../utils/loginutils";
+import { ref } from "vue";
+
+const username = ref("");
+const password = ref("");
+
+/*methods: {
+      async userlogin() {
+          login(this.username, this.password);
+      },
+
+      async makeuser() {
+          //fix "confirm password" check
+          createuser(this.username, this.password);
+      }
+
+      @click="userlogin"
+        @click="makeuser"
+  }, */
+</script>
