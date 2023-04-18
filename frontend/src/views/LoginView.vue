@@ -18,12 +18,12 @@
       <div class="signup">
         <form class="form" @submit.prevent="submitSignup">
           <label id="signup" for="chk" aria-hidden="true">Registrer deg</label>
-          <input class="input" type="text" name="txt" placeholder="Email" v-model="signupInput.email"
-            @input="resetUpdate">
-          <input class="input" type="text" autocomplete="email" name="email" placeholder="Password"
+          <input class="input" type="text" autocomplete="email" name="email" placeholder="Email"
+            v-model="signupInput.email" @input="resetUpdate">
+          <input class="input" type="password" name="pswd" placeholder="Password"
             v-model="signupInput.password" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Confirm password" v-model="signupInput.confirmPassword"
-            @input="resetUpdate">
+          <input class="input" type="password" name="pswd" placeholder="Confirm password"
+            v-model="signupInput.confirmPassword" @input="resetUpdate">
           <button id="sign-up-button" type="submit">Registrer</button>
         </form>
       </div>
@@ -41,18 +41,8 @@ import { SHA256 } from 'crypto-js'
 
 const userStore = useUserStore()
 const navbarStore = useUtilityStore()
-
-onMounted(() => {
-  if (userStore.username !== '' && userStore.email !== '' && userStore.token !== '') {
-    router.push('/profile')
-  }
-  navbarStore.setTransparentStatus(false)
-  navbarStore.showItems = false
-})
-
-onUnmounted(() => {
-  navbarStore.showItems = true
-})
+const update = ref('')
+const emailRegex = ref(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
 
 const loginInputs = ref({
   email: '',
@@ -65,48 +55,57 @@ const signupInput = ref({
   confirmPassword: ''
 })
 
-const update = ref('')
+onMounted(() => {
+  navbarStore.setTransparentStatus(false)
+  navbarStore.showItems = false
+})
 
-const emailRegex = ref(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+onUnmounted(() => {
+  navbarStore.showItems = true
+})
 
 function resetUpdate () {
   update.value = ''
 }
 
 function validateLogin () {
-  if (loginInputs.value.email === '' || !emailRegex.value.test(String(loginInputs.value.email).toLowerCase())) {
-    update.value = 'Invalid email'
+  if (loginInputs.value.email === '' || loginInputs.value.password === '') {
+    update.value = 'Please fill out all fields.'
     return false
   }
-  if (loginInputs.value.password === '') {
-    update.value = 'Invalid password'
+  if (!emailRegex.value.test(String(loginInputs.value.email).toLowerCase())) {
+    update.value = 'Invalid email.'
     return false
   }
   if (loginInputs.value.email.length > 50) {
-    update.value = 'Email too long'
+    update.value = 'Email too long.'
     return false
   }
-  if (loginInputs.value.password.length > 60) {
-    update.value = 'Password too long'
+  if (loginInputs.value.password.length > 200) {
+    update.value = 'Password too long.'
     return false
   }
   return true
 }
 
 function validateSignup () {
-  if (signupInput.value.email === '' || !emailRegex.value.test(String(signupInput.value.email).toLowerCase())) {
-    update.value = 'Invalid email'
+  if (signupInput.value.email === '' || signupInput.value.password === '' || signupInput.value.confirmPassword === '') {
+    update.value = 'Please fill out all fields.'
     return false
   }
-  if (signupInput.value.password === '') {
-    update.value = 'Invalid password'
+  if (!emailRegex.value.test(String(signupInput.value.email).toLowerCase())) {
+    update.value = 'Invalid email.'
+    return false
+  }
+  if (signupInput.value.password !== signupInput.value.confirmPassword) {
+    update.value = 'Passwords are not the same.'
     return false
   }
   if (signupInput.value.email.length > 50) {
     update.value = 'Email too long'
     return false
   }
-  if (signupInput.value.password.length > 60) {
+  if (signupInput.value.password.length > 200) {
     update.value = 'Password too long'
     return false
   }
@@ -130,24 +129,10 @@ async function submitLogin () {
     await axios.post(path, request, config)
       .then(async (response) => {
         if (response.status === 200) {
-          userStore.username = response.data.userRequest.nickname
           userStore.email = response.data.userRequest.email
           userStore.login(response.data.userRequest.password)
+          router.push('/profile')
         }
-        const config2 = {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + userStore.token
-          }
-        }
-        const path2 = 'http://localhost:8080/role/' + userStore.email
-        console.log(path2)
-        await axios.get(path2, config2).then((response) => {
-          if (response.status === 200) {
-            userStore.role = response.data
-          }
-        })
-        router.push('/profile')
       })
       .catch((error) => {
         if (error.response.status === 400) {
@@ -177,7 +162,6 @@ function submitSignup () {
       if (response.status === 200) {
         update.value = response.data
         router.push('/login')
-        // document.getElementById('signup').click()
       }
     }).catch((error) => {
       if (error.response.status === 409) {

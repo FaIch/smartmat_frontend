@@ -132,12 +132,12 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateScreenWidth)
 })
 
-function underLineImage (event: any) {
-  event.target.classList.add('underline')
+function underLineImage (event: Event): void {
+  (event.target as HTMLElement)?.classList.add('underline')
 }
 
-function removeUnderLine (event: any) {
-  event.target.classList.remove('underline')
+function removeUnderLine (event: Event): void {
+  (event.target as HTMLElement)?.classList.remove('underline')
 }
 
 </script>
