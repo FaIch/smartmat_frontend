@@ -33,8 +33,8 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { useUserStore } from '@/stores/UserStore'
-import router from '@/router/index'
+import { useUserStore } from '../stores/UserStore'
+import router from '../router/index'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { SHA256 } from 'crypto-js'
@@ -183,6 +183,7 @@ function submitSignup () {
 
 .update {
   margin: 0;
+  margin-top: 20px;
   font-family: 'Lato', sans-serif;
   font-size: 25px;
   color: red;
