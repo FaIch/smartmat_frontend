@@ -18,11 +18,11 @@
       <div class="signup">
         <form class="form" @submit.prevent="submitSignup">
           <label id="signup" for="chk" aria-hidden="true">Registrer deg</label>
-          <input class="input" type="text" autocomplete="email" name="email" placeholder="Email"
+          <input class="input" id="signup1" type="text" autocomplete="email" name="email" placeholder="Email"
             v-model="signupInput.email" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Passord"
+          <input class="input" id="password1" type="password" name="pswd" placeholder="Passord"
             v-model="signupInput.password" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Bekreft passord"
+          <input class="input" id="password2" type="password" name="pswd" placeholder="Bekreft passord"
             v-model="signupInput.confirmPassword" @input="resetUpdate">
           <button id="sign-up-button" type="submit">Registrer</button>
         </form>
@@ -78,11 +78,11 @@ function validateLogin () {
     return false
   }
   if (loginInputs.value.email.length > 50) {
-    update.value = 'Email too long.'
+    update.value = 'Email is too long.'
     return false
   }
   if (loginInputs.value.password.length > 200) {
-    update.value = 'Password too long.'
+    update.value = 'Password is too long.'
     return false
   }
   return true
@@ -102,17 +102,22 @@ function validateSignup () {
     return false
   }
   if (signupInput.value.email.length > 50) {
-    update.value = 'Email too long'
+    update.value = 'Email is too long.'
+    return false
+  }
+  if (signupInput.value.password.length < 8) {
+    update.value = 'Password is too short.'
     return false
   }
   if (signupInput.value.password.length > 200) {
-    update.value = 'Password too long'
+    update.value = 'Password is too long.'
     return false
   }
   return true
 }
 
 async function submitLogin () {
+  resetUpdate()
   if (validateLogin()) {
     const path = 'http://localhost:8080/login'
     const hashedPassword = SHA256(loginInputs.value.password)
@@ -135,7 +140,7 @@ async function submitLogin () {
         }
       })
       .catch((error) => {
-        if (error.response.status === 400) {
+        if (error.status === 400) {
           update.value = error.response.data.message
         }
       })
@@ -143,6 +148,7 @@ async function submitLogin () {
 }
 
 function submitSignup () {
+  resetUpdate()
   if (validateSignup()) {
     const path = 'http://localhost:8080/user'
     const hashedPassword = SHA256(signupInput.value.password)
@@ -164,7 +170,7 @@ function submitSignup () {
         router.push('/login')
       }
     }).catch((error) => {
-      if (error.response.status === 409) {
+      if (error.status === 409) {
         update.value = error.response.data
       }
     })

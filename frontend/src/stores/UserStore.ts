@@ -7,7 +7,6 @@ export const useUserStore = defineStore(
   'userStore',
   () => {
     // Define reactive refs for store data
-    const username = ref('')
     const email = ref('')
     const token = ref('')
     const loggedIn = ref(false)
@@ -50,7 +49,6 @@ export const useUserStore = defineStore(
     function logOut () {
       stopInterval()
       token.value = ''
-      username.value = ''
       email.value = ''
       role.value = ''
       loggedIn.value = false
@@ -72,7 +70,6 @@ export const useUserStore = defineStore(
 
     // Return the reactive refs and functions as store properties
     return {
-      username,
       email,
       token,
       role,
