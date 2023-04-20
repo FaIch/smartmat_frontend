@@ -40,5 +40,6 @@ import SearchBarComp from '@/components/SearchBarComp.vue'
     width: 50%;
     max-width: 1000px;
     z-index: 3;
+    scale: 0.8;
 }
 </style>
