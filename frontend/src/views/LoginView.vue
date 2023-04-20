@@ -106,7 +106,7 @@ function validateSignup () {
     return false
   }
   if (signupInput.value.password.length < 8) {
-    update.value = 'Password is too short.'
+    update.value = 'Password must be at least 8 characters.'
     return false
   }
   if (signupInput.value.password.length > 200) {

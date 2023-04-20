@@ -7,12 +7,16 @@
     </div>
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
+      <div class="item-cards">
+        <IngredientItemCardComp />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import SearchBarComp from '@/components/SearchBarComp.vue'
+import IngredientItemCardComp from '@/components/IngredientItemCardComp.vue'
 </script>
 
 <style scoped>
@@ -41,5 +45,11 @@ import SearchBarComp from '@/components/SearchBarComp.vue'
     max-width: 1000px;
     z-index: 3;
     scale: 0.8;
+}
+
+.item-cards {
+  background-color: wheat;
+  display: flex;
+  justify-content: center;
 }
 </style>
