@@ -10,10 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import RecipeCardComp from '@/components/RecipeCardComp.vue'
-import SearchBarComp from '@/components/SearchBarComp.vue'
+import RecipeCardComp from '../components/RecipeCardComp.vue'
+import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted } from 'vue'
-import { useUtilityStore } from '@/stores/UtilityStore'
+import { useUtilityStore } from '../stores/UtilityStore'
 
 const utilityStore = useUtilityStore()
 
