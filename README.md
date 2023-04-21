@@ -15,14 +15,19 @@ npm run serve
 npm run build
 ```
 
-### Run your end-to-end tests
+### Run unit tests
 ```
-npm run test:e2e
+npm run test:unit
 ```
 
 ### Lints and fixes files
 ```
 npm run lint
+```
+
+### Run mock pipeline (build, test, lint)
+```
+npm run pipeline
 ```
 
 ### Customize configuration
