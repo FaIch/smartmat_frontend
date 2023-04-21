@@ -15,10 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import SearchBarComp from '@/components/SearchBarComp.vue'
-import GroceryItemCardComp from '@/components/GroceryItemCardComp.vue'
+import SearchBarComp from '../components/SearchBarComp.vue'
+import GroceryItemCardComp from '../components/GroceryItemCardComp.vue'
 import { onMounted } from 'vue'
-import { useUtilityStore } from '@/stores/UtilityStore'
+import { useUtilityStore } from '../stores/UtilityStore'
 const utilityStore = useUtilityStore()
 
 onMounted(() => {
