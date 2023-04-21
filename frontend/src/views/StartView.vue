@@ -16,12 +16,19 @@
         </div>
       </div>
       <div id="register">
-        <button id="register-button">Registrer deg nå</button>
+        <button id="register-button" @click="navigateToLogin()">Registrer deg nå</button>
       </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function navigateToLogin () {
+  router.push('/login')
+}
 </script>
 
 <style scoped>
