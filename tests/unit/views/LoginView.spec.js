@@ -167,6 +167,6 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('a'.repeat(2))
     await wrapper.find('.signup form').trigger('submit')
 
-    expect(update.text()).to.equal('Password is too short.')
+    expect(update.text()).to.equal('Password must be at least 8 characters.')
   })
 })
