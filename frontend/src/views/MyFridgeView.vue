@@ -8,7 +8,7 @@
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
       <div class="item-cards">
-        <IngredientItemCardComp />
+        <GroceryItemCardComp />
       </div>
     </div>
   </div>
@@ -16,7 +16,14 @@
 
 <script setup lang="ts">
 import SearchBarComp from '@/components/SearchBarComp.vue'
-import IngredientItemCardComp from '@/components/IngredientItemCardComp.vue'
+import GroceryItemCardComp from '@/components/GroceryItemCardComp.vue'
+import { onMounted } from 'vue'
+import { useUtilityStore } from '@/stores/UtilityStore'
+const utilityStore = useUtilityStore()
+
+onMounted(() => {
+  utilityStore.setTransparentStatus(false)
+})
 </script>
 
 <style scoped>
@@ -48,7 +55,6 @@ import IngredientItemCardComp from '@/components/IngredientItemCardComp.vue'
 }
 
 .item-cards {
-  background-color: wheat;
   display: flex;
   justify-content: center;
 }

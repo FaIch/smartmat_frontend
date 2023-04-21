@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 // Create Vue app instance
 const app = createApp(App)
