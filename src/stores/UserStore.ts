@@ -42,7 +42,7 @@ export const useUserStore = defineStore(
             token.value = response.data
           }
         })
-        .catch((error) => console.error(error))
+        .catch(() => logOut())
     }
 
     // Function for logging out user
