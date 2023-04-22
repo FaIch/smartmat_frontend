@@ -8,7 +8,7 @@
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
       <div class="item-cards">
-        <GroceryItemCardComp />
+        <FridgeItemCardComp />
       </div>
     </div>
   </div>
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
-import GroceryItemCardComp from '../components/GroceryItemCardComp.vue'
+import FridgeItemCardComp from '@/components/FridgeItemCardComp.vue'
 import { onMounted } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 const utilityStore = useUtilityStore()
