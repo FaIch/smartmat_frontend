@@ -36,6 +36,14 @@ const fridgeView = ref(true)
 const shoppingCartView = ref(false)
 const expirationDate = ref('23.05.23')
 const quantity = ref('1')
+
+const props = defineProps({
+  product: {
+    type: Object,
+    required: true
+  }
+})
+
 </script>
 
 <style scoped>
