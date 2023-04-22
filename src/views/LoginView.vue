@@ -140,7 +140,7 @@ async function submitLogin () {
         }
       })
       .catch((error) => {
-        if (error.status === 400) {
+        if (error.response.status === 400) {
           update.value = error.response.data.message
         }
       })
@@ -170,7 +170,7 @@ function submitSignup () {
         router.push('/login')
       }
     }).catch((error) => {
-      if (error.status === 409) {
+      if (error.response.status === 400) {
         update.value = error.response.data
       }
     })
