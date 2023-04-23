@@ -20,7 +20,7 @@ import FridgeItemCardComp from '@/components/FridgeItemCardComp.vue'
 import { onMounted } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
-import { useUserStore } from '@/stores/UserStore'
+import { useUserStore } from '../stores/UserStore'
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
