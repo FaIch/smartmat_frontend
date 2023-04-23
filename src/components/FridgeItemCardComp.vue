@@ -1,16 +1,16 @@
 <template>
-  <div v-if="fridgeView" class="card">
+<div class="card">
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
-        <h5 class="card-title">Karbonadedeig</h5>
+        <h5 class="card-title">{{ itemName }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
           <input class="input-field" :disabled="true" :placeholder="expirationDate" id="expiration-date"/>
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">400g</h5>
+        <h5 class="card-title">{{ itemUnit }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field" :disabled="true" :placeholder="quantity" id="quantity"/>
@@ -18,36 +18,26 @@
       </div>
       <div class="text-section-three">
         <input
-          id="item-checkbox"
+          id="fridge-item-checkbox"
           type="checkbox"
         />
         <a href="#" class="btn btn-dark">Rediger</a>
       </div>
     </div>
   </div>
-  <div v-if="shoppingCartView" class="card">
-  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const fridgeView = ref(true)
-const shoppingCartView = ref(false)
-const expirationDate = ref('23.05.23')
-const quantity = ref('1')
+const itemName = ref('Karbonadedeig')
+const itemUnit = ref('400g')
 
-const props = defineProps({
-  product: {
-    type: Object,
-    required: true
-  }
-})
-
+const expirationDate = ref('24.05.23')
+const quantity = ref('13')
 </script>
 
 <style scoped>
-
 .expiration-date-div {
   display: grid;
   text-align: left;
@@ -62,7 +52,7 @@ const props = defineProps({
   bottom: 0;
 }
 
-#item-checkbox {
+#fridge-item-checkbox {
   margin: 0;
   padding: 0;
   width: 20px;
@@ -87,10 +77,8 @@ const props = defineProps({
   justify-self: right;
 }
 
-/* Code from: https://codepen.io/codingyaar/pen/ZEqEpem */
-/* Taken from date: 21.04.23 */
 .card {
-  max-width: 600px;
+  max-width: 550px;
   flex-direction: row;
   background-color: rgba(35, 173, 58, 0.3);
   border: 0;
@@ -99,7 +87,7 @@ const props = defineProps({
 }
 
 .card img {
-  max-width: 30%;
+  max-width: 25%;
   margin: auto;
   padding: 0.5em;
   border-radius: 0.7em;
@@ -110,11 +98,14 @@ const props = defineProps({
   padding: 30px 0 30px 0;
   align-items: center;
 }
-.text-section-one, .text-section-two {
+
+.text-section-one,
+.text-section-two {
   max-width: 50%;
   position: relative;
   height: 100%;
   align-items: center;
+  justify-content: space-between;
 }
 
 .text-section-two {
@@ -130,7 +121,4 @@ const props = defineProps({
   justify-content: space-between;
   padding-right: 15px;
 }
-
-/* End of code from: https://codepen.io/codingyaar/pen/ZEqEpem */
-
 </style>
