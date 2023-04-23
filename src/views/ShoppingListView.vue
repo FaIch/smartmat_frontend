@@ -5,7 +5,7 @@
         <div v-else>
           <SearchBarComp id="search-bar"/>
           <div class="product-table" v-for="product in products" :key="product.id">
-            <GroceryItemCardComp :product="product" />
+            <ShoppingListItemCardComp :product="product" />
           </div>
         </div>
     </div>
@@ -13,9 +13,10 @@
 
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
-import { reactive, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import axios from 'axios'
-import GroceryItemCardComp from '@/components/GroceryItemCardComp.vue'
+import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
+import { ShoppingListItemCardInterface } from '@/components/types'
 import { useUserStore } from '../stores/UserStore'
 
 // import { useUtilityStore } from '../stores/UtilityStore'
@@ -23,9 +24,8 @@ import { useUserStore } from '../stores/UserStore'
 // const navbarStore = useUtilityStore()
 
 const userStore = useUserStore()
-
-const products = reactive([])
-const isLoading = ref(false)
+const products = ref<ShoppingListItemCardInterface[]>([])
+const isLoading = ref(true)
 
 const loadProducts = async () => {
   const config = {
@@ -39,10 +39,10 @@ const loadProducts = async () => {
   isLoading.value = true
   console.log(userStore.token)
   const path = 'http://localhost:8080/user/shopping-list-items'
-  await axios.get(path, config)
+  axios.get<ShoppingListItemCardInterface>(path, config)
     .then(async (response) => {
       if (response.status === 200) {
-        products.values = response.data
+        products.value = response.data
         console.log(products)
         console.log(userStore.token)
       }

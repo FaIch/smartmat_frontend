@@ -3,19 +3,19 @@
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one" id="shopping-list-section-one">
-        <h5 class="card-title">{{ props.product.name }}</h5>
+        <h5 class="card-title">{{ props.item.name }}</h5>
         <div class="shopping-list-quantity-div">
           <img
             src="../assets/icons/remove.svg"
             />
-          <input class="input-field" :disabled="true" :placeholder="quantity" id="shopping-list-quantity"/>
+          <input class="input-field" :disabled="true" :placeholder="'Hello'" id="shopping-list-quantity"/>
           <img
             src="../assets/icons/add.svg"
             />
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title" id="shopping-list-item-unit">{{ itemUnit }}</h5>
+        <h5 class="card-title" id="shopping-list-item-unit">{{ props.quantity }}</h5>
       </div>
       <div class="text-section-three" id="shopping-list-check">
         <input
@@ -29,22 +29,10 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue'
+import { defineProps } from 'vue'
+import { ShoppingListItemCardInterface } from './types'
 
-interface props {
-  product: object;
-}
-
-const props = defineProps({
-  product: {
-    type: Object,
-    required: true
-  }
-})
-
-const itemName = ref('Karbonadedeig')
-const itemUnit = ref('400g')
-const quantity = ref('4')
+const props = defineProps<ShoppingListItemCardInterface>()
 
 </script>
 
