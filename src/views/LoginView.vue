@@ -58,6 +58,7 @@ const signupInput = ref({
 onMounted(() => {
   navbarStore.setTransparentStatus(false)
   navbarStore.showItems = false
+  userStore.logout()
 })
 
 onUnmounted(() => {
@@ -129,14 +130,15 @@ async function submitLogin () {
     const config = {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      withCredentials: true
     }
+
     await axios.post(path, request, config)
       .then(async (response) => {
         if (response.status === 200) {
-          userStore.email = response.data.userRequest.email
-          userStore.login(response.data.userRequest.password)
-          router.push('/profile')
+          userStore.login(response.data.userEmail, 'user')
+          router.push('/fridge')
         }
       })
       .catch((error) => {
@@ -167,6 +169,7 @@ function submitSignup () {
     axios.post(path, data, config).then(response => {
       if (response.status === 200) {
         update.value = response.data
+        userStore.loggedIn = true
         router.push('/login')
       }
     }).catch((error) => {
