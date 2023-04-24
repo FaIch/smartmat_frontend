@@ -1,12 +1,11 @@
 <template>
   <div class="recipe-card">
     <a href="recipe.html">
-      <!--<img class="recipe-image" :src="recipe.imageUrl" />-->
-      <img class="recipe-image" src="../assets/pexels-alleksana-5949902.jpg" />
+      <!--<img class="recipe-image" :src="imageUrl" />-->
       <div class="recipe-details">
         <h2 class="recipe-title"><b>{{ dishName }}</b></h2>
         <h4 class="recipe-comment">{{ dishComment }}</h4>
-        <p class="recipe-time-and-info">{{ dishTime }}, {{ missingIngredients }}</p>
+        <!--<p class="recipe-time-and-info">{{ dishTime }}, {{ missingIngredients }}</p>-->
         <button class="recipe-button">Gå til oppskrift</button>
       </div>
     </a>
@@ -14,12 +13,11 @@
 </template>
 
 <script setup lang="ts">
-
-// imageUrl: string - TODO: fix image path problem
-const dishName = 'Lasagne'
-const dishComment = 'm/saus'
-const dishTime = '40 min'
-const missingIngredients = 'Mangler 2 ingredienser'
+// const imageUrl = ''
+const dishName = ''
+const dishComment = ''
+// const dishTime = ''
+// const missingIngredients = ''
 </script>
 
 <style scoped>
