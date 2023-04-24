@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
-import FridgeItemCardComp from '@/components/FridgeItemCardComp.vue'
+import FridgeItemCardComp from '../components/FridgeItemCardComp.vue'
 import { onMounted } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 const utilityStore = useUtilityStore()

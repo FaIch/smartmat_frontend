@@ -35,6 +35,7 @@ const itemUnit = ref('400g')
 
 const expirationDate = ref('24.05.23')
 const quantity = ref('13')
+
 </script>
 
 <style scoped>

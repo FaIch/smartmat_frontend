@@ -1,12 +1,22 @@
+export interface ItemInterface {
+    category: string;
+    id: number;
+    image: string;
+    name: string;
+    price: number;
+    shortDesc: string;
+    weight: number;
+}
+
 export interface ShoppingListItemCardInterface {
     id: number;
+    item: ItemInterface;
     quantity: number;
-    item: {
-        id: number;
-        name: string;
-        shortDesc: string;
-        category: string;
-        price: number;
-        weight: number;
-    }
+}
+
+export interface FridgeItemCardInterface {
+    id: number;
+    item: ItemInterface;
+    quantity: number;
+    expirationDate: Date;
 }

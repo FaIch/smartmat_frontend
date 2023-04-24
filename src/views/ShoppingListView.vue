@@ -39,20 +39,18 @@ const loadProducts = async () => {
   isLoading.value = true
   console.log(userStore.token)
   const path = 'http://localhost:8080/user/shopping-list-items'
-  axios.get<ShoppingListItemCardInterface>(path, config)
+  axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
-        console.log(products)
-        console.log(userStore.token)
+        isLoading.value = false
       }
     })
     .catch((error) => {
       if (error.response.status === 400) {
-        console.log(error.response.data.message)
+        console.error(error)
       }
     })
-  isLoading.value = false
 }
 
 // const removeProduct = () => {

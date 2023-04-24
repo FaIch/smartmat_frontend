@@ -3,7 +3,7 @@
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one" id="shopping-list-section-one">
-        <h5 class="card-title">{{ props.item.name }}</h5>
+        <h5 class="card-title">{{ props.product.item.name }}</h5>
         <div class="shopping-list-quantity-div">
           <img
             src="../assets/icons/remove.svg"
@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title" id="shopping-list-item-unit">{{ props.quantity }}</h5>
+        <h5 class="card-title" id="shopping-list-item-unit">{{ props.product.quantity }}</h5>
       </div>
       <div class="text-section-three" id="shopping-list-check">
         <input
@@ -32,7 +32,12 @@
 import { defineProps } from 'vue'
 import { ShoppingListItemCardInterface } from './types'
 
-const props = defineProps<ShoppingListItemCardInterface>()
+const props = defineProps({
+  product: {
+    type: Object as () => ShoppingListItemCardInterface,
+    required: true
+  }
+})
 
 </script>
 
