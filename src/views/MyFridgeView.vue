@@ -7,8 +7,8 @@
     </div>
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
-      <div class="item-cards">
-        <FridgeItemCardComp />
+      <div class="item-cards" v-for="product in products" :key="product.id">
+        <FridgeItemCardComp :product="product" @update="onUpdate"/>
       </div>
     </div>
   </div>
@@ -17,10 +17,14 @@
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
 import FridgeItemCardComp from '../components/FridgeItemCardComp.vue'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
+
+import { FridgeItemCardInterface } from '../components/types'
+
+const products = ref<FridgeItemCardInterface[]>([])
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
@@ -28,7 +32,6 @@ const utilityStore = useUtilityStore()
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
   getItemsInFridge()
-  userStore.loggedIn = true
 })
 
 async function getItemsInFridge () {
@@ -43,6 +46,8 @@ async function getItemsInFridge () {
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
+        console.log(response.data)
+        products.value = response.data
         console.log('success')
       }
     })
@@ -53,6 +58,11 @@ async function getItemsInFridge () {
         userStore.logout()
       }
     })
+}
+
+function onUpdate (updatedProduct: FridgeItemCardInterface) {
+  // Handle the updated product data
+  console.log('Updated product:', updatedProduct)
 }
 
 </script>

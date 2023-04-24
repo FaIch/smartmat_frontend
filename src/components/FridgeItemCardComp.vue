@@ -6,11 +6,11 @@
         <h5 class="card-title">{{ itemName }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input type="date" class="input-field" :disabled="edit" v-model="expirationDate" id="expiration-date"/>
+          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate" />
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ itemUnit }}</h5>
+        <h5 class="card-title">{{ itemWeight }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field" :disabled="edit" v-model.number="quantity" id="quantity"/>
@@ -29,14 +29,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 
+import { ref, defineProps, defineEmits } from 'vue'
+import { FridgeItemCardInterface } from './types'
+
+const itemName = ref('Steak')
+const expirationDate = ref('2023-05-23')
+const itemWeight = ref('250g')
+const quantity = ref(6)
 const edit = ref(true)
-const itemName = ref('Karbonadedeig')
-const itemUnit = ref('400g')
 
-const expirationDate = ref('2023-04-24')
-const quantity = ref(13)
+const emit = defineEmits(['update'])
+const props = defineProps({
+  product: {
+    type: Object as () => FridgeItemCardInterface,
+    required: true
+  }
+})
 
 const activateEdit = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
@@ -46,17 +55,29 @@ const activateEdit = () => {
   quantityInput.disabled = false
   expirationDateInput.focus()
   edit.value = false
+  console.log(props)
 }
 
 const activateSave = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
   const quantityInput = document.getElementById('quantity') as HTMLInputElement
 
-  expirationDate.value = expirationDateInput.value
-  quantity.value = parseInt(quantityInput.value)
   expirationDateInput.disabled = true
   quantityInput.disabled = true
   edit.value = true
+
+  // Check if the values have been changed
+  if (
+    expirationDate.value !== props.product.expirationDate ||
+    quantity.value !== props.product.quantity
+  ) {
+    // Emit the update event with the updated item data
+    emit('update', {
+      ...props.product,
+      expirationDate: expirationDate.value,
+      quantity: quantity.value
+    })
+  }
 }
 
 </script>
@@ -91,6 +112,7 @@ const activateSave = () => {
   font-size: 22px;
   font-weight: bold;
 }
+
 .card-text {
   margin: 0;
 }
@@ -102,7 +124,7 @@ const activateSave = () => {
 }
 
 #quantity {
-  justify-self: right;
+  justify-self: left;
 }
 
 .card {
@@ -129,25 +151,31 @@ const activateSave = () => {
 
 .text-section-one,
 .text-section-two {
-  max-width: 50%;
   position: relative;
   height: 100%;
   align-items: center;
   justify-content: space-between;
 }
 
-.text-section-two {
-  min-width: 20%;
-  text-align: right;
+.text-section-one {
+  min-width: 42%;
+  max-width: 42%;
+  text-align: left;
 }
+
+.text-section-two {
+  min-width: 25%;
+  max-width: 25%;
+  text-align: left;
+}
+
 .text-section-three {
-  width: 60%;
+  width: 30%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
-  padding-right: 15px;
 }
 
 #edit-button {
@@ -172,4 +200,5 @@ const activateSave = () => {
   transform: scale(1.1);
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
+
 </style>
