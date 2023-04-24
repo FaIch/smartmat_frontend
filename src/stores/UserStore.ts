@@ -1,88 +1,77 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
+import router from '../router/index'
 
 // Define user store using Pinia
-export const useUserStore = defineStore(
-  'userStore',
-  () => {
-    // Define reactive refs for store data
-    const email = ref('')
-    const token = ref('')
-    const loggedIn = ref(false)
-    const role = ref('')
-    const interval = ref()
+export const useUserStore = defineStore('userStore', () => {
+  const email = ref('')
+  const loggedIn = ref(false)
+  const role = ref('')
+  const refreshTokenTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
-    // Define computed property for checking if user is logged in
-    const isLoggedIn = computed(() => loggedIn.value)
-
-    // Function for handling user login
-    async function loginToken (loginToken: string) {
-      token.value = loginToken
-      loggedIn.value = true
-      startInterval()
+  // Function for refreshing user token
+  async function refreshToken () {
+    const path = 'http://localhost:8080/auth/refreshToken'
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
     }
-
-    // Function for refreshing user token
-    async function refreshToken () {
-      const config = {
-        params: {
-          email: email.value
-        },
-        headers: {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + token.value
-        }
+    try {
+      const response = await axios.post(path, null, config)
+      if (response.status === 200) {
+        console.log('newToken newToken')
       }
-      const path = 'http://localhost:8080/refreshToken'
-      await axios
-        .get(path, config)
-        .then((response) => {
-          if (response.data) {
-            token.value = response.data
-          }
-        })
-        .catch(() => logOut())
+    } catch (error) {
+      console.log('Error refreshing token:', error)
+    } finally {
+      startRefreshTimer()
     }
-
-    // Function for logging out user
-    function logOut () {
-      stopInterval()
-      token.value = ''
-      email.value = ''
-      role.value = ''
-      loggedIn.value = false
-    }
-
-    // Function for stopping token refresh interval
-    function stopInterval () {
-      clearInterval(interval.value)
-      interval.value = null
-    }
-    // Function for starting token refresh interval
-    function startInterval () {
-      if (interval.value === null) {
-        interval.value = setInterval(() => {
-          refreshToken()
-        }, 1000 * 4 * 60)
-      }
-    }
-
-    // Return the reactive refs and functions as store properties
-    return {
-      email,
-      token,
-      role,
-      login: loginToken,
-      loggedIn,
-      logOut,
-      isLoggedIn,
-      startInterval,
-      stopInterval
-    }
-  },
-  {
-    // Pinia store options
-    persist: true
   }
-)
+
+  // Function to start the refresh token timer
+  function startRefreshTimer () {
+    if (refreshTokenTimeoutId.value) {
+      clearTimeout(refreshTokenTimeoutId.value)
+    }
+    refreshTokenTimeoutId.value = setTimeout(refreshToken, 9 * 60 * 1000)
+  }
+
+  // Function to stop the refresh token timer
+  function stopRefreshTimer () {
+    if (refreshTokenTimeoutId.value) {
+      clearTimeout(refreshTokenTimeoutId.value)
+      refreshTokenTimeoutId.value = null
+    }
+  }
+
+  async function login (userEmail: string, userRole: string) {
+    email.value = userEmail
+    role.value = userRole
+    loggedIn.value = true
+    startRefreshTimer()
+  }
+
+  async function logout () {
+    email.value = ''
+    role.value = ''
+    loggedIn.value = false
+    stopRefreshTimer()
+    router.push('/login')
+  }
+  // Return the reactive refs and functions as store properties
+  return {
+    email,
+    role,
+    loggedIn,
+    refreshToken,
+    login,
+    logout
+  }
+},
+{
+  // Pinia store options
+  persist: true
+})
