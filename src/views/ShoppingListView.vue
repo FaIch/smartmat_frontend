@@ -65,7 +65,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-// navbarStore.showItems = true
 })
 
 </script>
