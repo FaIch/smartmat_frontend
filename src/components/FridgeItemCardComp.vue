@@ -6,14 +6,14 @@
         <h5 class="card-title">{{ itemName }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input class="input-field" :disabled="true" :placeholder="expirationDate" id="expiration-date"/>
+          <input type="date" class="input-field" :disabled="edit" v-model="expirationDate" id="expiration-date"/>
         </div>
       </div>
       <div class="text-section-two">
         <h5 class="card-title">{{ itemUnit }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
-          <input class="input-field" :disabled="true" :placeholder="quantity" id="quantity"/>
+          <input class="input-field" :disabled="edit" v-model.number="quantity" id="quantity"/>
         </div>
       </div>
       <div class="text-section-three">
@@ -21,7 +21,8 @@
           id="fridge-item-checkbox"
           type="checkbox"
         />
-        <a href="#" class="btn btn-dark">Rediger</a>
+        <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
+        <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
       </div>
     </div>
   </div>
@@ -30,11 +31,34 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const edit = ref(true)
 const itemName = ref('Karbonadedeig')
 const itemUnit = ref('400g')
 
-const expirationDate = ref('24.05.23')
-const quantity = ref('13')
+const expirationDate = ref('2023-04-24')
+const quantity = ref(13)
+
+const activateEdit = () => {
+  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
+  const quantityInput = document.getElementById('quantity') as HTMLInputElement
+
+  expirationDateInput.disabled = false
+  quantityInput.disabled = false
+  expirationDateInput.focus()
+  edit.value = false
+}
+
+const activateSave = () => {
+  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
+  const quantityInput = document.getElementById('quantity') as HTMLInputElement
+
+  expirationDate.value = expirationDateInput.value
+  quantity.value = parseInt(quantityInput.value)
+  expirationDateInput.disabled = true
+  quantityInput.disabled = true
+  edit.value = true
+}
+
 </script>
 
 <style scoped>
@@ -43,6 +67,10 @@ const quantity = ref('13')
   text-align: left;
   position: absolute;
   bottom: 0;
+}
+
+#expiration-date {
+  width: 120px;
 }
 
 .quantity-div {
@@ -120,5 +148,28 @@ const quantity = ref('13')
   align-items: flex-end;
   justify-content: space-between;
   padding-right: 15px;
+}
+
+#edit-button {
+  height: 40px;
+  width: 90px;
+}
+
+#save-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 90px;
+}
+
+#save-button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+#edit-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
 </style>
