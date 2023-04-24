@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
 import { FridgeItemCardInterface } from './types'
 
 const itemName = ref('Steak')
@@ -40,6 +40,7 @@ const quantity = ref(6)
 const edit = ref(true)
 
 const emit = defineEmits(['update'])
+
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
