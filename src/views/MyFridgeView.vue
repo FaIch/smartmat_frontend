@@ -49,7 +49,7 @@ async function getItemsInFridge () {
     .catch((error) => {
       if (error.response.status === 400) {
         console.log('error')
-      } else if (error.response.status === 403) {
+      } else if (error.response.status === 600) {
         userStore.logout()
       }
     })
