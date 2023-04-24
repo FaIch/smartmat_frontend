@@ -8,10 +8,9 @@
             :key="index"
             class="user-item"
             :class="{ 'user-item-selected': selectedUser && selectedIndex === index }"
-            @click="user.role === 'PARENT' ? showPasscodeInput(user, index) : null"
         >
-          <img :src="user.avatar" :alt="user.name" class="avatar" />
-          <p>{{ user.nickname }}</p>
+          <img class="avatar" />
+          <p>{{ }}</p>
           <div
               v-if="selectedUser && selectedIndex === index"
               class="passcode-wrapper"
@@ -21,7 +20,6 @@
               <input
                   v-model="passcodeInput"
                   type="password"
-                  @input="validatePasscode"
                   placeholder="Passcode"
                   maxlength="4"
               />
@@ -38,19 +36,17 @@
 // import logo from '@/assets/logo.png'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { useUserStore } from '../stores/UserStore'
 
 const users = ref([])
 const selectedUser = ref(null)
 const passcodeInput = ref('')
 const passcodeError = ref('')
 const selectedIndex = ref(null)
-const store = useUserStore()
 const config = {
   headers: {
-    'Content-type': 'application/json',
-    Authorization: 'Bearer ' + store.token
-  }
+    'Content-type': 'application/json'
+  },
+  withCredentials: true
 }
 
 async function fetchUsers () {
@@ -67,6 +63,7 @@ onMounted(() => {
   fetchUsers()
 })
 
+/*
 async function validatePasscode () {
   if (passcodeInput.value.length === 4) {
     try {
@@ -102,6 +99,7 @@ function showPasscodeInput (user, index) {
     selectedIndex.value = index
   }
 }
+*/
 </script>
 
 <style scoped>
