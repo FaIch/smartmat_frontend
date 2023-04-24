@@ -14,9 +14,14 @@ export interface ShoppingListItemCardInterface {
     quantity: number;
 }
 
+export interface ShoppingListItem {
+    id: bigint;
+    quantity: number;
+  }
+
 export interface FridgeItemCardInterface {
     id: number;
     item: ItemInterface;
     quantity: number;
-    expirationDate: Date;
+    expirationDate: string;
 }

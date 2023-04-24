@@ -3,17 +3,17 @@
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
-        <h5 class="card-title">{{ itemName }}</h5>
+        <h5 class="card-title">{{ $props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input class="input-field" :disabled="true" :placeholder="expirationDate" id="expiration-date"/>
+          <input class="input-field" :disabled="true" :placeholder="props.product.expirationDate" id="expiration-date"/>
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ itemUnit }}</h5>
+        <h5 class="card-title">{{ props.product.item.weight }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
-          <input class="input-field" :disabled="true" :placeholder="quantity" id="quantity"/>
+          <input class="input-field" :disabled="true" :placeholder="props.product.quantity.toString" id="quantity"/>
         </div>
       </div>
       <div class="text-section-three">
@@ -28,13 +28,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 
-const itemName = ref('Karbonadedeig')
-const itemUnit = ref('400g')
+import { defineProps } from 'vue'
+import { FridgeItemCardInterface } from './types'
 
-const expirationDate = ref('24.05.23')
-const quantity = ref('13')
+const props = defineProps({
+  product: {
+    type: Object as () => FridgeItemCardInterface,
+    required: true
+  }
+})
 
 </script>
 
