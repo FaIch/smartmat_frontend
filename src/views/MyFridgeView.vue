@@ -21,8 +21,8 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import FridgeItemCardComp from '../components/FridgeItemCardComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
-import { FridgeItemCardInterface } from '@/components/types'
-import { useUserStore } from '@/stores/UserStore'
+import { FridgeItemCardInterface } from '../components/types'
+import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 
 const utilityStore = useUtilityStore()
