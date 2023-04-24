@@ -11,7 +11,7 @@
       </div>
       <SearchBarComp id="search-bar" />
       <div class="product-table" v-for="product in products" :key="product.id">
-        <ShoppingListItemCardComp :product="product" />
+        <ShoppingListItemCardComp :product="product" v-on:remove="removeProduct(product)"/>
       </div>
     </div>
   </div>
@@ -67,7 +67,6 @@ const addItem = () => {
       quantity: newItem.value.quantity
     }
   }
-
   const path = 'http://localhost:8080/shopping-list/add'
   axios.post(path, null, config)
     .then(async (response) => {
@@ -82,6 +81,25 @@ const addItem = () => {
     })
 }
 
+const removeProduct = async (product: ShoppingListItemCardInterface) => {
+  const config = {
+    headers: {
+      Authorization: 'Bearer ' + userStore.token,
+      'Response-type': 'application/json'
+    }
+  }
+  const path = `http://localhost:8080/shopping-list/${product.id}`
+  axios.delete(path, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        products.value = products.value.filter(p => p.id !== product.id)
+      }
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
 onMounted(() => {
   loadProducts()
 })
@@ -89,6 +107,7 @@ onMounted(() => {
 onUnmounted(() => {
   products.value = []
 })
+
 </script>
 
 <style>
