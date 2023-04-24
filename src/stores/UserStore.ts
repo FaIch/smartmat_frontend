@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
+import router from '../router/index'
 
 // Define user store using Pinia
 export const useUserStore = defineStore('userStore', () => {
@@ -58,6 +59,7 @@ export const useUserStore = defineStore('userStore', () => {
     role.value = ''
     loggedIn.value = false
     stopRefreshTimer()
+    router.push('/login')
   }
   // Return the reactive refs and functions as store properties
   return {
