@@ -48,6 +48,7 @@ async function getItemsInFridge () {
     .then(async (response) => {
       if (response.status === 200) {
         console.log('success')
+        products.value = response.data
       }
     })
     .catch((error) => {

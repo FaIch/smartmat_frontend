@@ -24,25 +24,28 @@ import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
 import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
+import { useUtilityStore } from '../stores/UtilityStore'
 
-const userStore = useUserStore()
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
 const showAddForm = ref(false)
 const newItem = ref({ id: 0, quantity: 0 })
+const utilityStore = useUtilityStore()
+const userStore = useUserStore()
 
-const loadProducts = async () => {
+async function loadProducts () {
   const config = {
     headers: {
-      'Content-type': 'application/json',
-      Authorization: 'Bearer ' + userStore.token,
-      'Response-type': 'application/json'
-    }
+      'Content-type': 'application/json'
+    },
+    withCredentials: true
   }
+
+  console.log(userStore.loggedIn)
 
   isLoading.value = true
   const path = 'http://localhost:8080/user/shopping-list-items'
-  axios.get(path, config)
+  await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
@@ -56,12 +59,12 @@ const loadProducts = async () => {
     })
 }
 
-const addItem = () => {
+async function addItem () {
   const config = {
     headers: {
-      Authorization: 'Bearer ' + userStore.token,
       'Response-type': 'application/json'
     },
+    withCredentials: true,
     params: {
       id: newItem.value.id,
       quantity: newItem.value.quantity
@@ -70,7 +73,7 @@ const addItem = () => {
   const path = 'http://localhost:8080/shopping-list/add'
   axios.post(path, null, config)
     .then(async (response) => {
-      if (response.status === 201) {
+      if (response.status === 200) {
         products.value.push(response.data)
         newItem.value = { id: 0, quantity: 0 }
         showAddForm.value = false
@@ -84,9 +87,9 @@ const addItem = () => {
 const removeProduct = async (product: ShoppingListItemCardInterface) => {
   const config = {
     headers: {
-      Authorization: 'Bearer ' + userStore.token,
       'Response-type': 'application/json'
-    }
+    },
+    withCredentials: true
   }
   const path = `http://localhost:8080/shopping-list/${product.id}`
   axios.delete(path, config)
@@ -101,7 +104,9 @@ const removeProduct = async (product: ShoppingListItemCardInterface) => {
 }
 
 onMounted(() => {
+  utilityStore.setTransparentStatus(false)
   loadProducts()
+  userStore.loggedIn = true
 })
 
 onUnmounted(() => {
