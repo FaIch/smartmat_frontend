@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import router from '../router/index'
 
@@ -31,13 +31,19 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  // Function to start the refresh token timer
+  // Function for starting the refresh timer
   function startRefreshTimer () {
     if (refreshTokenTimeoutId.value) {
       clearTimeout(refreshTokenTimeoutId.value)
     }
     refreshTokenTimeoutId.value = setTimeout(refreshToken, 9 * 60 * 1000)
   }
+
+  onMounted(() => {
+    if (loggedIn.value) {
+      startRefreshTimer()
+    }
+  })
 
   // Function to stop the refresh token timer
   function stopRefreshTimer () {
@@ -51,6 +57,7 @@ export const useUserStore = defineStore('userStore', () => {
     email.value = userEmail
     role.value = userRole
     loggedIn.value = true
+
     startRefreshTimer()
   }
 
