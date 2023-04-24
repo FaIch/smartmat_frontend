@@ -25,3 +25,7 @@ export interface FridgeItemCardInterface {
     quantity: number;
     expirationDate: string;
 }
+
+export interface User {
+    id: number;
+}

@@ -28,39 +28,36 @@ import axios from 'axios'
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
 const products = ref<FridgeItemCardInterface[]>([])
-const isLoading = ref(true)
 
-const loadProducts = async () => {
+onMounted(() => {
+  utilityStore.setTransparentStatus(false)
+  getItemsInFridge()
+  userStore.loggedIn = true
+})
+
+async function getItemsInFridge () {
+  const path = 'http://localhost:8080/user/fridge-items'
   const config = {
     headers: {
-      'Content-type': 'application/json',
-      Authorization: 'Bearer ' + userStore.token,
-      'Response-type': 'application/json'
-    }
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
   }
-
-  isLoading.value = true
-  console.log(userStore.token)
-  const path = 'http://localhost:8080/user/fridge-items'
-  axios.get(path, config)
+  console.log(userStore.loggedIn)
+  await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
-        products.value = response.data
-        console.log(response.data)
-        isLoading.value = false
+        console.log('success')
       }
     })
     .catch((error) => {
       if (error.response.status === 400) {
-        console.error(error)
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
       }
     })
 }
-
-onMounted(() => {
-  utilityStore.setTransparentStatus(false)
-  loadProducts()
-})
 
 </script>
 

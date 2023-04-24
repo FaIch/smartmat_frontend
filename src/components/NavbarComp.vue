@@ -14,15 +14,15 @@
             </div>
             <div class="navbar-icons">
 
-                <router-link v-if="!showHamburgerMenu" to="/chat" class="icon-link" exact-active-class="active">
+                <router-link v-if="!showHamburgerMenu" to="/" class="icon-link" exact-active-class="active">
                 <h1>{{ recipes }}</h1>
                 </router-link>
 
-                <router-link v-if="!showHamburgerMenu" to="/notifications" class="icon-link" exact-active-class="active">
+                <router-link v-if="!showHamburgerMenu" to="/" class="icon-link" exact-active-class="active">
                 <h1>{{ shoppingCart }}</h1>
                 </router-link>
 
-                <router-link v-if="!showHamburgerMenu" to="/login" class="icon-link" exact-active-class="active">
+                <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
                 <h1>{{ inventory }}</h1>
                 </router-link>
 

@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
+import SubUserView from '../views/SubUserView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,6 +25,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/shoppinglist',
     name: 'shoppinglist',
     component: ShoppingListView
+  },
+  {
+    path: '/subuser',
+    name: 'subuser',
+    component: SubUserView
   }
 ]
 
