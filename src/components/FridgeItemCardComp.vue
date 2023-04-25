@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { FridgeItemCardInterface } from './types'
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed'])
@@ -86,6 +86,17 @@ function onCheckboxChange () {
     product: props.product
   })
 }
+
+watch(
+  () => props.product,
+  (newProduct, oldProduct) => {
+    if (newProduct !== oldProduct) {
+      expirationDate.value = newProduct.expirationDate
+      quantity.value = newProduct.quantity
+    }
+  },
+  { deep: true }
+)
 
 </script>
 

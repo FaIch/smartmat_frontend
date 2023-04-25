@@ -22,7 +22,8 @@ export const useUserStore = defineStore('userStore', () => {
     try {
       const response = await axios.post(path, null, config)
       if (response.status === 200) {
-        console.log('newToken newToken')
+        const now = new Date()
+        console.log(now.toLocaleTimeString(), 'new token')
       }
     } catch (error) {
       console.log('Error refreshing token:', error)
@@ -36,7 +37,7 @@ export const useUserStore = defineStore('userStore', () => {
     if (refreshTokenTimeoutId.value) {
       clearTimeout(refreshTokenTimeoutId.value)
     }
-    refreshTokenTimeoutId.value = setTimeout(refreshToken, 9 * 60 * 1000)
+    refreshTokenTimeoutId.value = setTimeout(refreshToken, 8 * 60 * 1000)
   }
 
   onMounted(() => {

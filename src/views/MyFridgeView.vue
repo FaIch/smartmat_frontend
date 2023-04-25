@@ -8,12 +8,12 @@
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
       <div class="item-cards" v-for="product in products" :key="product.id">
-        <FridgeItemCardComp :product="product" @update="onUpdate"/>
+        <FridgeItemCardComp :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
       </div>
     </div>
     <div class="buttons">
       <button class="fridge-button">Jeg har spist dette</button>
-      <button class="fridge-button">Jeg har kastet dette</button>
+      <button class="fridge-button" @click="removeSelectedItems">Jeg har kastet dette</button>
     </div>
   </div>
 </template>
@@ -28,8 +28,15 @@ import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 
 const products = ref<FridgeItemCardInterface[]>([])
+const selectedProducts = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
+const config = {
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  withCredentials: true
+}
 
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
@@ -47,9 +54,6 @@ async function getItemsInFridge () {
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
-        products.value = response.data
-        console.log('success')
         products.value = response.data
       }
     })
@@ -65,19 +69,18 @@ async function getItemsInFridge () {
 
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
   const path = 'http://localhost:8080/fridge-items/edit/' + updatedProduct.id
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
 
   await axios.put(path, updatedProduct, config)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
-        // You can update the product in the local state here.
         console.log('success')
+        const index = products.value.findIndex(
+          (product) => product.id === updatedProduct.id
+        )
+        if (index !== -1) {
+          products.value[index] = updatedProduct
+          products.value = [...products.value]
+        }
       }
     })
     .catch((error) => {
@@ -90,6 +93,61 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
     })
 }
 
+function onSelectionChanged (event: { selected: boolean; product: FridgeItemCardInterface }) {
+  if (event.selected) {
+    selectedProducts.value.push(event.product)
+  } else {
+    selectedProducts.value = selectedProducts.value.filter((item) => item.id !== event.product.id)
+  }
+}
+
+async function removeSelectedItems () {
+  const selectedIds = selectedProducts.value.map((item) => item.id)
+  const totalWeight = selectedProducts.value.reduce((sum, item) => sum + item.item.weight, 0)
+  const goNextAxios = ref<boolean>(false)
+  // Remove items from the backend
+  const pathRemove = 'http://localhost:8080/fridge-items/remove-list'
+
+  const request = selectedIds
+
+  await axios.delete(pathRemove, { data: request, headers: config.headers, withCredentials: config.withCredentials })
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log('removed item')
+        products.value = products.value.filter((product) => !selectedIds.includes(product.id))
+        selectedProducts.value = []
+        goNextAxios.value = true
+      }
+    })
+    .catch((error) => {
+      console.log('remove:', error)
+      if (error.response.status === 400) {
+        console.log(error.response.data.message)
+      }
+    })
+
+  products.value = products.value.filter((product) => !selectedIds.includes(product.id))
+  selectedProducts.value = []
+
+  if (goNextAxios.value) {
+    const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
+    await axios.post(pathAddWaste, null, { headers: config.headers, withCredentials: config.withCredentials })
+      .then(async (response) => {
+        if (response.status === 200) {
+          console.log('Added to waste')
+        }
+      })
+      .catch((error) => {
+        console.log('waste', error)
+        if (error.response.status === 600) {
+          userStore.logout()
+        }
+        if (error.response.status === 400) {
+          console.log(error.response)
+        }
+      })
+  }
+}
 </script>
 
 <style scoped>
