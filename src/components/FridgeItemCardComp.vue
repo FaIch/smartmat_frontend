@@ -1,5 +1,5 @@
 <template>
-<div class="card">
+  <div class="card">
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
@@ -20,6 +20,8 @@
         <input
           id="fridge-item-checkbox"
           type="checkbox"
+          v-model="selected"
+          @change="onCheckboxChange"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
@@ -33,8 +35,7 @@
 import { ref } from 'vue'
 import { FridgeItemCardInterface } from './types'
 const edit = ref(true)
-
-const emit = defineEmits(['update'])
+const emit = defineEmits(['update', 'selection-changed'])
 
 const props = defineProps({
   product: {
@@ -44,6 +45,7 @@ const props = defineProps({
 })
 const expirationDate = ref(props.product.expirationDate)
 const quantity = ref(props.product.quantity)
+const selected = ref(false)
 
 const activateEdit = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
@@ -76,6 +78,13 @@ const activateSave = () => {
       quantity: quantity.value
     })
   }
+}
+
+function onCheckboxChange () {
+  emit('selection-changed', {
+    selected: selected.value,
+    product: props.product
+  })
 }
 
 </script>

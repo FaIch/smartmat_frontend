@@ -11,6 +11,10 @@
         <FridgeItemCardComp :product="product" @update="onUpdate"/>
       </div>
     </div>
+    <div class="buttons">
+      <button class="fridge-button">Jeg har spist dette</button>
+      <button class="fridge-button">Jeg har kastet dette</button>
+    </div>
   </div>
 </template>
 
@@ -40,7 +44,6 @@ async function getItemsInFridge () {
     },
     withCredentials: true
   }
-  console.log(userStore.loggedIn)
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -51,6 +54,7 @@ async function getItemsInFridge () {
       }
     })
     .catch((error) => {
+      console.log(error)
       if (error.response.status === 400) {
         console.log('error')
       } else if (error.response.status === 600) {
@@ -59,9 +63,31 @@ async function getItemsInFridge () {
     })
 }
 
-function onUpdate (updatedProduct: FridgeItemCardInterface) {
-  // Handle the updated product data
-  console.log('Updated product:', updatedProduct)
+async function onUpdate (updatedProduct: FridgeItemCardInterface) {
+  const path = 'http://localhost:8080/fridge-items/edit/' + updatedProduct.id
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+
+  await axios.put(path, updatedProduct, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        // You can update the product in the local state here.
+        console.log('success')
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
 }
 
 </script>
@@ -97,5 +123,28 @@ function onUpdate (updatedProduct: FridgeItemCardInterface) {
 .item-cards {
   display: flex;
   justify-content: center;
+}
+
+.fridge-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  margin: 20px;
+  border-radius: 100px;
+  border: none;
+}
+
+.fridge-button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.fridge-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
 }
 </style>

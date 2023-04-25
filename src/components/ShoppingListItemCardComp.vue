@@ -29,8 +29,6 @@
 </template>
 
 <script setup lang="ts">
-
-import { defineProps } from 'vue'
 import { ShoppingListItemCardInterface } from './types'
 
 const productProps = defineProps({
