@@ -19,13 +19,11 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import FridgeItemCardComp from '../components/FridgeItemCardComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
-import axios from 'axios'
-import { useUserStore } from '../stores/UserStore'
-
 import { FridgeItemCardInterface } from '../components/types'
+import { useUserStore } from '../stores/UserStore'
+import axios from 'axios'
 
 const products = ref<FridgeItemCardInterface[]>([])
-
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
 
@@ -49,6 +47,7 @@ async function getItemsInFridge () {
         console.log(response.data)
         products.value = response.data
         console.log('success')
+        products.value = response.data
       }
     })
     .catch((error) => {

@@ -3,14 +3,14 @@
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
-        <h5 class="card-title">{{ itemName }}</h5>
+        <h5 class="card-title">{{ $props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
           <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate" />
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ itemWeight }}</h5>
+        <h5 class="card-title">{{ $props.product.item.weight }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field" :disabled="edit" v-model.number="quantity" id="quantity"/>
@@ -32,11 +32,6 @@
 
 import { ref } from 'vue'
 import { FridgeItemCardInterface } from './types'
-
-const itemName = ref('Steak')
-const expirationDate = ref('2023-05-23')
-const itemWeight = ref('250g')
-const quantity = ref(6)
 const edit = ref(true)
 
 const emit = defineEmits(['update'])
@@ -47,6 +42,8 @@ const props = defineProps({
     required: true
   }
 })
+const expirationDate = ref(props.product.expirationDate)
+const quantity = ref(props.product.quantity)
 
 const activateEdit = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement

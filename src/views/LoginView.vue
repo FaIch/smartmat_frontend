@@ -152,7 +152,7 @@ async function submitLogin () {
 function submitSignup () {
   resetUpdate()
   if (validateSignup()) {
-    const path = 'http://localhost:8080/user'
+    const path = 'http://localhost:8080/user-without-child'
     const hashedPassword = SHA256(signupInput.value.password)
 
     const data = {
