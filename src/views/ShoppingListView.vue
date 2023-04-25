@@ -44,7 +44,7 @@ async function loadProducts () {
   console.log(userStore.loggedIn)
 
   isLoading.value = true
-  const path = 'http://localhost:8080/user/shopping-list-items'
+  const path = 'http://localhost:8080/user/shopping-list/get'
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -91,7 +91,7 @@ const removeProduct = async (product: ShoppingListItemCardInterface) => {
     },
     withCredentials: true
   }
-  const path = `http://localhost:8080/shopping-list/${product.id}`
+  const path = `http://localhost:8080/shopping-list/remove?=${product.id}`
   axios.delete(path, config)
     .then(async (response) => {
       if (response.status === 200) {

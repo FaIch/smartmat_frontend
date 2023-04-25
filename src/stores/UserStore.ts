@@ -12,7 +12,7 @@ export const useUserStore = defineStore('userStore', () => {
 
   // Function for refreshing user token
   async function refreshToken () {
-    const path = 'http://localhost:8080/auth/refreshToken'
+    const path = 'http://localhost:8080/user/auth/refreshToken'
     const config = {
       headers: {
         'Content-Type': 'application/json'

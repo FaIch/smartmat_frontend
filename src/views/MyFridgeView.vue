@@ -44,7 +44,7 @@ onMounted(() => {
 })
 
 async function getItemsInFridge () {
-  const path = 'http://localhost:8080/user/fridge-items'
+  const path = 'http://localhost:8080/fridge/get'
   const config = {
     headers: {
       'Content-Type': 'application/json'
@@ -68,7 +68,7 @@ async function getItemsInFridge () {
 }
 
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
-  const path = 'http://localhost:8080/fridge-items/edit/' + updatedProduct.id
+  const path = 'http://localhost:8080/fridge/edit/' + updatedProduct.id
 
   await axios.put(path, updatedProduct, config)
     .then(async (response) => {
@@ -105,9 +105,8 @@ async function removeSelectedItems () {
   const selectedIds = selectedProducts.value.map((item) => item.id)
   const totalWeight = selectedProducts.value.reduce((sum, item) => sum + item.item.weight, 0)
   const goNextAxios = ref<boolean>(false)
-  // Remove items from the backend
-  const pathRemove = 'http://localhost:8080/fridge-items/remove-list'
 
+  const pathRemove = 'http://localhost:8080/fridge/remove'
   const request = selectedIds
 
   await axios.delete(pathRemove, { data: request, headers: config.headers, withCredentials: config.withCredentials })
@@ -127,18 +126,23 @@ async function removeSelectedItems () {
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
+
   selectedProducts.value = []
+  const wasteRequest = {
+    weight: totalWeight,
+    entryDate: new Date().toISOString().split('T')[0]
+  }
 
   if (goNextAxios.value) {
     const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
-    await axios.post(pathAddWaste, null, { headers: config.headers, withCredentials: config.withCredentials })
+    await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
       .then(async (response) => {
         if (response.status === 200) {
           console.log('Added to waste')
         }
       })
       .catch((error) => {
-        console.log('waste', error)
+        console.log('error waste')
         if (error.response.status === 600) {
           userStore.logout()
         }
