@@ -5,17 +5,17 @@
       <div>
         <h2>Totalt matsvinn </h2>
         <p>{{ totalFoodWaste }} kg</p>
-        <p>Årlig gjennomsnitt per nordmann: {{ averageFoodWaste }}kg</p>
+        <p>Årlig gjennomsnitt per nordmann:<br> {{ averageFoodWaste }}kg</p>
       </div>
       <div>
         <h2>Penger tapt</h2>
         <p>{{ moneyLost }} kr</p>
-        <p>Årlig gjennomsnitt per nordmann: {{ averageMoneyLost }}kr</p>
+        <p>Årlig gjennomsnitt per nordmann:<br> {{ averageMoneyLost }}kr</p>
       </div>
       <div>
         <h2>CO2-ekvivalenter</h2>
         <p>{{ co2Emissions }} kg</p>
-        <p>Årlig gjennomsnitt per nordmann: {{ averageCo2Emissions }}kg</p>
+        <p>Årlig gjennomsnitt per nordmann:<br> {{ averageCo2Emissions }}kg</p>
       </div>
     </div>
   </div>
