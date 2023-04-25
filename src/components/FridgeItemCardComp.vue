@@ -21,7 +21,8 @@
           id="fridge-item-checkbox"
           type="checkbox"
         />
-        <a href="#" class="btn btn-dark">Rediger</a>
+        <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
+        <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
       </div>
     </div>
   </div>
@@ -29,8 +30,14 @@
 
 <script setup lang="ts">
 
-import { defineProps } from 'vue'
+import { defineProps, ref } from 'vue'
 import { FridgeItemCardInterface } from './types'
+
+const expirationDate = ref('expirationDate')
+const quantity = ref(0)
+const edit = ref(true)
+
+const emit = defineEmits(['update'])
 
 const props = defineProps({
   product: {
@@ -38,6 +45,39 @@ const props = defineProps({
     required: true
   }
 })
+
+const activateEdit = () => {
+  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
+  const quantityInput = document.getElementById('quantity') as HTMLInputElement
+
+  expirationDateInput.disabled = false
+  quantityInput.disabled = false
+  expirationDateInput.focus()
+  edit.value = false
+  console.log(props)
+}
+
+const activateSave = () => {
+  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
+  const quantityInput = document.getElementById('quantity') as HTMLInputElement
+
+  expirationDateInput.disabled = true
+  quantityInput.disabled = true
+  edit.value = true
+
+  // Check if the values have been changed
+  if (
+    expirationDate.value !== props.product.expirationDate ||
+    quantity.value !== props.product.quantity
+  ) {
+    // Emit the update event with the updated item data
+    emit('update', {
+      ...props.product,
+      expirationDate: expirationDate.value,
+      quantity: quantity.value
+    })
+  }
+}
 
 </script>
 
@@ -47,6 +87,10 @@ const props = defineProps({
   text-align: left;
   position: absolute;
   bottom: 0;
+}
+
+#expiration-date {
+  width: 120px;
 }
 
 .quantity-div {
@@ -67,6 +111,7 @@ const props = defineProps({
   font-size: 22px;
   font-weight: bold;
 }
+
 .card-text {
   margin: 0;
 }
@@ -78,7 +123,7 @@ const props = defineProps({
 }
 
 #quantity {
-  justify-self: right;
+  justify-self: left;
 }
 
 .card {
@@ -105,24 +150,54 @@ const props = defineProps({
 
 .text-section-one,
 .text-section-two {
-  max-width: 50%;
   position: relative;
   height: 100%;
   align-items: center;
   justify-content: space-between;
 }
 
-.text-section-two {
-  min-width: 20%;
-  text-align: right;
+.text-section-one {
+  min-width: 42%;
+  max-width: 42%;
+  text-align: left;
 }
+
+.text-section-two {
+  min-width: 25%;
+  max-width: 25%;
+  text-align: left;
+}
+
 .text-section-three {
-  width: 60%;
+  width: 30%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
-  padding-right: 15px;
 }
+
+#edit-button {
+  height: 40px;
+  width: 90px;
+}
+
+#save-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 90px;
+}
+
+#save-button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+#edit-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
 </style>

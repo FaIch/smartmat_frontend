@@ -14,6 +14,11 @@ module.exports = {
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-undef': ['error', { typeof: true }]
+  },
+  globals: {
+    defineProps: 'readonly',
+    defineEmits: 'readonly'
   }
 }

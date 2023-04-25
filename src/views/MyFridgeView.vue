@@ -9,7 +9,7 @@
       <SearchBarComp id="search-bar"/>
       <div class="product-table" v-for="product in products" :key="product.id">
         <div class="item-cards">
-            <FridgeItemCardComp :product="product" />
+            <FridgeItemCardComp :product="product" @update="onUpdate"/>
           </div>
       </div>
     </div>
@@ -32,7 +32,6 @@ const products = ref<FridgeItemCardInterface[]>([])
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
   getItemsInFridge()
-  userStore.loggedIn = true
 })
 
 async function getItemsInFridge () {
@@ -47,6 +46,8 @@ async function getItemsInFridge () {
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
+        console.log(response.data)
+        products.value = response.data
         console.log('success')
         products.value = response.data
       }
@@ -58,6 +59,11 @@ async function getItemsInFridge () {
         userStore.logout()
       }
     })
+}
+
+function onUpdate (updatedProduct: FridgeItemCardInterface) {
+  // Handle the updated product data
+  console.log('Updated product:', updatedProduct)
 }
 
 </script>
