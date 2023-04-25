@@ -3,6 +3,7 @@
     <h1>Product List</h1>
     <div v-if="isLoading">Loading...</div>
     <div v-else>
+      <button @click="sendToFridge">Send to fridge</button>
       <button @click="showAddForm = true">Add Item</button>
       <div v-if="showAddForm">
         <input type="number" v-model="newItem.quantity" placeholder="Quantity" />
@@ -11,7 +12,11 @@
       </div>
       <SearchBarComp id="search-bar" />
       <div class="product-table" v-for="product in products" :key="product.id">
-        <ShoppingListItemCardComp :product="product" v-on:remove="removeProduct(product)"/>
+        <ShoppingListItemCardComp
+        :product="product"
+        :checked="checkedProducts[product.id] || false"
+        @checked-changed="updateCheckedStatus(product.id, $event)"
+        v-on:remove="removeProduct(product)"/>
       </div>
     </div>
   </div>
@@ -32,6 +37,14 @@ const showAddForm = ref(false)
 const newItem = ref({ id: 0, quantity: 0 })
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
+
+const checkedProducts = ref<{ [key: number]: boolean }>({})
+const updateCheckedStatus = (id: number, checked: boolean) => {
+  checkedProducts.value[id] = checked
+}
+const getCheckedProducts = () => {
+  return products.value.filter((product) => checkedProducts.value[product.id])
+}
 
 async function loadProducts () {
   const config = {
@@ -91,7 +104,7 @@ const removeProduct = async (product: ShoppingListItemCardInterface) => {
     },
     withCredentials: true
   }
-  const path = `http://localhost:8080/shopping-list/${product.id}`
+  const path = `http://localhost:8080/shopping-list-items/${product.id}`
   axios.delete(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -101,6 +114,33 @@ const removeProduct = async (product: ShoppingListItemCardInterface) => {
     .catch((error) => {
       console.error(error)
     })
+}
+
+const sendToFridge = async () => {
+  const checkedProductsData = getCheckedProducts().map((product) => ({
+    itemId: product.item.id,
+    quantity: product.quantity,
+    expirationDate: '2023-05-01'
+  }))
+
+  console.log(checkedProductsData)
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+
+  const path = 'http://localhost:8080/fridge/add-list'
+  try {
+    const response = await axios.post(path, checkedProductsData, config)
+    if (response.status === 200) {
+      console.log('Checked products data sent successfully:', response.data)
+    }
+  } catch (error) {
+    console.error('Error sending checked products data:', error)
+  }
 }
 
 onMounted(() => {

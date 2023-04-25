@@ -21,6 +21,8 @@
         <input
           id="shopping-list-item-checkbox"
           type="checkbox"
+          :checked="checked"
+          @change="$emit('checked-changed', $event.target.checked)"
         />
       </div>
       <button @click="$emit('remove', productProps.product)">Remove</button>
@@ -37,6 +39,10 @@ const productProps = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
+  },
+  checked: {
+    type: Boolean,
+    default: false
   }
 })
 

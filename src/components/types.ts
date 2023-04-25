@@ -8,6 +8,12 @@ export interface ItemInterface {
     weight: number;
 }
 
+export interface ItemDisplayInterface {
+    id: number;
+    name: string;
+    image: string;
+}
+
 export interface ShoppingListItemCardInterface {
     id: number;
     item: ItemInterface;
