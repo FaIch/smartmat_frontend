@@ -20,9 +20,9 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
-import { useUserStore } from '@/stores/UserStore'
+// import { useUserStore } from '@/stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
-const userStore = useUserStore()
+// const userStore = useUserStore()
 const utilityStore = useUtilityStore()
 const recipes = ref<RecipeCardInterface[]>([])
 
@@ -38,7 +38,7 @@ async function getRecipies () {
     },
     withCredentials: true
   }
-  console.log(userStore.loggedIn)
+  // console.log(userStore.loggedIn)
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -50,7 +50,7 @@ async function getRecipies () {
       if (error.response.status === 400) {
         console.log('error')
       } else if (error.response.status === 600) {
-        userStore.logOut()
+        // userStore.logOut()
       }
     })
 }
