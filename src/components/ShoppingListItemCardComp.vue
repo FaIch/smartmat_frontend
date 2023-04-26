@@ -3,19 +3,19 @@
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one" id="shopping-list-section-one">
-        <h5 class="card-title">{{ itemName }}</h5>
+        <h5 class="card-title">{{ productProps.product.item.name }}</h5>
         <div class="shopping-list-quantity-div">
           <img
             src="../assets/icons/remove.svg"
             />
-          <input class="input-field" :disabled="true" :placeholder="quantity" id="shopping-list-quantity"/>
+          <input class="input-field" :disabled="true" :placeholder="'Hello'" id="shopping-list-quantity"/>
           <img
             src="../assets/icons/add.svg"
             />
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title" id="shopping-list-item-unit">{{ itemUnit }}</h5>
+        <h5 class="card-title" id="shopping-list-item-unit">{{ productProps.product.quantity }}</h5>
       </div>
       <div class="text-section-three" id="shopping-list-check">
         <input
@@ -23,17 +23,26 @@
           type="checkbox"
         />
       </div>
+      <button @click="$emit('remove', productProps.product)">Remove</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ShoppingListItemCardInterface } from './types'
 
-import { ref } from 'vue'
+const productProps = defineProps({
+  product: {
+    type: Object as () => ShoppingListItemCardInterface,
+    required: true
+  }
+})
 
-const itemName = ref('Karbonadedeig')
-const itemUnit = ref('400g')
-const quantity = ref('4')
+// const props = defineEmits(['remove'])
+
+// const removeProduct = () => {
+//   props.remove(product)
+// }
 
 </script>
 

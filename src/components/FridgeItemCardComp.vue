@@ -1,16 +1,16 @@
 <template>
-<div class="card">
+  <div class="card">
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
-        <h5 class="card-title">{{ itemName }}</h5>
+        <h5 class="card-title">{{ $props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
           <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate" />
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ itemWeight }}</h5>
+        <h5 class="card-title">{{ $props.product.item.weight }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field" :disabled="edit" v-model.number="quantity" id="quantity"/>
@@ -20,6 +20,8 @@
         <input
           id="fridge-item-checkbox"
           type="checkbox"
+          v-model="selected"
+          @change="onCheckboxChange"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
@@ -30,16 +32,10 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { FridgeItemCardInterface } from './types'
-
-const itemName = ref('Steak')
-const expirationDate = ref('2023-05-23')
-const itemWeight = ref('250g')
-const quantity = ref(6)
 const edit = ref(true)
-
-const emit = defineEmits(['update'])
+const emit = defineEmits(['update', 'selection-changed'])
 
 const props = defineProps({
   product: {
@@ -47,6 +43,9 @@ const props = defineProps({
     required: true
   }
 })
+const expirationDate = ref(props.product.expirationDate)
+const quantity = ref(props.product.quantity)
+const selected = ref(false)
 
 const activateEdit = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
@@ -80,6 +79,24 @@ const activateSave = () => {
     })
   }
 }
+
+function onCheckboxChange () {
+  emit('selection-changed', {
+    selected: selected.value,
+    product: props.product
+  })
+}
+
+watch(
+  () => props.product,
+  (newProduct, oldProduct) => {
+    if (newProduct !== oldProduct) {
+      expirationDate.value = newProduct.expirationDate
+      quantity.value = newProduct.quantity
+    }
+  },
+  { deep: true }
+)
 
 </script>
 
