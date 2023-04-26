@@ -10,12 +10,13 @@
         </div>
         <div class="form-group">
           <label for="mobileNumber">Mobile Number</label>
-          <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Your mobile number">
-          <p v-if="phoneNumberUpdated" class="success-message">Phone number updated!</p>
+          <div class="checkmarkPosition">
+            <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Your mobile number">
+            <img v-if="phoneNumberUpdated" class="success-message" src="../assets/Checkmark.png">
+          </div>
         </div>
       </fieldset>
       <fieldset class="row">
-        <legend>About You</legend>
         <div class="form-group">
           <label for="firstname">First Name</label>
           <input id="firstname" type="text" name="firstname" autocomplete="given-name" placeholder="Your first name">
@@ -28,8 +29,10 @@
       <fieldset class="row">
         <div class="form-group">
           <label for="address">Address</label>
-          <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Your address">
-          <p v-if="addressUpdated" class="success-message">Address updated!</p>
+          <div class="checkmarkPosition">
+            <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Your address">
+            <img v-if="addressUpdated" class="success-message" src="../assets/Checkmark.png">
+          </div>
         </div>
         <div class="form-group">
           <label for="postalCode">Postal Code</label>
@@ -37,7 +40,7 @@
         </div>
       </fieldset>
       <div class="submit-button">
-        <button type="submit">Save Changes</button>
+        <button id="submit-button" type="submit">Save Changes</button>
       </div>
     </form>
   </div>
@@ -141,6 +144,7 @@ defineExpose({
 </script>
 
 <style>
+
 .container {
   display: flex;
   flex-direction: column;
@@ -151,22 +155,29 @@ defineExpose({
   max-width: 600px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
-  padding-top: 300px;
+  padding-top: 150px;
+  background-image: url("../assets/startpagebackground3.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .row {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-right: 10px;
   border: none;
+  margin-left: 40px;
+  margin-right: 40px;
+  flex: 1;
   margin-bottom: 20px;
 }
 
@@ -176,6 +187,7 @@ h1 {
 }
 
 legend {
+  color: white;
   font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 10px;
@@ -186,6 +198,7 @@ legend {
 }
 
 label {
+  color: white;
   display: block;
   margin-bottom: 5px;
 }
@@ -207,22 +220,31 @@ input {
   display: inline-block;
 }
 
-button {
+#submit-button {
   color: #fff;
   background: #25A13A;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 10px 20px;
   cursor: pointer;
 }
 
-button:hover {
+#submit-button:hover {
   color: #1A7028;
   background: white;
 }
 
 .success-message {
-  color: #1A7028;
+  color: white;
+  margin-left: 10px;
   margin-top: 5px;
+  max-height: 30px;
+  max-width: 30px;
 }
+
+.checkmarkPosition {
+  display: flex;
+  flex-direction: row;
+}
+
 </style>
