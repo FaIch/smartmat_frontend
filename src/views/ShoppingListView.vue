@@ -60,7 +60,7 @@ async function loadProducts () {
   console.log(userStore.loggedIn)
 
   isLoading.value = true
-  const path = 'http://localhost:8080/user/shopping-list/get'
+  const path = 'http://localhost:8080/shopping-list/get'
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -135,7 +135,7 @@ const removeAll = async () => {
     }
   }
 
-  const path = 'http://localhost:8080/shopping-list-items/delete-list'
+  const path = 'http://localhost:8080/shopping-list/remove'
   try {
     const response = await axios.delete(path, config)
     if (response.status === 200) {
@@ -163,7 +163,7 @@ const sendToFridge = async () => {
     withCredentials: true
   }
 
-  const path = 'http://localhost:8080/fridge/add-list'
+  const path = 'http://localhost:8080/fridge/add'
   try {
     const response = await axios.post(path, checkedProductsData, config)
     if (response.status === 200) {

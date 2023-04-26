@@ -31,7 +31,7 @@ const addToFridge = async () => {
     withCredentials: true
   }
 
-  const path = 'http://localhost:8080/fridge/add-list'
+  const path = 'http://localhost:8080/fridge/add'
   try {
     const response = await axios.post(path, checkedProductsData, config)
     if (response.status === 200) {
@@ -64,7 +64,7 @@ const addToShoppingList = async () => {
     withCredentials: true
   }
 
-  const path = 'http://localhost:8080/shopping-list/add-list'
+  const path = 'http://localhost:8080/shopping-list/add'
   try {
     const response = await axios.post(path, checkedProductsData, config)
     if (response.status === 200) {

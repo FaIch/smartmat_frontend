@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 
-import { defineProps, ref } from 'vue'
+import { defineProps, ref, watch } from 'vue'
 import { FridgeItemCardInterface } from './types'
 
 const edit = ref(true)
@@ -81,23 +81,23 @@ const activateSave = () => {
   }
 }
 
-// function onCheckboxChange () {
-//   emit('selection-changed', {
-//     selected: selected.value,
-//     product: props.product
-//   })
-// }
+function onCheckboxChange () {
+  emit('selection-changed', {
+    selected: selected.value,
+    product: props.product
+  })
+}
 
-// watch(
-//   () => props.product,
-//   (newProduct, oldProduct) => {
-//     if (newProduct !== oldProduct) {
-//       expirationDate.value = newProduct.expirationDate
-//       quantity.value = newProduct.quantity
-//     }
-//   },
-//   { deep: true }
-// )
+watch(
+  () => props.product,
+  (newProduct, oldProduct) => {
+    if (newProduct !== oldProduct) {
+      expirationDate.value = newProduct.expirationDate
+      quantity.value = newProduct.quantity
+    }
+  },
+  { deep: true }
+)
 
 </script>
 
