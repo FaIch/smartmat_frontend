@@ -4,25 +4,34 @@
     <SearchBarComp /> Modify search bar for recipe view
     <div class="recipe-row">
       <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe" />
+      <div class="recipe-details">
+        <h2 class="recipe-title"><b> {{  recipe.name }} </b></h2>
+<!--        <h4 class="recipe-comment">{{ dishComment }}</h4>-->
+        <!--<p class="recipe-time-and-info">{{ dishTime }}, {{ missingIngredients }}</p>-->
+        <button class="recipe-button">Gå til oppskrift</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-/*
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '@/stores/UserStore'
-
+import { RecipeCardInterface } from '../components/types'
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
-const recipes = ref([])
+const recipes = ref<RecipeCardInterface[]>([])
 
+onMounted(() => {
+  utilityStore.setTransparentStatus(false)
+  getRecipies()
+})
 async function getRecipies () {
-  const path = 'https://localhost:8080/recipe/list'
+  const path = 'https://localhost:8080/recipe/sorted-by-fridge'
   const config = {
     headers: {
       'Content-Type': 'application/json'
@@ -34,10 +43,7 @@ async function getRecipies () {
     .then(async (response) => {
       if (response.status === 200) {
         console.log('success')
-        axios.get('https://localhost:8080/recipe/list', { headers: { Authorization: 'Bearer ' + userStore.token } })
-          .then(response => response.data)
-          .then(data => recipes.value = data)
-          .catch(error => console.log(error))
+        response.data = recipes
       }
     })
     .catch((error) => {
@@ -48,11 +54,6 @@ async function getRecipies () {
       }
     })
 }
-
-onMounted(() => {
-  utilityStore.setTransparentStatus(false)
-  getRecipies()
-}) */
 </script>
 
 <style scoped>

@@ -25,3 +25,10 @@ export interface FridgeItemCardInterface {
   quantity: number;
   expirationDate: string;
 }
+export interface RecipeCardInterface {
+  id: number;
+  name: string;
+  description:string;
+  numbersOfItemRecipe: number;
+  numbersOfItemFridge: number;
+}
