@@ -3,17 +3,22 @@
     <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
-        <h5 class="card-title">{{ $props.product.item.name }}</h5>
+        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
           <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate" />
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ $props.product.item.weight }}</h5>
+        <h5 class="card-title">{{ props.product.item.weight }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
-          <input class="input-field" :disabled="edit" v-model.number="quantity" id="quantity"/>
+          <input class="input-field"
+            :disabled="edit"
+            v-model.number="quantity"
+            id="quantity"
+            ref="expirationDateInput"
+          />
         </div>
       </div>
       <div class="text-section-three">
@@ -22,6 +27,7 @@
           type="checkbox"
           v-model="selected"
           @change="onCheckboxChange"
+          ref="quantityInput"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
@@ -32,8 +38,9 @@
 
 <script setup lang="ts">
 
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface } from './types'
+
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed'])
 
@@ -43,28 +50,32 @@ const props = defineProps({
     required: true
   }
 })
+
+const titleFontSize = computed(() => {
+  const length = props.product.item.name.length
+  if (length <= 10) {
+    return '1.8rem'
+  } else if (length <= 20) {
+    return '1.2rem'
+  } else {
+    return '1rem' // Smallest font size
+  }
+})
+
 const expirationDate = ref(props.product.expirationDate)
 const quantity = ref(props.product.quantity)
 const selected = ref(false)
+const expirationDateInput = ref<HTMLInputElement | null>(null)
+const quantityInput = ref<HTMLInputElement | null>(null)
 
 const activateEdit = () => {
-  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
-  const quantityInput = document.getElementById('quantity') as HTMLInputElement
-
-  expirationDateInput.disabled = false
-  quantityInput.disabled = false
-  expirationDateInput.focus()
+  if (!expirationDateInput.value || !quantityInput.value) {
+    return
+  }
+  expirationDateInput.value.disabled = false
+  quantityInput.value.disabled = false
+  expirationDateInput.value.focus()
   edit.value = false
-}
-
-const validateExpirationDate = (date: string) => {
-  const currentDate = normalizeDate(new Date())
-  const inputDate = normalizeDate(new Date(date))
-  return inputDate >= currentDate
-}
-
-const normalizeDate = (date: Date) => {
-  return new Date(date.setHours(0, 0, 0, 0))
 }
 
 const validateQuantity = (quantity: number) => {
@@ -72,18 +83,10 @@ const validateQuantity = (quantity: number) => {
 }
 
 const activateSave = () => {
-  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
-  const quantityInput = document.getElementById('quantity') as HTMLInputElement
-
-  const isExpirationDateValid = validateExpirationDate(expirationDate.value)
-  const isQuantityValid = validateQuantity(quantity.value)
-
-  if (!isExpirationDateValid) {
-    expirationDate.value = props.product.expirationDate
-    quantity.value = props.product.quantity
-    alert('Ugyldig dato.')
+  if (!expirationDateInput.value || !quantityInput.value) {
     return
   }
+  const isQuantityValid = validateQuantity(quantity.value)
 
   if (!isQuantityValid) {
     expirationDate.value = props.product.expirationDate
@@ -92,8 +95,8 @@ const activateSave = () => {
     return
   }
 
-  expirationDateInput.disabled = true
-  quantityInput.disabled = true
+  expirationDateInput.value.disabled = true
+  quantityInput.value.disabled = true
   edit.value = true
 
   // Check if the values have been changed
@@ -197,6 +200,7 @@ watch(
   display: flex;
   padding: 30px 0 30px 0;
   align-items: center;
+  height: 160px;
 }
 
 .text-section-one,
