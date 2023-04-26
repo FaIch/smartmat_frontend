@@ -9,8 +9,8 @@
   </template>
 
 <script setup lang="ts">
-import PlusButton from '@/components/PlusButton.vue'
-import ProductSelectorView from '@/views/ProductSelectorView.vue'
+import PlusButton from '../components/PlusButton.vue'
+import ProductSelectorView from '../views/ProductSelectorView.vue'
 import { ref } from 'vue'
 
 const showProductSelector = ref(false)

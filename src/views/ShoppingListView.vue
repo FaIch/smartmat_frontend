@@ -32,7 +32,7 @@ import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue
 import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
-import ProductSelectorButton from '@/components/ProductSelectorButton.vue'
+import ProductSelectorButton from '../components/ProductSelectorButton.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
