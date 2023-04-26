@@ -20,6 +20,8 @@
         <input
           id="fridge-item-checkbox"
           type="checkbox"
+          v-model="selected"
+          @change="onCheckboxChange"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
@@ -33,10 +35,7 @@
 import { defineProps, ref } from 'vue'
 import { FridgeItemCardInterface } from './types'
 
-const expirationDate = ref('expirationDate')
-const quantity = ref(0)
 const edit = ref(true)
-
 const emit = defineEmits(['update'])
 
 const props = defineProps({
@@ -45,6 +44,9 @@ const props = defineProps({
     required: true
   }
 })
+const expirationDate = ref(props.product.expirationDate)
+const quantity = ref(props.product.quantity)
+const selected = ref(false)
 
 const activateEdit = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
@@ -78,6 +80,24 @@ const activateSave = () => {
     })
   }
 }
+
+// function onCheckboxChange () {
+//   emit('selection-changed', {
+//     selected: selected.value,
+//     product: props.product
+//   })
+// }
+
+// watch(
+//   () => props.product,
+//   (newProduct, oldProduct) => {
+//     if (newProduct !== oldProduct) {
+//       expirationDate.value = newProduct.expirationDate
+//       quantity.value = newProduct.quantity
+//     }
+//   },
+//   { deep: true }
+// )
 
 </script>
 

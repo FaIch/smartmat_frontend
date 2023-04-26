@@ -120,7 +120,7 @@ function validateSignup () {
 async function submitLogin () {
   resetUpdate()
   if (validateLogin()) {
-    const path = 'http://localhost:8080/login'
+    const path = 'http://localhost:8080/user/login'
     const hashedPassword = SHA256(loginInputs.value.password)
     const request = {
       email: loginInputs.value.email,
@@ -152,7 +152,7 @@ async function submitLogin () {
 function submitSignup () {
   resetUpdate()
   if (validateSignup()) {
-    const path = 'http://localhost:8080/user-without-child'
+    const path = 'http://localhost:8080/user/create'
     const hashedPassword = SHA256(signupInput.value.password)
 
     const data = {
@@ -174,6 +174,8 @@ function submitSignup () {
       }
     }).catch((error) => {
       if (error.response.status === 400) {
+        update.value = error.response.data
+      } else if (error.response.status === 409) {
         update.value = error.response.data
       }
     })

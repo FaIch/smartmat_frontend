@@ -7,11 +7,13 @@
     </div>
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
-      <div class="product-table" v-for="product in products" :key="product.id">
-        <div class="item-cards">
-            <FridgeItemCardComp :product="product" @update="onUpdate"/>
-          </div>
+      <div class="item-cards" v-for="product in products" :key="product.id">
+        <FridgeItemCardComp :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
       </div>
+    </div>
+    <div class="buttons">
+      <button class="fridge-button">Jeg har spist dette</button>
+      <button class="fridge-button" @click="removeSelectedItems">Jeg har kastet dette</button>
     </div>
   </div>
 </template>
@@ -25,9 +27,16 @@ import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 
-const utilityStore = useUtilityStore()
-const userStore = useUserStore()
 const products = ref<FridgeItemCardInterface[]>([])
+const selectedProducts = ref<FridgeItemCardInterface[]>([])
+const userStore = useUserStore()
+const utilityStore = useUtilityStore()
+const config = {
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  withCredentials: true
+}
 
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
@@ -35,24 +44,21 @@ onMounted(() => {
 })
 
 async function getItemsInFridge () {
-  const path = 'http://localhost:8080/user/fridge-items'
+  const path = 'http://localhost:8080/fridge/get'
   const config = {
     headers: {
       'Content-Type': 'application/json'
     },
     withCredentials: true
   }
-  console.log(userStore.loggedIn)
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
-        products.value = response.data
-        console.log('success')
         products.value = response.data
       }
     })
     .catch((error) => {
+      console.log(error)
       if (error.response.status === 400) {
         console.log('error')
       } else if (error.response.status === 600) {
@@ -61,11 +67,91 @@ async function getItemsInFridge () {
     })
 }
 
-function onUpdate (updatedProduct: FridgeItemCardInterface) {
-  // Handle the updated product data
-  console.log('Updated product:', updatedProduct)
+async function onUpdate (updatedProduct: FridgeItemCardInterface) {
+  const path = 'http://localhost:8080/fridge/edit/' + updatedProduct.id
+
+  await axios.put(path, updatedProduct, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log('success')
+        const index = products.value.findIndex(
+          (product) => product.id === updatedProduct.id
+        )
+        if (index !== -1) {
+          products.value[index] = updatedProduct
+          products.value = [...products.value]
+        }
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
 }
 
+function onSelectionChanged (event: { selected: boolean; product: FridgeItemCardInterface }) {
+  if (event.selected) {
+    selectedProducts.value.push(event.product)
+  } else {
+    selectedProducts.value = selectedProducts.value.filter((item) => item.id !== event.product.id)
+  }
+}
+
+async function removeSelectedItems () {
+  const selectedIds = selectedProducts.value.map((item) => item.id)
+  const totalWeight = selectedProducts.value.reduce((sum, item) => sum + item.item.weight, 0)
+  const goNextAxios = ref<boolean>(false)
+
+  const pathRemove = 'http://localhost:8080/fridge/remove'
+  const request = selectedIds
+
+  await axios.delete(pathRemove, { data: request, headers: config.headers, withCredentials: config.withCredentials })
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log('removed item')
+        products.value = products.value.filter((product) => !selectedIds.includes(product.id))
+        selectedProducts.value = []
+        goNextAxios.value = true
+      }
+    })
+    .catch((error) => {
+      console.log('remove:', error)
+      if (error.response.status === 400) {
+        console.log(error.response.data.message)
+      }
+    })
+
+  products.value = products.value.filter((product) => !selectedIds.includes(product.id))
+
+  selectedProducts.value = []
+  const wasteRequest = {
+    weight: totalWeight,
+    entryDate: new Date().toISOString().split('T')[0]
+  }
+
+  if (goNextAxios.value) {
+    const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
+    await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
+      .then(async (response) => {
+        if (response.status === 200) {
+          console.log('Added to waste')
+        }
+      })
+      .catch((error) => {
+        console.log('error waste')
+        if (error.response.status === 600) {
+          userStore.logout()
+        }
+        if (error.response.status === 400) {
+          console.log(error.response)
+        }
+      })
+  }
+}
 </script>
 
 <style scoped>
@@ -101,4 +187,26 @@ function onUpdate (updatedProduct: FridgeItemCardInterface) {
   justify-content: center;
 }
 
+.fridge-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  margin: 20px;
+  border-radius: 100px;
+  border: none;
+}
+
+.fridge-button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.fridge-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
 </style>

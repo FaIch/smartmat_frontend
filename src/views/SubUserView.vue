@@ -51,7 +51,7 @@ const config = {
 
 async function fetchUsers () {
   try {
-    const response = await axios.get('http://localhost:8080/user/getSubUsers', config)
+    const response = await axios.get('http://localhost:8080/user/sub-user/get', config)
     users.value = response.data
     console.log(response.data)
   } catch (error) {
