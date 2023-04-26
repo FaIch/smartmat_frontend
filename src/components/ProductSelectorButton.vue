@@ -21,7 +21,7 @@ const toggleProductSelector = () => {
   showProductSelector.value = !showProductSelector.value
   console.log(showProductSelector.value)
 }
-
+// eslint-disable-next-line
 const handleSelect = (productId: number) => {
   // Handle the selected product ID here, e.g., close the popup
   showProductSelector.value = false

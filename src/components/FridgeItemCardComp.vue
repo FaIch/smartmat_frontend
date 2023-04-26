@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ props.product.item.weight }}</h5>
+        <h5 class="card-title">{{ props.product.item.baseAmount }} + {{ props.product.item.unit }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field" :disabled="true" :placeholder="quantity" id="quantity"/>

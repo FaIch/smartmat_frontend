@@ -103,7 +103,7 @@ function onSelectionChanged (event: { selected: boolean; product: FridgeItemCard
 
 async function removeSelectedItems () {
   const selectedIds = selectedProducts.value.map((item) => item.id)
-  const totalWeight = selectedProducts.value.reduce((sum, item) => sum + item.item.weight, 0)
+  const totalWeight = selectedProducts.value.reduce((sum, item) => sum + item.item.weightPerUnit, 0)
   const goNextAxios = ref<boolean>(false)
 
   const pathRemove = 'http://localhost:8080/fridge/remove'
