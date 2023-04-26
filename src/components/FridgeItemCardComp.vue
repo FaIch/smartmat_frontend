@@ -58,9 +58,40 @@ const activateEdit = () => {
   console.log(props)
 }
 
+const validateExpirationDate = (date: string) => {
+  const currentDate = normalizeDate(new Date())
+  const inputDate = normalizeDate(new Date(date))
+  return inputDate >= currentDate
+}
+
+const normalizeDate = (date: Date) => {
+  return new Date(date.setHours(0, 0, 0, 0))
+}
+
+const validateQuantity = (quantity: number) => {
+  return quantity > 0
+}
+
 const activateSave = () => {
   const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
   const quantityInput = document.getElementById('quantity') as HTMLInputElement
+
+  const isExpirationDateValid = validateExpirationDate(expirationDate.value)
+  const isQuantityValid = validateQuantity(quantity.value)
+
+  if (!isExpirationDateValid) {
+    expirationDate.value = props.product.expirationDate
+    quantity.value = props.product.quantity
+    alert('Ugyldig dato.')
+    return
+  }
+
+  if (!isQuantityValid) {
+    expirationDate.value = props.product.expirationDate
+    quantity.value = props.product.quantity
+    alert('Ugyldig antall.')
+    return
+  }
 
   expirationDateInput.disabled = true
   quantityInput.disabled = true
@@ -133,6 +164,8 @@ watch(
 
 .card-text {
   margin: 0;
+  padding: 0;
+  color: black;
 }
 
 .input-field {
