@@ -6,6 +6,7 @@ import ShoppingListView from '../views/ShoppingListView.vue'
 import SubUserView from '../views/SubUserView.vue'
 import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
+import RecipeSuggestionsView from '../views/RecipeSuggestionsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -42,6 +43,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/savings',
     name: 'savings',
     component: SavingsOverview
+  },
+  {
+    path: '/recipesuggestions',
+    name: 'recipesuggestions',
+    component: RecipeSuggestionsView
   }
 ]
 
