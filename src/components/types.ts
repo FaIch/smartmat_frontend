@@ -42,6 +42,16 @@ export interface RecipeCardInterface {
     numberOfItemsFridge: number;
 }
 
+export interface RecipeInterface {
+    id: number;
+    name: string;
+    image: string;
+    ingredients: string[];
+    instructions: string[];
+    estimated_time: string;
+    numberOfItemsFridge: number;
+    numberOfItemsRecipe: number;
+}
 export interface User {
     id: number;
 }

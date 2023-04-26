@@ -11,7 +11,7 @@
           <img class="recipe-image" :src="'data:image/png;base64,' + recipe.image" alt="">
           <h4 class="recipe-comment">{{ recipe.estimated_time }}</h4>
           <h5 class="recipe-comment">{{ recipe.numberOfItemsFridge }} / {{recipe.numberOfItemsRecipe}}</h5>
-          <button class="recipe-button">Gå til oppskrift</button>
+          <button @click="goToAboutRecipeView(recipe.id)">Se oppskrift</button>
         </div>
         </div>
     </div>
@@ -21,12 +21,14 @@
 
 <script setup lang="ts">
 // import RecipeCardComp from '../components/RecipeCardComp.vue'
+// import AboutRecipeView from '../views/AboutRecipeView.vue'
 import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
+import router from '../router/index'
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
 const recipes = ref<RecipeCardInterface[]>([])
@@ -58,6 +60,9 @@ async function getRecipies () {
         userStore.logout()
       }
     })
+}
+function goToAboutRecipeView (id: number) {
+  router.push('/aboutRecipe')
 }
 </script>
 
