@@ -22,7 +22,7 @@
 <script setup lang="ts">
 // import RecipeCardComp from '../components/RecipeCardComp.vue'
 import SearchBarComp from '../components/SearchBarComp.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
@@ -34,7 +34,13 @@ const recipes = ref<RecipeCardInterface[]>([])
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
   getRecipies()
+  getItemsInFridge()
 })
+
+onUnmounted(() => {
+  recipes.value = []
+})
+
 async function getRecipies () {
   const path = 'http://localhost:8080/recipe/sorted-by-fridge'
   const config = {
@@ -52,6 +58,30 @@ async function getRecipies () {
       }
     })
     .catch((error) => {
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
+}
+
+async function getItemsInFridge () {
+  const path = 'http://localhost:8080/fridge/get'
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+  await axios.get(path, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log(response.data)
+      }
+    })
+    .catch((error) => {
+      console.log(error)
       if (error.response.status === 400) {
         console.log('error')
       } else if (error.response.status === 600) {
