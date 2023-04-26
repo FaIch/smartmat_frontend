@@ -3,8 +3,10 @@
     <h1>Product List</h1>
     <div v-if="isLoading">Loading...</div>
     <div v-else>
+      <ProductSelectorButton></ProductSelectorButton>
       <button @click="sendToFridge">Send to fridge</button>
       <button @click="showAddForm = true">Add Item</button>
+      <button @click="removeAll">Remove Selected</button>
       <div v-if="showAddForm">
         <input type="number" v-model="newItem.quantity" placeholder="Quantity" />
         <input type="number" v-model="newItem.id" placeholder="Id" />
@@ -30,6 +32,7 @@ import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue
 import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
+import ProductSelectorButton from '@/components/ProductSelectorButton.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
@@ -77,19 +80,21 @@ async function addItem () {
     headers: {
       'Response-type': 'application/json'
     },
-    withCredentials: true,
-    params: {
-      id: newItem.value.id,
-      quantity: newItem.value.quantity
-    }
+    withCredentials: true
+  }
+  const data = {
+    itemId: newItem.value.id,
+    quantity: newItem.value.quantity
   }
   const path = 'http://localhost:8080/shopping-list/add'
-  axios.post(path, null, config)
+  await axios.post(path, data, config)
     .then(async (response) => {
       if (response.status === 200) {
+        console.log(response.data)
         products.value.push(response.data)
         newItem.value = { id: 0, quantity: 0 }
         showAddForm.value = false
+        loadProducts()
       }
     })
     .catch((error) => {
@@ -116,6 +121,32 @@ const removeProduct = async (product: ShoppingListItemCardInterface) => {
     })
 }
 
+const removeAll = async () => {
+  const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
+  console.log(checkedProductsData)
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true,
+    params: {
+      shoppingListItemIds: checkedProductsData.value.join(',')
+    }
+  }
+
+  const path = 'http://localhost:8080/shopping-list-items/delete-list'
+  try {
+    const response = await axios.delete(path, config)
+    if (response.status === 200) {
+      console.log('Checked products data sent successfully:', response.data)
+      loadProducts()
+    }
+  } catch (error) {
+    console.error('Error sending checked products data:', error)
+  }
+}
+
 const sendToFridge = async () => {
   const checkedProductsData = getCheckedProducts().map((product) => ({
     itemId: product.item.id,
@@ -137,6 +168,7 @@ const sendToFridge = async () => {
     const response = await axios.post(path, checkedProductsData, config)
     if (response.status === 200) {
       console.log('Checked products data sent successfully:', response.data)
+      removeAll()
     }
   } catch (error) {
     console.error('Error sending checked products data:', error)

@@ -6,7 +6,8 @@
           v-for="product in displayedProducts"
           :key="product.id"
           class="grid-item"
-          @click="$emit('product-selected', product.id)"
+          @click="toggleProductSelection(product.id)"
+          :class="{ selected: selectedProducts.includes(product.id) }"
         >
           <img :src="product.image" :alt="product.name" />
           <div>{{ product.name }}</div>
@@ -30,6 +31,8 @@ const products = ref<ItemDisplayInterface[]>([])
 const searchQuery = ref('')
 const itemsPerPage = 20
 const currentPage = ref(1)
+const selectedProducts = ref<number[]>([])
+const emits = defineEmits(['update-selected-products'])
 
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage))
 
@@ -45,6 +48,17 @@ const displayedProducts = computed(() => {
   const endIndex = startIndex + itemsPerPage
   return filteredProducts.value.slice(startIndex, endIndex)
 })
+
+function toggleProductSelection (productId: number) {
+  const index = selectedProducts.value.indexOf(productId)
+  if (index >= 0) {
+    selectedProducts.value.splice(index, 1)
+  } else {
+    selectedProducts.value.push(productId)
+  }
+  // Emit the updated selectedProducts array to the parent component
+  emits('update-selected-products', selectedProducts.value)
+}
 
 async function fetchProducts () {
   const config = {
@@ -75,7 +89,7 @@ function previousPage () {
   }
 }
 
-function searchProducts (query) {
+function searchProducts (query: string) {
   searchQuery.value = query
   currentPage.value = 1
 }
@@ -92,15 +106,17 @@ onMounted(fetchProducts)
   }
 
   .grid-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    padding: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    transition: background-color 0.2s;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 250px; /* Set a fixed height for the grid item */
+  cursor: pointer;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
 
   .grid-item:hover {
     background-color: rgba(0, 0, 0, 0.05);
@@ -126,5 +142,9 @@ onMounted(fetchProducts)
   padding: 0.5em;
   border-radius: 0.7em;
 }
+
+.grid-item.selected {
+    background-color: rgba(144, 238, 144, 0.3);
+  }
 
   </style>

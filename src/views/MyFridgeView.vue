@@ -100,4 +100,5 @@ function onUpdate (updatedProduct: FridgeItemCardInterface) {
   display: flex;
   justify-content: center;
 }
+
 </style>
