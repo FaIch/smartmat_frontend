@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeEach } from 'vitest'
 import NavbarComp from '../../../src/components/NavbarComp.vue'
 import { createPinia } from 'pinia'
-import { createTestingPinia } from '@pinia/testing'
 
 const pinia = createPinia()
 const mockStore = {
@@ -37,6 +36,3 @@ describe('NavbarComp form', async () => {
     expect(screenWidthAfter).toBe(window.innerWidth)
   })
 })
-
-/*describe('NavBarComp functionality', () => {
-})*/
