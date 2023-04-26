@@ -9,7 +9,7 @@
           <img
             src="../assets/icons/remove.svg"
             />
-          <input class="input-field" :disabled="true" :placeholder="productProps.product.quantity" id="shopping-list-quantity"/>
+          <input class="input-field" :disabled="true" :placeholder="productProps.product.quantity.toString()" id="shopping-list-quantity"/>
           <img
             src="../assets/icons/add.svg"
             />
@@ -23,7 +23,7 @@
           id="shopping-list-item-checkbox"
           type="checkbox"
           :checked="checked"
-          @change="$emit('checked-changed', $event.target.checked)"
+          @change="$emit('checked-changed', ($event.target as HTMLInputElement)?.checked)"
         />
       </div>
     </div>

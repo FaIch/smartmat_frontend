@@ -3,10 +3,10 @@
   <ProductSelectorButton></ProductSelectorButton>
   <div class="container">
     <div v-if="isLoading">Loading...</div>
-    <div v-else>
+    <div class="product-container" v-else>
       <button @click="sendToFridge">Send to fridge</button>
       <button @click="removeAll">Remove Selected</button>
-      <SearchBarComp @search="searchProducts"/>
+      <NewSearchBarComp :with-dropdown="false" @search="searchProducts"/>
       <div class="product-table" v-for="product in filteredProducts" :key="product.id">
         <ShoppingListItemCardComp
         :product="product"
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import SearchBarComp from '../components/SearchBarComp.vue'
+import NewSearchBarComp from '../components/NewSearchBarComp.vue'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
@@ -172,6 +172,10 @@ onUnmounted(() => {
   padding-top: 5vh;
   height: 100vh;
   background-color: white;
+}
+
+.product-container{
+  min-width: 700px;
 }
 
 .product-table {

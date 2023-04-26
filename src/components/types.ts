@@ -1,24 +1,13 @@
 export interface ItemInterface {
-    category: string;
-    id: number;
-    image: string;
-    name: string;
-    price: number;
-    shortDesc: string;
-    weightPerUnit: number;
-    unit: string;
-    baseAmount: number;
-}
-
-export interface ItemInterface2 {
-    category: string;
-    image: string;
-    name: string;
-    price: number;
-    shortDesc: string;
-    weightPerUnit: number;
-    unit: string;
-    baseAmount: number;
+  id?: number;
+  category: string;
+  image: string;
+  name: string;
+  price: number;
+  shortDesc: string;
+  weightPerUnit: number;
+  unit: string;
+  baseAmount: number;
 }
 
 export interface ItemDisplayInterface {
@@ -64,4 +53,11 @@ export interface ImportedProduct {
     image: string;
     current_price: number;
     description: string;
+}
+
+export interface SubUser {
+  id: bigint;
+  nickname: string;
+  role: string;
+  passcode: number;
 }

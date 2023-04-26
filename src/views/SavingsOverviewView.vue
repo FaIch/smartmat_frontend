@@ -45,7 +45,7 @@ og mer enn 2 bilfrie dager per uke i et helt år.
 
 </script>
 
-<style>
+<style scoped>
 .savings {
   display: flex;
   flex-direction: column;

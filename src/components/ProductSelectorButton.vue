@@ -28,7 +28,7 @@ const handleSelect = (productId: number) => {
 }
 </script>
 
-<style>
+<style scoped>
 /* Add your global styles here */
 .plus-button-container {
   position: relative;

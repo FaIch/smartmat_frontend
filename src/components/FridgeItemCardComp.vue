@@ -1,12 +1,13 @@
 <template>
-<div class="card">
+  <div class="card">
     <img :src=props.product.item.image class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
         <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input class="input-field" :disabled="true" :placeholder="expirationDate" id="expiration-date"/>
+          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
+          ref="expirationDateInput"/>
         </div>
       </div>
       <div class="text-section-two">
@@ -17,7 +18,7 @@
             :disabled="edit"
             v-model.number="quantity"
             id="quantity"
-            ref="expirationDateInput"
+            ref="quantityInput"
           />
         </div>
       </div>
@@ -27,7 +28,6 @@
           type="checkbox"
           v-model="selected"
           @change="onCheckboxChange"
-          ref="quantityInput"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
@@ -40,7 +40,6 @@
 
 import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface } from './types'
-
 
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed'])
@@ -161,12 +160,8 @@ watch(
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  max-width: 100%; /* Set a max-width for the card-title */
-  white-space: nowrap; /* Prevent the text from wrapping */
-  overflow: hidden; /* Hide any overflowing text */
-  text-overflow: ellipsis; /* Display an ellipsis when the text overflows */
 }
 
 .card-text {

@@ -7,11 +7,11 @@
 <script setup lang="ts">
 </script>
 
-  <style scoped>
-  .plus-button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
+<style scoped>
+.plus-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
 </style>

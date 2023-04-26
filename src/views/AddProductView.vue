@@ -14,12 +14,12 @@
         <input v-model="formData.shortDesc" type="text" placeholder="Short Description" />
         <select v-model="formData.category" class="dropdown">
           <option disabled value="">Select a category</option>
-          <option v-for="category in categories" :key="category.id" :value="category">{{ category }}</option>
+          <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
         </select>
 
         <select v-model="formData.unit" class="dropdown">
           <option disabled value="">Select a unit</option>
-          <option v-for="unit in units" :key="unit.id" :value="unit">{{ unit }}</option>
+          <option v-for="unit in units" :key="unit" :value="unit">{{ unit }}</option>
         </select>
 
         <input v-model="formData.weightPerUnit" type="text" placeholder="Weight per unit" :disabled="formData.unit === 'GRAMS'" />
@@ -34,11 +34,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
-import { ItemInterface2 } from '../components/types'
+import { ItemInterface } from '../components/types'
 
 const eanCode = ref('')
-const productData = ref<ItemInterface2>()
-const formData = reactive<ItemInterface2>({
+const productData = ref<ItemInterface>()
+const formData = reactive<ItemInterface>({
+  id: 0,
   name: '',
   shortDesc: '',
   category: '',
@@ -48,6 +49,7 @@ const formData = reactive<ItemInterface2>({
   image: '',
   baseAmount: 0
 })
+
 const categories = ref([])
 const units = ref([])
 const path = 'http://localhost:8080/items'
@@ -76,16 +78,17 @@ const findProduct = async () => {
       'Response-type': 'application/json'
     }
   })
-  productData.value = response.data.data.products[0]
-  productData.value.shortDesc = response.data.data.products[0].description
-  productData.value.price = response.data.data.products[0].current_price.price
+  productData.value = {
+    ...response.data.data.products[0],
+    shortDesc: response.data.data.products[0].description,
+    price: response.data.data.products[0].current_price.price
+  }
   console.log(response.data.data.products[0])
 
-  // Update formData with fetched product data
-  formData.name = productData.value.name
-  formData.shortDesc = productData.value.shortDesc
-  formData.price = productData.value.price
-  formData.image = productData.value.image
+  formData.name = productData.value?.name ?? ''
+  formData.shortDesc = productData.value?.shortDesc ?? ''
+  formData.price = productData.value?.price ?? 0
+  formData.image = productData.value?.image ?? ''
 }
 
 const fetchCategories = async () => {
