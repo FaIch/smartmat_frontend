@@ -1,19 +1,13 @@
 <template>
+  <div class="navbar"></div>
+  <ProductSelectorButton></ProductSelectorButton>
   <div class="container">
-    <h1>Product List</h1>
     <div v-if="isLoading">Loading...</div>
     <div v-else>
-      <ProductSelectorButton></ProductSelectorButton>
       <button @click="sendToFridge">Send to fridge</button>
-      <button @click="showAddForm = true">Add Item</button>
       <button @click="removeAll">Remove Selected</button>
-      <div v-if="showAddForm">
-        <input type="number" v-model="newItem.quantity" placeholder="Quantity" />
-        <input type="number" v-model="newItem.id" placeholder="Id" />
-        <button @click="addItem">Add</button>
-      </div>
-      <SearchBarComp id="search-bar" />
-      <div class="product-table" v-for="product in products" :key="product.id">
+      <SearchBarComp @search="searchProducts"/>
+      <div class="product-table" v-for="product in filteredProducts" :key="product.id">
         <ShoppingListItemCardComp
         :product="product"
         :checked="checkedProducts[product.id] || false"
@@ -26,7 +20,7 @@
 
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
 import { ShoppingListItemCardInterface } from '../components/types'
@@ -36,10 +30,9 @@ import ProductSelectorButton from '../components/ProductSelectorButton.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
-const showAddForm = ref(false)
-const newItem = ref({ id: 0, quantity: 0 })
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
+const searchQuery = ref('')
 
 const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateCheckedStatus = (id: number, checked: boolean) => {
@@ -48,6 +41,17 @@ const updateCheckedStatus = (id: number, checked: boolean) => {
 const getCheckedProducts = () => {
   return products.value.filter((product) => checkedProducts.value[product.id])
 }
+
+function searchProducts (query: string) {
+  searchQuery.value = query
+}
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value) return products.value
+  return products.value.filter((product) =>
+    product.item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
 
 async function loadProducts () {
   const config = {
@@ -72,33 +76,6 @@ async function loadProducts () {
       if (error.response.status === 400) {
         console.error(error)
       }
-    })
-}
-
-async function addItem () {
-  const config = {
-    headers: {
-      'Response-type': 'application/json'
-    },
-    withCredentials: true
-  }
-  const data = {
-    itemId: newItem.value.id,
-    quantity: newItem.value.quantity
-  }
-  const path = 'http://localhost:8080/shopping-list/add'
-  await axios.post(path, data, config)
-    .then(async (response) => {
-      if (response.status === 200) {
-        console.log(response.data)
-        products.value.push(response.data)
-        newItem.value = { id: 0, quantity: 0 }
-        showAddForm.value = false
-        loadProducts()
-      }
-    })
-    .catch((error) => {
-      console.error(error)
     })
 }
 
@@ -191,7 +168,8 @@ onUnmounted(() => {
 .container {
   display: flex;
   justify-content: center;
-  padding-top: 15vh;
+  align-content: center;
+  padding-top: 5vh;
   height: 100vh;
   background-color: white;
 }
@@ -201,6 +179,37 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   margin: 10px;
+}
+
+Button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  margin: 20px;
+  border-radius: 100px;
+  border: none;
+}
+
+Button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+Button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
+
+.navbar {
+  height: 15vh;
+}
+
+.product-table {
+  margin-top: 0;
 }
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <button class="plus-button" @click="$emit('click')">
+    <button class="plus-button">
       <img src="../assets/icons/add.svg" alt="Add" />
     </button>
   </template>
