@@ -7,13 +7,19 @@
     </div>
     <div class="my-fridge">
       <SearchBarComp id="search-bar"/>
+      <div class="update-message">
+        {{ updateMessage }}
+      </div>
       <div class="item-cards" v-for="product in products" :key="product.id">
         <FridgeItemCardComp :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
       </div>
     </div>
     <div class="buttons">
-      <button class="fridge-button">Jeg har spist dette</button>
-      <button class="fridge-button" @click="removeSelectedItems">Jeg har kastet dette</button>
+      <button v-if="products.length > 0" class="fridge-button" @click="markAsEaten">Jeg har spist dette</button>
+      <button v-if="products.length > 0" class="fridge-button" @click="markAsWaste">Jeg har kastet dette</button>
+      <div  v-if="products.length === 0" class="no-items">
+        <h2>Ingen varer i kjøleskapet</h2>
+      </div>
     </div>
   </div>
 </template>
@@ -37,6 +43,7 @@ const config = {
   },
   withCredentials: true
 }
+const updateMessage = ref('')
 
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
@@ -58,9 +65,8 @@ async function getItemsInFridge () {
       }
     })
     .catch((error) => {
-      console.log(error)
       if (error.response.status === 400) {
-        console.log('error')
+        updateMessage.value = error.response.data.message
       } else if (error.response.status === 600) {
         userStore.logout()
       }
@@ -73,10 +79,10 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
   await axios.put(path, updatedProduct, config)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('success')
         const index = products.value.findIndex(
           (product) => product.id === updatedProduct.id
         )
+        updateMessage.value = 'Vare redigert'
         if (index !== -1) {
           products.value[index] = updatedProduct
           products.value = [...products.value]
@@ -84,9 +90,8 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
       }
     })
     .catch((error) => {
-      console.log(error)
       if (error.response.status === 400) {
-        console.log('error')
+        updateMessage.value = error.response.data.message
       } else if (error.response.status === 600) {
         userStore.logout()
       }
@@ -101,9 +106,8 @@ function onSelectionChanged (event: { selected: boolean; product: FridgeItemCard
   }
 }
 
-async function removeSelectedItems () {
+async function markAsEaten () {
   const selectedIds = selectedProducts.value.map((item) => item.id)
-  const totalWeight = selectedProducts.value.reduce((sum, item) => sum + item.item.weight, 0)
   const goNextAxios = ref<boolean>(false)
 
   const pathRemove = 'http://localhost:8080/fridge/remove'
@@ -112,45 +116,61 @@ async function removeSelectedItems () {
   await axios.delete(pathRemove, { data: request, headers: config.headers, withCredentials: config.withCredentials })
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('removed item')
+        updateMessage.value = 'Varer spist'
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
         selectedProducts.value = []
         goNextAxios.value = true
+
+        setTimeout(() => {
+          updateMessage.value = ''
+        }, 5000)
       }
     })
     .catch((error) => {
-      console.log('remove:', error)
-      if (error.response.status === 400) {
-        console.log(error.response.data.message)
+      if (error.response.status === 600) {
+        userStore.logout()
+      } else if (error.response.status === 400) {
+        updateMessage.value = error.response.data.message
       }
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-
   selectedProducts.value = []
+
+  return goNextAxios
+}
+
+async function markAsWaste () {
+  const selectedProductsCopy = [...selectedProducts.value]
+  const goNextAxios = await markAsEaten()
+
+  if (!goNextAxios.value) {
+    return false
+  }
+  const totalWeight = selectedProductsCopy.reduce(
+    (sum, item) => sum + item.item.weight * item.quantity,
+    0
+  )
   const wasteRequest = {
     weight: totalWeight,
     entryDate: new Date().toISOString().split('T')[0]
   }
 
-  if (goNextAxios.value) {
-    const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
-    await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
-      .then(async (response) => {
-        if (response.status === 200) {
-          console.log('Added to waste')
-        }
-      })
-      .catch((error) => {
-        console.log('error waste')
-        if (error.response.status === 600) {
-          userStore.logout()
-        }
-        if (error.response.status === 400) {
-          console.log(error.response)
-        }
-      })
-  }
+  const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
+  await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
+    .then(async (response) => {
+      if (response.status === 200) {
+        updateMessage.value = 'Varer kastet'
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 600) {
+        userStore.logout()
+      }
+      if (error.response.status === 400) {
+        updateMessage.value = error.response.data.message
+      }
+    })
 }
 </script>
 
@@ -182,9 +202,20 @@ async function removeSelectedItems () {
     scale: 0.8;
 }
 
+.update-message {
+  margin-top: 30px;
+  font-size: 20px;
+}
+
+.no-items {
+  margin-top: 80px;
+}
+
 .item-cards {
   display: flex;
   justify-content: center;
+  margin: 0;
+  margin-bottom: -40px;
 }
 
 .fridge-button {
@@ -192,7 +223,8 @@ async function removeSelectedItems () {
   color: white;
   height: 40px;
   width: 200px;
-  margin: 20px;
+  margin: 60px;
+  margin-bottom: 100px;
   border-radius: 100px;
   border: none;
 }

@@ -33,6 +33,16 @@ const averageCo2Emissions = 305 // kg per year
 const totalFoodWaste = ref('')
 const moneyLost = ref('')
 const co2Emissions = ref('')
+
+/*
+Tar man utgangspunkt i Miljødirektoratets beregninger fra 2016 vil 84,7kg matsvinn
+tilsvare et tap på omtrent 5 322 norske kroner. I den samme rapporten estimeres det
+at 1kg matsvinn tilsvarer 3,6kg CO2-ekvivalenter, hvilket betyr at en gjennomsnittlig
+forbruker står for omtrent 305kg CO2-ekvivalenter per år. Dette utslippet tilsvarer
+1906km kjøring med bensinbil, mer enn tre tur-retur flygninger mellom Trondheim og Oslo
+og mer enn 2 bilfrie dager per uke i et helt år.
+*/
+
 </script>
 
 <style>
@@ -59,12 +69,3 @@ h1, h2, p {
   margin-right: 20px;
 }
 </style>
-
-/*
-Tar man utgangspunkt i Miljødirektoratets beregninger fra 2016 vil 84,7kg matsvinn
-tilsvare et tap på omtrent 5 322 norske kroner. I den samme rapporten estimeres det
-at 1kg matsvinn tilsvarer 3,6kg CO2-ekvivalenter, hvilket betyr at en gjennomsnittlig
-forbruker står for omtrent 305kg CO2-ekvivalenter per år. Dette utslippet tilsvarer
-1906km kjøring med bensinbil, mer enn tre tur-retur flygninger mellom Trondheim og Oslo
-og mer enn 2 bilfrie dager per uke i et helt år.
-*/

@@ -55,7 +55,6 @@ const activateEdit = () => {
   quantityInput.disabled = false
   expirationDateInput.focus()
   edit.value = false
-  console.log(props)
 }
 
 const validateExpirationDate = (date: string) => {
