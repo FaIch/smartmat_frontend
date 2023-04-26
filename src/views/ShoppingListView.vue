@@ -1,17 +1,18 @@
 <template>
+  <div class="navbar"></div>
+  <ProductSelectorButton></ProductSelectorButton>
   <div class="container">
-    <h1>Product List</h1>
     <div v-if="isLoading">Loading...</div>
     <div v-else>
-      <button @click="showAddForm = true">Add Item</button>
-      <div v-if="showAddForm">
-        <input type="number" v-model="newItem.quantity" placeholder="Quantity" />
-        <input type="number" v-model="newItem.id" placeholder="Id" />
-        <button @click="addItem">Add</button>
-      </div>
-      <SearchBarComp id="search-bar" />
-      <div class="product-table" v-for="product in products" :key="product.id">
-        <ShoppingListItemCardComp :product="product" v-on:remove="removeProduct(product)"/>
+      <button @click="sendToFridge">Send to fridge</button>
+      <button @click="removeAll">Remove Selected</button>
+      <SearchBarComp @search="searchProducts"/>
+      <div class="product-table" v-for="product in filteredProducts" :key="product.id">
+        <ShoppingListItemCardComp
+        :product="product"
+        :checked="checkedProducts[product.id] || false"
+        @checked-changed="updateCheckedStatus(product.id, $event)"
+        v-on:remove="removeProduct(product)"/>
       </div>
     </div>
   </div>
@@ -19,19 +20,38 @@
 
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
 import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
+import ProductSelectorButton from '../components/ProductSelectorButton.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
-const showAddForm = ref(false)
-const newItem = ref({ id: 0, quantity: 0 })
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
+const searchQuery = ref('')
+
+const checkedProducts = ref<{ [key: number]: boolean }>({})
+const updateCheckedStatus = (id: number, checked: boolean) => {
+  checkedProducts.value[id] = checked
+}
+const getCheckedProducts = () => {
+  return products.value.filter((product) => checkedProducts.value[product.id])
+}
+
+function searchProducts (query: string) {
+  searchQuery.value = query
+}
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value) return products.value
+  return products.value.filter((product) =>
+    product.item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
 
 async function loadProducts () {
   const config = {
@@ -44,7 +64,7 @@ async function loadProducts () {
   console.log(userStore.loggedIn)
 
   isLoading.value = true
-  const path = 'http://localhost:8080/user/shopping-list/get'
+  const path = 'http://localhost:8080/shopping-list/get'
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -56,31 +76,6 @@ async function loadProducts () {
       if (error.response.status === 400) {
         console.error(error)
       }
-    })
-}
-
-async function addItem () {
-  const config = {
-    headers: {
-      'Response-type': 'application/json'
-    },
-    withCredentials: true,
-    params: {
-      id: newItem.value.id,
-      quantity: newItem.value.quantity
-    }
-  }
-  const path = 'http://localhost:8080/shopping-list/add'
-  axios.post(path, null, config)
-    .then(async (response) => {
-      if (response.status === 200) {
-        products.value.push(response.data)
-        newItem.value = { id: 0, quantity: 0 }
-        showAddForm.value = false
-      }
-    })
-    .catch((error) => {
-      console.error(error)
     })
 }
 
@@ -103,6 +98,60 @@ const removeProduct = async (product: ShoppingListItemCardInterface) => {
     })
 }
 
+const removeAll = async () => {
+  const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
+  console.log(checkedProductsData)
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true,
+    params: {
+      shoppingListItemIds: checkedProductsData.value.join(',')
+    }
+  }
+
+  const path = 'http://localhost:8080/shopping-list/remove'
+  try {
+    const response = await axios.delete(path, config)
+    if (response.status === 200) {
+      console.log('Checked products data sent successfully:', response.data)
+      loadProducts()
+    }
+  } catch (error) {
+    console.error('Error sending checked products data:', error)
+  }
+}
+
+const sendToFridge = async () => {
+  const checkedProductsData = getCheckedProducts().map((product) => ({
+    itemId: product.item.id,
+    quantity: product.quantity,
+    expirationDate: '2023-05-01'
+  }))
+
+  console.log(checkedProductsData)
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+
+  const path = 'http://localhost:8080/fridge/add'
+  try {
+    const response = await axios.post(path, checkedProductsData, config)
+    if (response.status === 200) {
+      console.log('Checked products data sent successfully:', response.data)
+      removeAll()
+    }
+  } catch (error) {
+    console.error('Error sending checked products data:', error)
+  }
+}
+
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
   loadProducts()
@@ -119,7 +168,8 @@ onUnmounted(() => {
 .container {
   display: flex;
   justify-content: center;
-  padding-top: 15vh;
+  align-content: center;
+  padding-top: 5vh;
   height: 100vh;
   background-color: white;
 }
@@ -129,6 +179,37 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   margin: 10px;
+}
+
+Button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  margin: 20px;
+  border-radius: 100px;
+  border: none;
+}
+
+Button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+Button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
+
+.navbar {
+  height: 15vh;
+}
+
+.product-table {
+  margin-top: 0;
 }
 
 </style>

@@ -1,6 +1,7 @@
 <template>
+  <div v-if = "productProps.product.item.name != undefined">
   <div class="card">
-    <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
+    <img :src=productProps.product.item.image class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one" id="shopping-list-section-one">
         <h5 class="card-title">{{ productProps.product.item.name }}</h5>
@@ -8,24 +9,27 @@
           <img
             src="../assets/icons/remove.svg"
             />
-          <input class="input-field" :disabled="true" :placeholder="'Hello'" id="shopping-list-quantity"/>
+          <input class="input-field" :disabled="true" :placeholder="productProps.product.quantity" id="shopping-list-quantity"/>
           <img
             src="../assets/icons/add.svg"
             />
         </div>
       </div>
-      <div class="text-section-two">
+      <!-- <div class="text-section-two">
         <h5 class="card-title" id="shopping-list-item-unit">{{ productProps.product.quantity }}</h5>
-      </div>
+      </div> -->
       <div class="text-section-three" id="shopping-list-check">
         <input
           id="shopping-list-item-checkbox"
           type="checkbox"
+          :checked="checked"
+          @change="$emit('checked-changed', $event.target.checked)"
         />
       </div>
-      <button @click="$emit('remove', productProps.product)">Remove</button>
+    </div>
     </div>
   </div>
+    <div v-else>Loading ...</div>
 </template>
 
 <script setup lang="ts">
@@ -35,6 +39,10 @@ const productProps = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
+  },
+  checked: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -58,7 +66,7 @@ const productProps = defineProps({
 
 #shopping-list-section-one {
   display: grid;
-}
+ }
 
 #shopping-list-item-unit {
   margin-top: 3px;
@@ -75,8 +83,12 @@ const productProps = defineProps({
 }
 
 .card-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
+  max-width: 100%; /* Set a max-width for the card-title */
+  white-space: nowrap; /* Prevent the text from wrapping */
+  overflow: hidden; /* Hide any overflowing text */
+  text-overflow: ellipsis; /* Display an ellipsis when the text overflows */
 }
 .input-field {
   width: 80%;
@@ -90,7 +102,7 @@ const productProps = defineProps({
   background-color: rgba(35, 173, 58, 0.3);
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
-  margin: 3em auto;
+  margin: 1em auto;
 }
 
 .card img {
@@ -106,21 +118,28 @@ const productProps = defineProps({
   align-items: center;
 }
 
-.text-section-one,
+.text-section-one {
+  width: 80%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: 15px;
+
+}
 .text-section-two {
-  max-width: 50%;
+  width: 70%;
   position: relative;
   height: 100%;
   align-items: center;
   justify-content: space-between;
+  text-align: right;
+
 }
 
-.text-section-two {
-  min-width: 20%;
-  text-align: right;
-}
 .text-section-three {
-  width: 60%;
+  width: 20%;
   height: 100%;
   display: flex;
   flex-direction: column;

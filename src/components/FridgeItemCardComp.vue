@@ -1,16 +1,16 @@
 <template>
-  <div class="card">
-    <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
+<div class="card">
+    <img :src=props.product.item.image class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
         <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate" />
+          <input class="input-field" :disabled="true" :placeholder="expirationDate" id="expiration-date"/>
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ props.product.item.weight }}</h5>
+        <h5 class="card-title">{{ props.product.item.weightPerUnit }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field"
@@ -40,6 +40,7 @@
 
 import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface } from './types'
+
 
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed'])
@@ -160,8 +161,12 @@ watch(
 }
 
 .card-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
+  max-width: 100%; /* Set a max-width for the card-title */
+  white-space: nowrap; /* Prevent the text from wrapping */
+  overflow: hidden; /* Hide any overflowing text */
+  text-overflow: ellipsis; /* Display an ellipsis when the text overflows */
 }
 
 .card-text {
