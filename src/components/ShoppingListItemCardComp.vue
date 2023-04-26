@@ -1,6 +1,7 @@
 <template>
+  <div v-if = "productProps.product.item.name != undefined">
   <div class="card">
-    <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
+    <img :src=productProps.product.item.image class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one" id="shopping-list-section-one">
         <h5 class="card-title">{{ productProps.product.item.name }}</h5>
@@ -21,11 +22,15 @@
         <input
           id="shopping-list-item-checkbox"
           type="checkbox"
+          :checked="checked"
+          @change="$emit('checked-changed', $event.target.checked)"
         />
       </div>
       <button @click="$emit('remove', productProps.product)">Remove</button>
     </div>
+    </div>
   </div>
+    <div v-else>Loading ...</div>
 </template>
 
 <script setup lang="ts">
@@ -35,6 +40,10 @@ const productProps = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
+  },
+  checked: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -75,8 +84,12 @@ const productProps = defineProps({
 }
 
 .card-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
+  max-width: 100%; /* Set a max-width for the card-title */
+  white-space: nowrap; /* Prevent the text from wrapping */
+  overflow: hidden; /* Hide any overflowing text */
+  text-overflow: ellipsis; /* Display an ellipsis when the text overflows */
 }
 .input-field {
   width: 80%;

@@ -8,9 +8,10 @@
             :key="index"
             class="user-item"
             :class="{ 'user-item-selected': selectedUser && selectedIndex === index }"
+            @click="user.role === 'PARENT' ? showPasscodeInput(user, index) : null"
         >
-          <img class="avatar" />
-          <p>{{ }}</p>
+          <img :src="user.avatar" :alt="user.name" class="avatar" />
+          <p>{{ user.nickname }}</p>
           <div
               v-if="selectedUser && selectedIndex === index"
               class="passcode-wrapper"
@@ -20,6 +21,7 @@
               <input
                   v-model="passcodeInput"
                   type="password"
+                  @input="validatePasscode"
                   placeholder="Passcode"
                   maxlength="4"
               />
@@ -89,6 +91,7 @@ async function validatePasscode () {
     passcodeError.value = ''
   }
 }
+*/
 
 function showPasscodeInput (user, index) {
   if (selectedUser.value === user) {
@@ -99,7 +102,7 @@ function showPasscodeInput (user, index) {
     selectedIndex.value = index
   }
 }
-*/
+
 </script>
 
 <style scoped>

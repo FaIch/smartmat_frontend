@@ -8,6 +8,12 @@ export interface ItemInterface {
     weight: number;
 }
 
+export interface ItemDisplayInterface {
+    id: number;
+    name: string;
+    image: string;
+}
+
 export interface ShoppingListItemCardInterface {
     id: number;
     item: ItemInterface;
@@ -24,6 +30,16 @@ export interface FridgeItemCardInterface {
     item: ItemInterface;
     quantity: number;
     expirationDate: string;
+}
+
+export interface RecipeCardInterface {
+    id: number;
+    name: string;
+    estimated_time: string;
+    description:string;
+    image: string;
+    numberOfItemsRecipe: number;
+    numberOfItemsFridge: number;
 }
 
 export interface User {
