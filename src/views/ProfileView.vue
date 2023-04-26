@@ -48,7 +48,7 @@
 
 <script setup>
 import { ref, defineExpose, onMounted } from 'vue'
-import { useUserStore } from '@/stores/UserStore'
+import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 
 // Use the user store
