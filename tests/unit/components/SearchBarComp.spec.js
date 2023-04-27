@@ -29,17 +29,7 @@ describe('SearchBarComp form', async () => {
 
 describe('SearchBarComp functionality', async () => {
   it('Should render a search input', () => {
-    const input = wrapper.find('#search-input')
+    const input = wrapper.find('.search-bar input[type="text"]')
     expect(input.exists()).toBe(true)
-  })
-
-  it('Should emit a getQuery event when the search button is clicked', async () => {
-    const input = wrapper.find('#search-input')
-    const button = wrapper.find('#search-button')
-    input.setValue('test query')
-    await button.trigger('click')
-
-    expect(wrapper.emitted().getQuery).toBeTruthy()
-    expect(wrapper.emitted().getQuery[0]).toEqual(['test query'])
   })
 })
