@@ -1,3 +1,12 @@
+export enum Unit {
+  // eslint-disable-next-line no-unused-vars
+  GRAMS = 'GRAMS',
+  // eslint-disable-next-line no-unused-vars
+  MILLILITER = 'MILLILITER',
+  // eslint-disable-next-line no-unused-vars
+  ITEM = 'ITEM'
+}
+
 export interface ItemInterface {
   id?: number;
   category: string;
@@ -6,7 +15,7 @@ export interface ItemInterface {
   price: number;
   shortDesc: string;
   weightPerUnit: number;
-  unit: string;
+  unit: Unit;
   baseAmount: number;
 }
 

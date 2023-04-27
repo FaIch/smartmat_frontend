@@ -1,6 +1,6 @@
 <template>
   <div class="navbar"></div>
-  <ProductSelectorButton></ProductSelectorButton>
+  <ProductSelectorButton />
   <div class="container">
     <div v-if="isLoading">Loading...</div>
     <div class="product-container" v-else>
@@ -127,7 +127,7 @@ const removeAll = async () => {
 const sendToFridge = async () => {
   const checkedProductsData = getCheckedProducts().map((product) => ({
     itemId: product.item.id,
-    quantity: product.quantity,
+    quantity: product.quantity * product.item.baseAmount,
     expirationDate: '2023-05-01'
   }))
 
