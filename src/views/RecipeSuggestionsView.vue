@@ -4,13 +4,14 @@
     <NewSearchBarComp :with-dropdown="false" /> Modify search bar for recipe view
     <div class="recipe-row">
 <!--      <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe" />-->
-      <div v-for="(recipe, index) in recipes" :key="index">
+      <div v-for="recipe in recipes" :key="recipe.recipe.id">
         <div class="recipe-card">
         <div class="recipe-details">
-          <h2 class="recipe-title"><b>{{ recipe.name }}</b></h2>
-          <img class="recipe-image" :src="'data:image/png;base64,' + recipe.image" alt="">
-          <h4 class="recipe-comment">{{ recipe.estimated_time }}</h4>
-          <h5 class="recipe-comment">{{ recipe.numberOfItemsFridge }} / {{recipe.numberOfItemsRecipe}}</h5>
+          <h2 class="recipe-title"><b>{{ recipe.recipe.name }}</b></h2>
+          <img class="recipe-image" :src="'data:image/png;base64,' + recipe.recipe.image" alt="">
+          <h4 class="recipe-comment">{{ recipe.recipe.estimated_time }}</h4>
+          <h5 class="recipe-comment">{{ recipe.amountInFridge }} / {{recipe.recipe.numberOfItems}}</h5>
+          <h5 class="recipe-comment">Amount nearly exipred ({{ recipe.amountNearlyExpired }})</h5>
           <button class="recipe-button">Gå til oppskrift</button>
         </div>
         </div>
@@ -36,7 +37,7 @@ onMounted(() => {
   getRecipies()
 })
 async function getRecipies () {
-  const path = 'http://localhost:8080/recipe/sorted-by-fridge'
+  const path = 'http://localhost:8080/recipe/list/sorted'
   const config = {
     headers: {
       'Content-Type': 'application/json'

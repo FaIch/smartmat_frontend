@@ -34,14 +34,20 @@ export interface FridgeItemCardInterface {
     expirationDate: string;
 }
 
-export interface RecipeCardInterface {
+export interface RecipeInterface {
     id: number;
     name: string;
     estimated_time: string;
     description:string;
     image: string;
-    numberOfItemsRecipe: number;
-    numberOfItemsFridge: number;
+    numberOfItems: number;
+
+}
+
+export interface RecipeCardInterface {
+    recipe: RecipeInterface;
+    amountInFridge: number;
+    amountNearlyExpired: number;
 }
 
 export interface User {
