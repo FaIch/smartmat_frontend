@@ -6,6 +6,7 @@
         <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
         <div class="recipe-warning">
           <img v-show="props.recipe.amountNearlyExpired > 0" src="../assets/icons/warning.svg"/>
+          <h3>{{ props.recipe.amountNearlyExpired }}</h3>
         </div>
       </div>
       <div class="recipe-details-bot">
@@ -93,14 +94,25 @@ const missingIngredients = computed(() => {
 }
 
 .recipe-warning {
+  display: flex;
   height: 60px;
   position: absolute;
   right: 0;
   top: 0;
+  margin-right: 10px;
+}
+
+.recipe-warning h3 {
+  font-size: 20px;
+  align-self: center;
+  margin: 0;
+  padding: 0;
+  margin-top: 6px;
+  margin-left: -12px;
 }
 
 .recipe-warning img {
-  scale: 0.5;
+  scale: 0.6;
   padding-top: 10px;
 }
 
