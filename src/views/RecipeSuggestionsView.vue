@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1 class="title">Middagsforslag-tittel</h1>
-    <SearchBarComp /> Modify search bar for recipe view
+    <NewSearchBarComp :with-dropdown="false" /> Modify search bar for recipe view
     <div class="recipe-row">
 <!--      <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe" />-->
       <div v-for="(recipe, index) in recipes" :key="index">
@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 // import RecipeCardComp from '../components/RecipeCardComp.vue'
-import SearchBarComp from '../components/SearchBarComp.vue'
+import NewSearchBarComp from '../components/NewSearchBarComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'

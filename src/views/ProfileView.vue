@@ -46,8 +46,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, defineExpose, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 
@@ -143,7 +143,7 @@ defineExpose({
 })
 </script>
 
-<style>
+<style scoped>
 
 .container {
   display: flex;

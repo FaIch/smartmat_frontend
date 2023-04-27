@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import router from '../router/index'
 
 // Define user store using Pinia
@@ -20,13 +20,11 @@ export const useUserStore = defineStore('userStore', () => {
       withCredentials: true
     }
     try {
-      const response = await axios.post(path, null, config)
-      if (response.status === 200) {
-        const now = new Date()
-        console.log(now.toLocaleTimeString(), 'new token')
+      await axios.post(path, null, config)
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 600) {
+        logout()
       }
-    } catch (error) {
-      console.log('Error refreshing token:', error)
     } finally {
       startRefreshTimer()
     }
