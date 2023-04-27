@@ -26,7 +26,7 @@
                 <h1>{{ inventory }}</h1>
                 </router-link>
 
-                <router-link v-if="!showHamburgerMenu" to="/login" class="icon-link" exact-active-class="active">
+                <router-link v-if="!showHamburgerMenu" :to="targetRoute" class="icon-link" exact-active-class="active">
                 <h1>{{ profile }}</h1>
                 </router-link>
 
@@ -59,8 +59,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
+import { useUserStore } from '../stores/UserStore'
 
-const store = useUtilityStore()
+const utilityStore = useUtilityStore()
+const userStore = useUserStore()
 const isOpaque = ref(true)
 const screenWidth = ref(window.innerWidth)
 const showHamburgerMenu = computed(() => screenWidth.value < 500)
@@ -77,7 +79,7 @@ const toggleMenu = () => {
 
 const closeMenu = () => {
   isMenuVisible.value = false
-  store.setTransparentStatus(true)
+  utilityStore.setTransparentStatus(true)
 }
 
 const updateScreenWidth = () => {
@@ -116,7 +118,11 @@ const profile = computed(() => {
   }
 })
 
-watch(() => store.transparent, (newValue) => {
+const targetRoute = computed(() => {
+  return userStore.loggedIn ? '/profile' : '/login'
+})
+
+watch(() => utilityStore.transparent, (newValue) => {
   if (isMenuVisible.value) {
     return
   }
@@ -124,7 +130,7 @@ watch(() => store.transparent, (newValue) => {
 })
 
 onMounted(() => {
-  isOpaque.value = !store.transparent
+  isOpaque.value = !utilityStore.transparent
   window.addEventListener('resize', updateScreenWidth)
 })
 
