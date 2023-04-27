@@ -85,14 +85,14 @@ function handleDecrement (fridge: boolean, number: number) {
   display: flex;
   flex-direction: column;
   padding-top: 15vh;
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .task-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: white;
   min-height: 60px;
   width: 100%;
 }

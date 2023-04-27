@@ -16,6 +16,7 @@ import NavbarComp from './components/NavbarComp.vue'
   color: #2c3e50;
   margin: 0;
   padding: 0;
+  background-color: rgb(224, 224, 224);
 }
 
 body,html {
