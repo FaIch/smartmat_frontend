@@ -3,13 +3,13 @@
     <h1 class="title">Middagsforslag-tittel</h1>
     <SearchBarComp class="search-bar" :with-dropdown="false"  id="search-bar"/>
     <div class="recipe-row">
-      <NewRecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe" />
+      <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import NewRecipeCardComp from '../components/NewRecipeCardComp.vue'
+import RecipeCardComp from '../components/RecipeCardComp.vue'
 import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
