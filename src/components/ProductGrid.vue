@@ -1,6 +1,6 @@
 <template>
     <div>
-      <SearchBarComp @search="searchProducts" />
+      <SearchBarComp :with-dropdown="false" @search="searchProducts" />
       <div class="grid-container">
         <div
           v-for="product in displayedProducts"

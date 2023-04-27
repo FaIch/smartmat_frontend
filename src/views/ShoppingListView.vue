@@ -6,7 +6,7 @@
     <div class="product-container" v-else>
       <button @click="sendToFridge">Send to fridge</button>
       <button @click="removeAll">Remove Selected</button>
-      <NewSearchBarComp :with-dropdown="false" @search="searchProducts"/>
+      <SearchBarComp :with-dropdown="false" @search="searchProducts"/>
       <div class="product-table" v-for="product in filteredProducts" :key="product.id">
         <ShoppingListItemCardComp
         :product="product"
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import NewSearchBarComp from '../components/NewSearchBarComp.vue'
+import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'

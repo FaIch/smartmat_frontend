@@ -1,6 +1,6 @@
 <template>
   <div class="my-fridge">
-    <NewSearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
+    <SearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
     <div class="update-message">
       {{ updateMessage }}
     </div>
@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import NewSearchBarComp from './NewSearchBarComp.vue'
+import SearchBarComp from './SearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCardComp from './FridgeItemCardComp.vue'
