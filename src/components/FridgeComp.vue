@@ -134,7 +134,8 @@ const normalizeDate = (date: Date) => {
 
 async function markAsEaten () {
   await axiosMarkAsEaten()
-  emit('handle-decrement', props.fridge)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
 }
 
 async function axiosMarkAsEaten () {
@@ -149,7 +150,6 @@ async function axiosMarkAsEaten () {
       if (response.status === 200) {
         updateMessage.value = 'Varer spist'
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-        selectedProducts.value = []
         goNextAxios.value = true
 
         setTimeout(() => {
@@ -166,8 +166,6 @@ async function axiosMarkAsEaten () {
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-  selectedProducts.value = []
-
   return goNextAxios
 }
 
@@ -192,7 +190,8 @@ async function markAsWaste () {
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'
-        emit('handle-decrement', props.fridge)
+        emit('handle-decrement', props.fridge, selectedProducts.value.length)
+        selectedProducts.value = []
       }
     })
     .catch((error) => {

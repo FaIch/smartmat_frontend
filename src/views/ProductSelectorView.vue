@@ -13,15 +13,16 @@
 import axios from 'axios'
 import ProductGrid from '../components/ProductGrid.vue'
 import { ref } from 'vue'
+import { ItemInterface } from '../components/types'
 
 const searchQuery = ref('')
-const selectedProductsInParent = ref<number[]>([])
+const selectedProductsInParent = ref<ItemInterface[]>([])
 const numberSelected = ref(0)
 
 const addToFridge = async () => {
   const checkedProductsData = selectedProductsInParent.value.map((value) => ({
-    itemId: value,
-    quantity: 1,
+    itemId: value.id,
+    quantity: value.baseAmount,
     expirationDate: '2023-05-01'
   }))
 
@@ -46,7 +47,7 @@ const addToFridge = async () => {
   }
 }
 
-function updateSelectedProducts (updatedList: number[]) {
+function updateSelectedProducts (updatedList: ItemInterface[]) {
   // Use the updatedList to update the parent's state
   // For example, if you have a ref for selected products in the parent component:
   selectedProductsInParent.value = updatedList
@@ -55,7 +56,7 @@ function updateSelectedProducts (updatedList: number[]) {
 
 const addToShoppingList = async () => {
   const checkedProductsData = selectedProductsInParent.value.map((value) => ({
-    itemId: value,
+    itemId: value.id,
     quantity: 1
   }))
 
