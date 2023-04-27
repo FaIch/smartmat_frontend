@@ -1,6 +1,6 @@
 <template>
   <div class="my-fridge">
-    <SearchBarComp v-if="props.fridge" id="search-bar"/>
+    <NewSearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
     <div class="update-message">
       {{ updateMessage }}
     </div>
@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import SearchBarComp from './SearchBarComp.vue'
+import NewSearchBarComp from './NewSearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCardComp from './FridgeItemCardComp.vue'
@@ -33,7 +33,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['handle-decrement'])
+const emit = defineEmits(['handle-swap', 'handle-decrement'])
 const products = ref<FridgeItemCardInterface[]>([])
 const selectedProducts = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
@@ -90,7 +90,7 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
           if (index !== -1) {
             products.value.splice(index, 1)
             const moved = props.fridge ? '"Utgåtte varer"' : '"Kjøleskap"'
-            emit('handle-decrement', props.fridge)
+            emit('handle-swap', props.fridge)
             updateMessage.value = `Vare flyttet til ${moved}`
           }
         } else {
@@ -134,6 +134,7 @@ const normalizeDate = (date: Date) => {
 
 async function markAsEaten () {
   await axiosMarkAsEaten()
+  emit('handle-decrement', props.fridge)
 }
 
 async function axiosMarkAsEaten () {
@@ -178,7 +179,7 @@ async function markAsWaste () {
     return false
   }
   const totalWeight = selectedProductsCopy.reduce(
-    (sum, item) => sum + item.item.weight * item.quantity,
+    (sum, item) => sum + item.item.weightPerUnit * item.quantity,
     0
   )
   const wasteRequest = {
@@ -191,6 +192,7 @@ async function markAsWaste () {
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'
+        emit('handle-decrement', props.fridge)
       }
     })
     .catch((error) => {

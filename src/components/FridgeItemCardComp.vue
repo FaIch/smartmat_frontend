@@ -1,23 +1,24 @@
 <template>
   <div class="card">
-    <img src="../assets/kanelboller.png" class="card-img-top" alt="...">
+    <img :src=props.product.item.image class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
         <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate" />
+          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
+          ref="expirationDateInput"/>
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ props.product.item.weight }}</h5>
+        <h5 class="card-title">{{ props.product.item.weightPerUnit }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
           <input class="input-field"
             :disabled="edit"
             v-model.number="quantity"
             id="quantity"
-            ref="expirationDateInput"
+            ref="quantityInput"
           />
         </div>
       </div>
@@ -27,7 +28,6 @@
           type="checkbox"
           v-model="selected"
           @change="onCheckboxChange"
-          ref="quantityInput"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>

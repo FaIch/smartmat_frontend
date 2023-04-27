@@ -10,7 +10,7 @@
         Utgåtte varer ({{ numberOfExpiredItems }})
       </h2>
     </div>
-    <fridge-comp :key="Number(fridge)" :fridge="fridge" @handle-decrement="handleDecrement"/>
+    <fridge-comp :key="Number(fridge)" :fridge="fridge" @handle-swap="handleSwap" @handle-decrement="handleDecrement"/>
   </div>
 </template>
 
@@ -61,13 +61,21 @@ const showExpiredItems = () => {
   fridge.value = false
 }
 
-function handleDecrement (fridge: boolean) {
+function handleSwap (fridge: boolean) {
   if (fridge) {
     numberOfExpiredItems.value++
     numberOfUnexpiredItems.value--
   } else {
     numberOfExpiredItems.value--
     numberOfUnexpiredItems.value++
+  }
+}
+
+function handleDecrement (fridge: boolean) {
+  if (fridge) {
+    numberOfUnexpiredItems.value--
+  } else {
+    numberOfExpiredItems.value--
   }
 }
 </script>
