@@ -4,26 +4,7 @@
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
     <div class="card-body">
-      <div v-if="false" class="text-section-one">
-        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
-        <div class="expiration-date-div">
-          <p class="card-text">Utløpsdato:</p>
-          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
-          ref="expirationDateInput"/>
-        </div>
-      </div>
-      <div v-if="false" class="text-section-two">
-        <div class="quantity-div">
-          <p class="card-text">{{ unitType }}</p>
-          <input class="input-field"
-            :disabled="edit"
-            v-model.number="quantity"
-            id="quantity"
-            ref="quantityInput"
-          />
-        </div>
-      </div>
-      <div class="text-section-two-two">
+      <div class="section-one">
         <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
         <div class="edits">
           <div class="expiration-date-div">
@@ -42,7 +23,7 @@
           </div>
         </div>
       </div>
-      <div class="text-section-three">
+      <div class="section-two">
         <input
           id="fridge-item-checkbox"
           type="checkbox"
@@ -245,27 +226,7 @@ watch(
   height: 160px;
 }
 
-.text-section-one,
-.text-section-two {
-  position: relative;
-  height: 100%;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.text-section-one {
-  min-width: 42%;
-  max-width: 42%;
-  text-align: left;
-}
-
-.text-section-two {
-  min-width: 25%;
-  max-width: 25%;
-  text-align: left;
-}
-
-.text-section-two-two {
+.section-one {
   position: relative;
   height: 100%;
   justify-content: space-between;
@@ -284,7 +245,7 @@ watch(
   height: 100%;
 }
 
-.text-section-three {
+.section-two {
   width: 30%;
   height: 100%;
   display: flex;
