@@ -5,8 +5,8 @@
       <div class="recipe-details-top">
         <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
         <div class="recipe-warning">
-          <img v-show="props.recipe.amountNearlyExpired > 0" src="../assets/icons/warning.svg"/>
-          <h5>{{ props.recipe.amountNearlyExpired }}</h5>
+          <img v-tippy="tooltipOptions" v-show="props.recipe.amountNearlyExpired > 0" src="../assets/icons/warning.svg"/>
+          <h5 v-show="props.recipe.amountNearlyExpired > 0">{{ props.recipe.amountNearlyExpired }}</h5>
         </div>
       </div>
       <div class="recipe-details-bot">
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { RecipeCardInterface } from './types'
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 
 const props = defineProps({
   recipe: {
@@ -33,7 +33,6 @@ const props = defineProps({
 })
 
 const missingIngredients = computed(() => {
-  console.log('yo', props.recipe.amountNearlyExpired)
   const numberMissing = props.recipe.recipe.numberOfItems - props.recipe.amountInFridge
   if (numberMissing === 0) {
     return 'Du har alt'
@@ -42,14 +41,18 @@ const missingIngredients = computed(() => {
   }
 })
 
+const tooltipOptions = reactive({
+  content: `${props.recipe.amountNearlyExpired} varer går snart ut på dato`,
+  placement: 'bottom'
+})
+
 </script>
 
 <style scoped>
 
 .recipe-card {
   background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   width: 300px;
   height: 280px;
@@ -57,7 +60,7 @@ const missingIngredients = computed(() => {
 }
 
 .recipe-card:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 
 .recipe-image {

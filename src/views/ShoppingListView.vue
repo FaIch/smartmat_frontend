@@ -6,7 +6,7 @@
     <div class="product-container" v-else>
       <button @click="sendToFridge">Send to fridge</button>
       <button @click="removeAll">Remove Selected</button>
-      <SearchBarComp :with-dropdown="false" @search="searchProducts"/>
+      <SearchBarComp :search-placeholder="searchPlaceholder" @search="searchProducts"/>
       <div class="product-table" v-for="product in filteredProducts" :key="product.id">
         <ShoppingListItemCardComp
         :product="product"
@@ -33,7 +33,7 @@ const isLoading = ref(true)
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
 const searchQuery = ref('')
-
+const searchPlaceholder = ref('Søk etter varer...')
 const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateCheckedStatus = (id: number, checked: boolean) => {
   checkedProducts.value[id] = checked
