@@ -1,3 +1,12 @@
+export enum Unit {
+  // eslint-disable-next-line no-unused-vars
+  GRAMS = 'GRAMS',
+  // eslint-disable-next-line no-unused-vars
+  MILLILITER = 'MILLILITER',
+  // eslint-disable-next-line no-unused-vars
+  ITEM = 'ITEM'
+}
+
 export interface ItemInterface {
   id?: number;
   category: string;
@@ -6,48 +15,47 @@ export interface ItemInterface {
   price: number;
   shortDesc: string;
   weightPerUnit: number;
-  unit: string;
+  unit: Unit;
   baseAmount: number;
 }
 
 export interface ItemDisplayInterface {
-    id: number;
-    name: string;
-    image: string;
+  id: number;
+  name: string;
+  image: string;
 }
 
 export interface ShoppingListItemCardInterface {
-    id: number;
-    item: ItemInterface;
-    quantity: number;
+  id: number;
+  item: ItemInterface;
+  quantity: number;
 }
 
 export interface ShoppingListItem {
-    id: bigint;
-    quantity: number;
-  }
+  id: bigint;
+  quantity: number;
+}
 
 export interface FridgeItemCardInterface {
-    id: number;
-    item: ItemInterface;
-    quantity: number;
-    expirationDate: string;
+  id: number;
+  item: ItemInterface;
+  quantity: number;
+  expirationDate: string;
 }
 
 export interface RecipeInterface {
-    id: number;
-    name: string;
-    estimated_time: string;
-    description:string;
-    image: string;
-    numberOfItems: number;
-
+  id: number;
+  name: string;
+  estimatedTime: string;
+  description:string;
+  numberOfItems: number;
+  image: string;
 }
 
 export interface RecipeCardInterface {
-    recipe: RecipeInterface;
-    amountInFridge: number;
-    amountNearlyExpired: number;
+  recipe: RecipeInterface;
+  amountInFridge: number;
+  amountNearlyExpired: number;
 }
 
 export interface RecipeIngredientInterface {
@@ -57,14 +65,14 @@ export interface RecipeIngredientInterface {
 }
 
 export interface User {
-    id: number;
+  id: number;
 }
 
 export interface ImportedProduct {
-    name: string;
-    image: string;
-    current_price: number;
-    description: string;
+  name: string;
+  image: string;
+  current_price: number;
+  description: string;
 }
 
 export interface SubUser {

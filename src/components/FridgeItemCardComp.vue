@@ -1,28 +1,29 @@
 <template>
   <div class="card">
-    <img :src=props.product.item.image class="card-img-top" alt="...">
+    <div class="card-image">
+      <img :src=props.product.item.image class="card-img-top" alt="...">
+    </div>
     <div class="card-body">
-      <div class="text-section-one">
+      <div class="section-one">
         <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
-        <div class="expiration-date-div">
-          <p class="card-text">Utløpsdato:</p>
-          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
-          ref="expirationDateInput"/>
+        <div class="edits">
+          <div class="expiration-date-div">
+            <p class="card-text">Utløpsdato:</p>
+            <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
+            ref="expirationDateInput"/>
+          </div>
+          <div class="quantity-div">
+            <p class="card-text">{{ unitType }}</p>
+            <input class="input-field"
+              :disabled="edit"
+              v-model.number="quantity"
+              id="quantity"
+              ref="quantityInput"
+            />
+          </div>
         </div>
       </div>
-      <div class="text-section-two">
-        <h5 class="card-title">{{ props.product.item.weightPerUnit }}</h5>
-        <div class="quantity-div">
-          <p class="card-text">Antall:</p>
-          <input class="input-field"
-            :disabled="edit"
-            v-model.number="quantity"
-            id="quantity"
-            ref="quantityInput"
-          />
-        </div>
-      </div>
-      <div class="text-section-three">
+      <div class="section-two">
         <input
           id="fridge-item-checkbox"
           type="checkbox"
@@ -39,7 +40,7 @@
 <script setup lang="ts">
 
 import { ref, watch, computed } from 'vue'
-import { FridgeItemCardInterface } from './types'
+import { FridgeItemCardInterface, Unit } from './types'
 
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed'])
@@ -59,6 +60,19 @@ const titleFontSize = computed(() => {
     return '1.2rem'
   } else {
     return '1rem' // Smallest font size
+  }
+})
+
+const unitType = computed(() => {
+  switch (props.product.item.unit) {
+    case Unit.GRAMS:
+      return 'Vekt (g)'
+    case Unit.MILLILITER:
+      return 'Mengde (mL)'
+    case Unit.ITEM:
+      return 'Antall'
+    default:
+      return ''
   }
 })
 
@@ -137,8 +151,6 @@ watch(
 .expiration-date-div {
   display: grid;
   text-align: left;
-  position: absolute;
-  bottom: 0;
 }
 
 #expiration-date {
@@ -147,9 +159,12 @@ watch(
 
 .quantity-div {
   display: grid;
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+#quantity {
+  justify-self: center;
 }
 
 #fridge-item-checkbox {
@@ -162,6 +177,7 @@ watch(
 .card-title {
   font-size: 22px;
   font-weight: bold;
+  text-align: left;
 }
 
 .card-text {
@@ -171,29 +187,36 @@ watch(
 }
 
 .input-field {
-  width: 80%;
+  width: 50%;
   border-radius: 20px;
   text-align: center;
 }
 
-#quantity {
-  justify-self: left;
-}
-
 .card {
-  max-width: 550px;
+  width: 550px;
   flex-direction: row;
   background-color: rgba(35, 173, 58, 0.3);
+  height: 150px; /* Set a fixed height for the grid item */
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
   margin: 3em auto;
 }
 
-.card img {
-  max-width: 25%;
+.card-image {
+  width: 35%;
+  max-height: 150px; /* Increase max-height value */
   margin: auto;
   padding: 0.5em;
   border-radius: 0.7em;
+  overflow: hidden;
+}
+
+.card-img-top {
+  max-width: 100%;
+  max-height: 140px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .card-body {
@@ -203,27 +226,26 @@ watch(
   height: 160px;
 }
 
-.text-section-one,
-.text-section-two {
+.section-one {
   position: relative;
   height: 100%;
-  align-items: center;
   justify-content: space-between;
+  min-width: 67%;
+  max-width: 67%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
-.text-section-one {
-  min-width: 42%;
-  max-width: 42%;
-  text-align: left;
+.edits {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
 }
 
-.text-section-two {
-  min-width: 25%;
-  max-width: 25%;
-  text-align: left;
-}
-
-.text-section-three {
+.section-two {
   width: 30%;
   height: 100%;
   display: flex;

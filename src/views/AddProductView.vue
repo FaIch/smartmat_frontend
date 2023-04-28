@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
-import { ItemInterface } from '../components/types'
+import { ItemInterface, Unit } from '../components/types'
 
 const eanCode = ref('')
 const productData = ref<ItemInterface>()
@@ -43,7 +43,7 @@ const formData = reactive<ItemInterface>({
   name: '',
   shortDesc: '',
   category: '',
-  unit: '',
+  unit: Unit.ITEM,
   price: 0,
   weightPerUnit: 0,
   image: '',

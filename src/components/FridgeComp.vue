@@ -1,6 +1,6 @@
 <template>
   <div class="my-fridge">
-    <NewSearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
+    <SearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
     <div class="update-message">
       {{ updateMessage }}
     </div>
@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import NewSearchBarComp from './NewSearchBarComp.vue'
+import SearchBarComp from './SearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCardComp from './FridgeItemCardComp.vue'
@@ -134,7 +134,8 @@ const normalizeDate = (date: Date) => {
 
 async function markAsEaten () {
   await axiosMarkAsEaten()
-  emit('handle-decrement', props.fridge)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
 }
 
 async function axiosMarkAsEaten () {
@@ -149,7 +150,6 @@ async function axiosMarkAsEaten () {
       if (response.status === 200) {
         updateMessage.value = 'Varer spist'
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-        selectedProducts.value = []
         goNextAxios.value = true
 
         setTimeout(() => {
@@ -166,8 +166,6 @@ async function axiosMarkAsEaten () {
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-  selectedProducts.value = []
-
   return goNextAxios
 }
 
@@ -192,7 +190,8 @@ async function markAsWaste () {
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'
-        emit('handle-decrement', props.fridge)
+        emit('handle-decrement', props.fridge, selectedProducts.value.length)
+        selectedProducts.value = []
       }
     })
     .catch((error) => {
