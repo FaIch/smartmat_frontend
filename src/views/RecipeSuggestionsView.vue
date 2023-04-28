@@ -16,7 +16,6 @@ import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
-import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
@@ -49,10 +48,6 @@ async function getRecipies () {
     })
 }
 
-const router = useRouter()
-const goToRecipe = (id: number) => {
-  router.push({ name: 'recipe', params: { id } })
-}
 </script>
 
 <style scoped>

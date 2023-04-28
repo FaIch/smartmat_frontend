@@ -1,7 +1,7 @@
 <template>
   <div v-if="recipe" class="container">
     <h1 class="title">{{ recipe.name }}</h1>
-    <img class="recipe-image" :src="'data:image/png;base64,' + recipe.image" alt="">
+    <img class="recipe-image" :src="recipe.image" alt="">
     <h2 class="recipe-title">Ingredients</h2>
   <button @click="addAllToShoppingList">Add All to Shopping List</button>
   <table>
@@ -39,11 +39,10 @@
     </tbody>
   </table>
     <h2 class="recipe-title">Instructions</h2>
-    <ol>
-      <!-- <li v-for="(instruction, index) in recipe.instructions" :key="index">{{ instruction }}</li> -->
-    </ol>
+    <div v-html="formattedText">
+    </div>
     <h2 class="recipe-title">Estimated time</h2>
-    <p>{{ recipe.estimated_time }}</p>
+    <p>{{ recipe.estimatedTime }}</p>
     <!-- <h2 class="recipe-title">Number of items in fridge</h2>
     <p>{{ recipe.numberOfItemsFridge }}</p>
     <h2 class="recipe-title">Number of items needed for recipe</h2>
@@ -73,6 +72,8 @@ const shoppingList = ref<ShoppingListItemCardInterface[]>([])
 const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectedItems = ref<ShoppingListItem[]>([])
 
+const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<br>'))
+
 onMounted(() => {
   fetchRecipe()
   fetchRecipeItems()
@@ -94,6 +95,7 @@ async function fetchRecipe () {
         console.log('success')
         console.log(response.data)
         recipe.value = response.data
+        console.log(recipe.value?.description)
       }
     })
     .catch((error) => {
