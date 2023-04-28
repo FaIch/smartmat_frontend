@@ -8,9 +8,10 @@
             :key="index"
             class="user-item"
             :class="{ 'user-item-selected': selectedUser && selectedIndex === index }"
+            @click="user.role === 'PARENT' ? showPasscodeInput(user, index) : null"
         >
-          <img class="avatar" />
-          <p>{{ }}</p>
+          <img src="../assets/logo.png" :alt="user.nickname" class="avatar" />
+          <p>{{ user.nickname }}</p>
           <div
               v-if="selectedUser && selectedIndex === index"
               class="passcode-wrapper"
@@ -36,12 +37,13 @@
 // import logo from '@/assets/logo.png'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import { SubUser } from '../components/types'
 
-const users = ref([])
-const selectedUser = ref(null)
+const users = ref<SubUser[]>([])
+const selectedUser = ref<SubUser>()
 const passcodeInput = ref('')
 const passcodeError = ref('')
-const selectedIndex = ref(null)
+const selectedIndex = ref<number>()
 const config = {
   headers: {
     'Content-type': 'application/json'
@@ -89,17 +91,18 @@ async function validatePasscode () {
     passcodeError.value = ''
   }
 }
+*/
 
-function showPasscodeInput (user, index) {
+function showPasscodeInput (user: SubUser, index: number) {
   if (selectedUser.value === user) {
-    selectedUser.value = null
-    selectedIndex.value = null
+    selectedUser.value = undefined
+    selectedIndex.value = undefined
   } else {
     selectedUser.value = user
     selectedIndex.value = index
   }
 }
-*/
+
 </script>
 
 <style scoped>

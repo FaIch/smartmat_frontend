@@ -1,19 +1,25 @@
 <template>
-<div class="card">
+  <div class="card">
     <img :src=props.product.item.image class="card-img-top" alt="...">
     <div class="card-body">
       <div class="text-section-one">
-        <h5 class="card-title">{{ props.product.item.name }}</h5>
+        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
         <div class="expiration-date-div">
           <p class="card-text">Utløpsdato:</p>
-          <input class="input-field" :disabled="true" :placeholder="props.product.expirationDate" id="expiration-date"/>
+          <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
+          ref="expirationDateInput"/>
         </div>
       </div>
       <div class="text-section-two">
-        <h5 class="card-title">{{ props.product.item.weight }}</h5>
+        <h5 class="card-title">{{ props.product.item.weightPerUnit }}</h5>
         <div class="quantity-div">
           <p class="card-text">Antall:</p>
-          <input class="input-field" :disabled="true" :placeholder="props.product.quantity.toString" id="quantity"/>
+          <input class="input-field"
+            :disabled="edit"
+            v-model.number="quantity"
+            id="quantity"
+            ref="quantityInput"
+          />
         </div>
       </div>
       <div class="text-section-three">
@@ -32,11 +38,11 @@
 
 <script setup lang="ts">
 
-import { defineProps, ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface } from './types'
 
 const edit = ref(true)
-const emit = defineEmits(['update'])
+const emit = defineEmits(['update', 'selection-changed'])
 
 const props = defineProps({
   product: {
@@ -44,27 +50,53 @@ const props = defineProps({
     required: true
   }
 })
+
+const titleFontSize = computed(() => {
+  const length = props.product.item.name.length
+  if (length <= 10) {
+    return '1.8rem'
+  } else if (length <= 20) {
+    return '1.2rem'
+  } else {
+    return '1rem' // Smallest font size
+  }
+})
+
 const expirationDate = ref(props.product.expirationDate)
 const quantity = ref(props.product.quantity)
 const selected = ref(false)
+const expirationDateInput = ref<HTMLInputElement | null>(null)
+const quantityInput = ref<HTMLInputElement | null>(null)
 
 const activateEdit = () => {
-  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
-  const quantityInput = document.getElementById('quantity') as HTMLInputElement
-
-  expirationDateInput.disabled = false
-  quantityInput.disabled = false
-  expirationDateInput.focus()
+  if (!expirationDateInput.value || !quantityInput.value) {
+    return
+  }
+  expirationDateInput.value.disabled = false
+  quantityInput.value.disabled = false
+  expirationDateInput.value.focus()
   edit.value = false
-  console.log(props)
+}
+
+const validateQuantity = (quantity: number) => {
+  return quantity > 0
 }
 
 const activateSave = () => {
-  const expirationDateInput = document.getElementById('expiration-date') as HTMLInputElement
-  const quantityInput = document.getElementById('quantity') as HTMLInputElement
+  if (!expirationDateInput.value || !quantityInput.value) {
+    return
+  }
+  const isQuantityValid = validateQuantity(quantity.value)
 
-  expirationDateInput.disabled = true
-  quantityInput.disabled = true
+  if (!isQuantityValid) {
+    expirationDate.value = props.product.expirationDate
+    quantity.value = props.product.quantity
+    alert('Ugyldig antall.')
+    return
+  }
+
+  expirationDateInput.value.disabled = true
+  quantityInput.value.disabled = true
   edit.value = true
 
   // Check if the values have been changed
@@ -128,16 +160,14 @@ watch(
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  max-width: 100%; /* Set a max-width for the card-title */
-  white-space: nowrap; /* Prevent the text from wrapping */
-  overflow: hidden; /* Hide any overflowing text */
-  text-overflow: ellipsis; /* Display an ellipsis when the text overflows */
 }
 
 .card-text {
   margin: 0;
+  padding: 0;
+  color: black;
 }
 
 .input-field {
@@ -170,6 +200,7 @@ watch(
   display: flex;
   padding: 30px 0 30px 0;
   align-items: center;
+  height: 160px;
 }
 
 .text-section-one,

@@ -1,11 +1,13 @@
 export interface ItemInterface {
-    category: string;
-    id: number;
-    image: string;
-    name: string;
-    price: number;
-    shortDesc: string;
-    weight: number;
+  id?: number;
+  category: string;
+  image: string;
+  name: string;
+  price: number;
+  shortDesc: string;
+  weightPerUnit: number;
+  unit: string;
+  baseAmount: number;
 }
 
 export interface ItemDisplayInterface {
@@ -32,14 +34,20 @@ export interface FridgeItemCardInterface {
     expirationDate: string;
 }
 
-export interface RecipeCardInterface {
+export interface RecipeInterface {
     id: number;
     name: string;
     estimated_time: string;
     description:string;
     image: string;
-    numberOfItemsRecipe: number;
-    numberOfItemsFridge: number;
+    numberOfItems: number;
+
+}
+
+export interface RecipeCardInterface {
+    recipe: RecipeInterface;
+    amountInFridge: number;
+    amountNearlyExpired: number;
 }
 
 export interface RecipeInterface {
@@ -54,4 +62,18 @@ export interface RecipeInterface {
 }
 export interface User {
     id: number;
+}
+
+export interface ImportedProduct {
+    name: string;
+    image: string;
+    current_price: number;
+    description: string;
+}
+
+export interface SubUser {
+  id: bigint;
+  nickname: string;
+  role: string;
+  passcode: number;
 }
