@@ -1,6 +1,6 @@
 <template>
   <div class="my-fridge">
-    <SearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
+    <SearchBarComp :search-placeholder="searchPlaceholder" v-if="props.fridge" id="search-bar"/>
     <div class="update-message">
       {{ updateMessage }}
     </div>
@@ -38,6 +38,7 @@ const products = ref<FridgeItemCardInterface[]>([])
 const selectedProducts = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
 const updateMessage = ref('')
+const searchPlaceholder = ref('Søk etter varer...')
 const config = {
   headers: {
     'Content-Type': 'application/json'

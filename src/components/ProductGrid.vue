@@ -1,6 +1,6 @@
 <template>
     <div>
-      <SearchBarComp :with-dropdown="false" @search="searchProducts" />
+      <SearchBarComp :search-placeholder="searchPlaceholder" @search="searchProducts" />
       <div class="grid-container">
         <div
           v-for="product in displayedProducts"
@@ -31,6 +31,7 @@ const products = ref<ItemInterface[]>([])
 const searchQuery = ref('')
 const itemsPerPage = 20
 const currentPage = ref(1)
+const searchPlaceholder = ref('Søk etter varer...')
 const selectedProducts = ref<ItemInterface[]>([])
 const emits = defineEmits(['update-selected-products'])
 
