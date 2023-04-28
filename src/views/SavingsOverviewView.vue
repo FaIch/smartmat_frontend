@@ -4,56 +4,118 @@
     <div class="numbers">
       <div>
         <h2>Totalt matsvinn</h2>
-        <p class="mainNumbers">{{ totalFoodWaste }} kg</p>
-        <p>Årlig gjennomsnitt per nordmann:<br> {{ averageFoodWaste }}kg</p>
+        <p class="mainNumbers">{{ foodWaste }} kg</p>
+        <p class="averages"><br> {{ averageFoodWaste }}</p>
       </div>
       <div>
         <h2>Penger tapt</h2>
         <p class="mainNumbers">{{ moneyLost }} kr</p>
-        <p>Årlig gjennomsnitt per nordmann:<br> {{ averageMoneyLost }}kr</p>
+        <p class="averages">Gjennomsnitt:<br> {{ averageMoneyLost }}</p>
       </div>
       <div>
         <h2>CO2-ekvivalenter</h2>
         <p class="mainNumbers">{{ co2Emissions }} kg</p>
-        <p>Årlig gjennomsnitt per nordmann:<br> {{ averageCo2Emissions }}kg</p>
+        <p class="averages">Gjennomsnitt:<br> {{ averageCO2Emissions }}</p>
       </div>
+    </div>
+    <div class="menu">
+      <button class="selector" @click="showAllTime()">All Time</button>
+      <button class="selector" @click="showLastYear()">Last Year</button>
+      <button class="selector" @click="showLastMonth()">Last Month</button>
+      <button class="selector" @click="showLastWeek()">Last Week</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 // Average values for a Norwegian consumer
-const averageFoodWaste = 84.7 // kg per year
+const averageFoodWaste = computed(() => {
+  if (flag.value === 'yearly') {
+    return `Årlig gjennomsnitt: ${foodWaste.value} kg`
+  } else if (flag.value === 'monthly') {
+    return `Månedtlig gjennomsnitt: ${foodWaste.value / 12} kg`
+  } else if (flag.value === 'weekly') {
+    return `Ukentlig gjennomsnitt: ${foodWaste.value / 52} kg`
+  } else {
+    return ''
+  }
+}) // kg per year
 const averageMoneyLost = 5322 // kr per year
-const averageCo2Emissions = 305 // kg per year
+const averageCO2Emissions = 305 // kg per year
 
-const totalFoodWaste = ref(0.0)
-const moneyLost = ref(0.0)
-const co2Emissions = ref(0.0)
+const flag = ref('')
+const foodWaste = ref<number>(0)
+const moneyLost = ref<number>(0)
+const co2Emissions = ref<number>(0)
 
-const fetchTotalWaste = async () => {
-  const response = await axios.get('/waste/total')
-  totalFoodWaste.value = response.data
+const config = {
+  headers: {
+    'Content-type': 'application/json'
+  },
+  withCredentials: true
 }
 
-const fetchMoneyLost = async () => {
-  const response = await axios.get('/waste/money')
-  moneyLost.value = response.data
+const showAllTime = () => {
+  axios.get('http://localhost:8080/waste/total/all-time',
+    config
+  )
+    .then((response) => {
+      const data = response.data
+      foodWaste.value = data[0] / 1000
+      moneyLost.value = data[1] / 1000
+      co2Emissions.value = data[2] / 1000
+      flag.value = 'allTime'
+    })
 }
 
-const fetchCo2Emissions = async () => {
-  const response = await axios.get('/waste/emissions')
-  co2Emissions.value = response.data
+const showLastYear = () => {
+  axios.get('http://localhost:8080/waste/total/last-year',
+    config
+  )
+    .then((response) => {
+      const data = response.data
+      foodWaste.value = data[0] / 1000
+      moneyLost.value = data[1] / 1000
+      co2Emissions.value = data[2] / 1000
+      flag.value = 'yearly'
+    })
+}
+
+const showLastMonth = () => {
+  axios.get('http://localhost:8080/waste/total/last-month',
+    config
+  )
+    .then((response) => {
+      const data = response.data
+      foodWaste.value = data[0] / 1000
+      moneyLost.value = data[1] / 1000
+      co2Emissions.value = data[2] / 1000
+      flag.value = 'monthly'
+    })
+}
+
+const showLastWeek = () => {
+  axios.get('http://localhost:8080/waste/total/last-week',
+    config
+  )
+    .then((response) => {
+      const data = response.data
+      foodWaste.value = data[0] / 1000
+      moneyLost.value = data[1] / 1000
+      co2Emissions.value = data[2] / 1000
+      flag.value = 'weekly'
+    })
 }
 
 onMounted(() => {
-  fetchTotalWaste()
-  fetchMoneyLost()
-  fetchCo2Emissions()
+  showAllTime()
+  showLastYear()
+  showLastMonth()
+  showLastWeek()
 })
 
 </script>
@@ -70,11 +132,52 @@ onMounted(() => {
   background-position: center;
   background-repeat: no-repeat;
 }
-h1, h2, p {
+.menu {
+  display: flex;
+}
+
+.selector {
+  width: 120px;
+  height: 40px;
+  margin: 10px;
+  color: #fff;
+  background: #25A13A;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .2s ease-in;
+}
+
+.selector:hover {
+  color: #25A13A;
+  background: #fff;
+}
+
+h1 {
+  font-weight: bolder;
+  font-size: 50px;
+  color: white;
+  margin: 2rem 0 0;
+  padding: 0.5rem;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  margin: 0.5rem;
+  padding: 0.5rem;
+}
+
+p {
+  font-weight: bold;
   color: white;
   margin: 1rem;
   padding: 1rem;
 }
+
 .numbers {
   display: flex;
 }
@@ -84,8 +187,17 @@ h1, h2, p {
 
 .mainNumbers {
   font-weight: bolder;
-  font-size: 50px;
+  font-size: 60px;
   color: white;
+  margin: 1rem;
+  padding: 1rem;
+  text-shadow: 0 0 10px #25A13A, 0 0 20px #25A13A, 0 0 30px #25A13A,
+  0 0 40px #FEFF01, 0 0 70px #FEFF01, 0 0 80px #FEFF01;
+}
+
+.averages {
+  font-weight: bold;
+  font-size: 20px;
   margin: 1rem;
   padding: 1rem;
 }
