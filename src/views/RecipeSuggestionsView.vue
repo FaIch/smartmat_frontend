@@ -7,20 +7,12 @@
       <div v-for="recipe in recipes" :key="recipe.recipe.id">
         <div class="recipe-card">
         <div class="recipe-details">
-<<<<<<< HEAD
-          <h2 class="recipe-title"><b>{{ recipe.name }}</b></h2>
-          <img class="recipe-image" :src="'data:image/png;base64,' + recipe.image" alt="">
-          <h4 class="recipe-comment">{{ recipe.estimated_time }}</h4>
-          <h5 class="recipe-comment">{{ recipe.numberOfItemsFridge }} / {{recipe.numberOfItemsRecipe}}</h5>
-          <button @click="goToAboutRecipeView(recipe.id)">Se oppskrift</button>
-=======
           <h2 class="recipe-title"><b>{{ recipe.recipe.name }}</b></h2>
           <img class="recipe-image" :src="'data:image/png;base64,' + recipe.recipe.image" alt="">
           <h4 class="recipe-comment">{{ recipe.recipe.estimated_time }}</h4>
           <h5 class="recipe-comment">{{ recipe.amountInFridge }} / {{recipe.recipe.numberOfItems}}</h5>
           <h5 class="recipe-comment">Amount nearly exipred ({{ recipe.amountNearlyExpired }})</h5>
-          <button class="recipe-button">Gå til oppskrift</button>
->>>>>>> dev
+          <button class="recipe-button" @click="() => goToRecipe(recipe.recipe.id)">Gå til oppskrift</button>
         </div>
         </div>
     </div>
@@ -30,18 +22,14 @@
 
 <script setup lang="ts">
 // import RecipeCardComp from '../components/RecipeCardComp.vue'
-<<<<<<< HEAD
-// import AboutRecipeView from '../views/AboutRecipeView.vue'
-import SearchBarComp from '../components/SearchBarComp.vue'
-=======
 import NewSearchBarComp from '../components/NewSearchBarComp.vue'
->>>>>>> dev
 import { onMounted, ref } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
-import router from '../router/index'
+import { useRouter } from 'vue-router'
+
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
 const recipes = ref<RecipeCardInterface[]>([])
@@ -74,8 +62,10 @@ async function getRecipies () {
       }
     })
 }
-function goToAboutRecipeView (id: number) {
-  router.push('/aboutRecipe')
+
+const router = useRouter()
+const goToRecipe = (id: number) => {
+  router.push({ name: 'recipe', params: { id } })
 }
 </script>
 

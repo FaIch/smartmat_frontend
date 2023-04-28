@@ -9,8 +9,7 @@ import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import RecipeSuggestionsView from '../views/RecipeSuggestionsView.vue'
 import AddProductView from '../views/AddProductView.vue'
-import AboutRecipeView from '../views/AboutRecipeView.vue'
-
+import RecipePageView from '../views/RecipePageView.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -62,11 +61,10 @@ const routes: Array<RouteRecordRaw> = [
     name: 'addProduct',
     component: AddProductView
   },
-
   {
-    path: '/aboutRecipe',
-    name: 'aboutRecipe',
-    component: AboutRecipeView
+    path: '/recipe/:id',
+    name: 'recipe',
+    component: RecipePageView
   }
 ]
 

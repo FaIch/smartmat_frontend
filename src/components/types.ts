@@ -50,16 +50,12 @@ export interface RecipeCardInterface {
     amountNearlyExpired: number;
 }
 
-export interface RecipeInterface {
+export interface RecipeIngredientInterface {
     id: number;
-    name: string;
-    image: string;
-    ingredients: string[];
-    instructions: string[];
-    estimated_time: string;
-    numberOfItemsFridge: number;
-    numberOfItemsRecipe: number;
+    quantity: number;
+    item: ItemInterface;
 }
+
 export interface User {
     id: number;
 }
