@@ -8,13 +8,13 @@ describe('FridgeItemCardComp', () => {
       item: {
         name: 'Test',
         unit: '300g',
-        image: 'https://example.com/image.png',
+        image: 'https://example.com/image.png'
       },
       expirationDate: '2023-05-01',
-      quantity: 500,
+      quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
-      props: { product },
+      props: { product }
     })
     const title = wrapper.find('.card-title')
     expect(title.text()).toBe('Test')
@@ -25,13 +25,13 @@ describe('FridgeItemCardComp', () => {
       item: {
         name: 'Test',
         unit: '300',
-        image: 'https://example.com/image.png',
+        image: 'https://example.com/image.png'
       },
       expirationDate: '2023-05-01',
-      quantity: 500,
+      quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
-      props: { product },
+      props: { product }
     })
 
     const editButton = wrapper.find('#edit-button')
@@ -49,13 +49,13 @@ describe('FridgeItemCardComp', () => {
       item: {
         name: 'Test',
         unit: '300',
-        image: 'https://example.com/image.png',
+        image: 'https://example.com/image.png'
       },
       expirationDate: '2023-05-01',
-      quantity: 500,
+      quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
-      props: { product },
+      props: { product }
     })
 
     const editButton = wrapper.find('#edit-button')
@@ -79,13 +79,13 @@ describe('FridgeItemCardComp', () => {
       item: {
         name: 'Test',
         unit: '300',
-        image: 'https://example.com/image.png',
+        image: 'https://example.com/image.png'
       },
       expirationDate: '2023-05-01',
-      quantity: 500,
+      quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
-      props: { product },
+      props: { product }
     })
 
     const checkBox = wrapper.find('#fridge-item-checkbox')
