@@ -77,13 +77,9 @@ async function filterRecipes (searchInput: string) {
 .recipes-container {
   min-height: 100vh;
   height: 100%;
-  margin-top: 75px;
+  padding-top: 15vh;
   display: flex;
   flex-direction: column;
-}
-
-.recipes-title {
-  margin-top: 20px;
 }
 
 .recipes-title h1 {
@@ -97,7 +93,7 @@ async function filterRecipes (searchInput: string) {
   position: relative;
   text-align: center;
   left: 25%;
-  margin-top: 20px;
+  margin-top: 22px;
   color: black;
   width: 50%;
   max-width: 1000px;

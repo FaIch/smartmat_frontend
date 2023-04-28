@@ -56,8 +56,12 @@ const titleFontSize = computed(() => {
   const length = props.product.item.name.length
   if (length <= 10) {
     return '1.8rem'
+  } else if (length <= 15) {
+    return '1.5rem'
   } else if (length <= 20) {
-    return '1.2rem'
+    return '1.3rem'
+  } else if (length <= 25) {
+    return '1.1rem'
   } else {
     return '1rem' // Smallest font size
   }
