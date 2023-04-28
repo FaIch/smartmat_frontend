@@ -85,6 +85,7 @@ async function filterRecipes (searchInput: string) {
 .recipes-title h1 {
   font-size: 40px;
   margin: 0;
+  margin-top: 5px;
   font-weight: normal;
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
@@ -93,7 +94,7 @@ async function filterRecipes (searchInput: string) {
   position: relative;
   text-align: center;
   left: 25%;
-  margin-top: 22px;
+  margin-top: 17px;
   color: black;
   width: 50%;
   max-width: 1000px;

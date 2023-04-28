@@ -123,14 +123,15 @@ h2 {
   transition: font-size 0.5s;
   padding: 0;
   margin: 0;
+  font-weight: normal;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
 .active {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 40px;
 }
 
 .inactive {
-  font-size: 1rem;
+  font-size: 20px;
 }
 </style>
