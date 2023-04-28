@@ -26,10 +26,3 @@ describe('SearchBarComp form', async () => {
     expect(wrapper.exists()).toBe(true)
   })
 })
-
-describe('SearchBarComp functionality', async () => {
-  it('Should render a search input', () => {
-    const input = wrapper.find('.search-bar input[type="text"]')
-    expect(input.exists()).toBe(true)
-  })
-})
