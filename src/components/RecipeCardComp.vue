@@ -43,7 +43,7 @@ const missingIngredients = computed(() => {
 
 const tooltipOptions = reactive({
   content: `${props.recipe.amountNearlyExpired} varer går snart ut på dato`,
-  placement: 'top'
+  placement: 'bottom'
 })
 
 </script>
@@ -52,8 +52,7 @@ const tooltipOptions = reactive({
 
 .recipe-card {
   background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   width: 300px;
   height: 280px;
@@ -61,7 +60,7 @@ const tooltipOptions = reactive({
 }
 
 .recipe-card:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 
 .recipe-image {

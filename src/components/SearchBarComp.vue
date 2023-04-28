@@ -8,35 +8,27 @@
       id="search-input"
       type="text"
       v-model="searchQuery"
-      :placeholder="searchPlaceholder"
+      :placeholder="props.searchPlaceholder"
       @keyup.enter="updateSearch"
       @input="updateSearch"
     />
-    <button id="search-button" @click="updateSearch">
-      Søk
-    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const emit = defineEmits(['get-query', 'search'])
+const emit = defineEmits(['search'])
 const props = defineProps({
-  withDropdown: {
-    type: Boolean,
+  searchPlaceholder: {
+    type: String,
     required: true
   }
 })
-const searchPlaceholder = ref('Søk etter varer...')
 const searchQuery = ref('')
 
 function updateSearch () {
-  if (!props.withDropdown) {
-    emit('search', searchQuery.value)
-  } else {
-    emit('get-query')
-  }
+  emit('search', searchQuery.value)
 }
 
 </script>
