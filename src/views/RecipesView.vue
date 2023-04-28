@@ -3,9 +3,9 @@
     <div class="recipes-title">
       <h1>Middagsforslag</h1>
     </div>
-    <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar"/>
+    <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar" @search="filterRecipes"/>
     <div v-if="updateMessage.length === 0" class="recipes-grid">
-      <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
+      <RecipeCardComp v-for="(recipe, index) in filteredRecipes" :key="index" :recipe="recipe"/>
     </div>
     <div v-if="updateMessage.length > 0" class="update-message">
       <h3> {{ updateMessage }}</h3>
@@ -28,11 +28,14 @@ const searchPlaceholder = ref('Søk etter oppskrifter...')
 const recipes = ref<RecipeCardInterface[]>([])
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
-  getRecipies()
+  getRecipes().then(() => {
+    filteredRecipes.value = recipes.value
+  })
 })
 const updateMessage = ref('')
+const filteredRecipes = ref<RecipeCardInterface[]>([])
 
-async function getRecipies () {
+async function getRecipes () {
   const path = 'http://localhost:8080/recipe/list/sorted'
   const config = {
     headers: {
@@ -60,6 +63,12 @@ async function getRecipies () {
       }
     }
   }
+}
+
+async function filterRecipes (searchInput: string) {
+  filteredRecipes.value = recipes.value.filter((recipeCard: RecipeCardInterface) => {
+    return recipeCard.recipe.name.toLowerCase().includes(searchInput.toLowerCase())
+  })
 }
 </script>
 
