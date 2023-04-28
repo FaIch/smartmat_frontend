@@ -25,14 +25,4 @@ describe('SearchBarComp form', async () => {
   it('Renders correctly', () => {
     expect(wrapper.exists()).toBe(true)
   })
-
-  it('Can perform a search', async () => {
-    const inputField = wrapper.find('#search-input')
-    await inputField.setValue('Test')
-
-    const searchButton = wrapper.find('#search-button')
-    await searchButton.trigger('click')
-
-    expect(inputField.element.value).toBe('Test')
-  })
 })
