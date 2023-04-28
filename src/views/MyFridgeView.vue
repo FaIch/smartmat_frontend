@@ -71,11 +71,11 @@ function handleSwap (fridge: boolean) {
   }
 }
 
-function handleDecrement (fridge: boolean) {
+function handleDecrement (fridge: boolean, number: number) {
   if (fridge) {
-    numberOfUnexpiredItems.value--
+    numberOfUnexpiredItems.value -= number
   } else {
-    numberOfExpiredItems.value--
+    numberOfExpiredItems.value -= number
   }
 }
 </script>
@@ -85,14 +85,14 @@ function handleDecrement (fridge: boolean) {
   display: flex;
   flex-direction: column;
   padding-top: 15vh;
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .task-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: white;
   min-height: 60px;
   width: 100%;
 }

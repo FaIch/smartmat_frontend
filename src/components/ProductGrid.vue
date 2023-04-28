@@ -1,13 +1,13 @@
 <template>
     <div>
-      <SearchBarComp @search="searchProducts" />
+      <SearchBarComp :with-dropdown="false" @search="searchProducts" />
       <div class="grid-container">
         <div
           v-for="product in displayedProducts"
           :key="product.id"
           class="grid-item"
-          @click="toggleProductSelection(product.id)"
-          :class="{ selected: selectedProducts.includes(product.id) }"
+          @click="toggleProductSelection(product)"
+          :class="{ selected: selectedProducts.includes(product) }"
         >
           <img :src="product.image" :alt="product.name" />
           <div>{{ product.name }}</div>
@@ -25,13 +25,13 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import SearchBarComp from './SearchBarComp.vue'
-import { ItemDisplayInterface } from './types'
+import { ItemInterface } from './types'
 
-const products = ref<ItemDisplayInterface[]>([])
+const products = ref<ItemInterface[]>([])
 const searchQuery = ref('')
 const itemsPerPage = 20
 const currentPage = ref(1)
-const selectedProducts = ref<number[]>([])
+const selectedProducts = ref<ItemInterface[]>([])
 const emits = defineEmits(['update-selected-products'])
 
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage))
@@ -49,12 +49,12 @@ const displayedProducts = computed(() => {
   return filteredProducts.value.slice(startIndex, endIndex)
 })
 
-function toggleProductSelection (productId: number) {
-  const index = selectedProducts.value.indexOf(productId)
+function toggleProductSelection (product: ItemInterface) {
+  const index = selectedProducts.value.indexOf(product)
   if (index >= 0) {
     selectedProducts.value.splice(index, 1)
   } else {
-    selectedProducts.value.push(productId)
+    selectedProducts.value.push(product)
   }
   // Emit the updated selectedProducts array to the parent component
   emits('update-selected-products', selectedProducts.value)
