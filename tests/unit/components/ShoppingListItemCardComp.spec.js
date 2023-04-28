@@ -19,5 +19,5 @@ describe('ShoppingListItemCardComp form', async () => {
       }
     })
     expect(wrapper.exists()).toBe(true)
-  })
+  })  
 })

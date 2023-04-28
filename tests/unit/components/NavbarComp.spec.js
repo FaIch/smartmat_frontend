@@ -35,5 +35,5 @@ describe('NavbarComp form', async () => {
     const screenWidthAfter = wrapper.vm.screenWidth
     expect(screenWidthAfter).toBe(window.innerWidth)
   })
-
+  
 })
