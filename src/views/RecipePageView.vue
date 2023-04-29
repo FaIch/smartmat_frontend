@@ -10,7 +10,13 @@
         <th>Amount & Unit</th>
         <th>Ingredient</th>
         <th>Availability</th>
-        <th>Add to Shopping List</th>
+        <th>
+          <input
+            type="checkbox"
+            @change="toggleSelectAll"
+            v-model="selectAllChecked"
+          />
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -28,11 +34,12 @@
             Not enough
           </span>
         </td>
-        <td>
+        <td class="checkbox-cell">
           <input
       v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
       type="checkbox"
       @change="toggleSelectedItem(ingredient)"
+      v-model="ingredient.selected"
     />
         </td>
       </tr>
@@ -51,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUtilityStore } from '../stores/UtilityStore'
 import { useUserStore } from '../stores/UserStore'
@@ -73,6 +80,39 @@ const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectedItems = ref<ShoppingListItem[]>([])
 
 const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<br>'))
+const selectAllChecked = ref(false)
+
+watch(
+  () => selectAllChecked.value,
+  (newValue) => {
+    recipeItems.value.forEach((ingredient) => {
+      ingredient.selected = newValue
+      toggleSelectedItem(ingredient)
+    })
+  }
+)
+
+function toggleSelectAll () {
+  if (selectAllChecked.value) {
+    recipeItems.value.forEach((ingredient) => {
+      if (
+        !ingredientAvailable(ingredient) &&
+        !inShoppingList(ingredient) &&
+        !ingredient.selected
+      ) {
+        ingredient.selected = true
+        toggleSelectedItem(ingredient)
+      }
+    })
+  } else {
+    recipeItems.value.forEach((ingredient) => {
+      if (ingredient.selected) {
+        ingredient.selected = false
+        toggleSelectedItem(ingredient)
+      }
+    })
+  }
+}
 
 onMounted(() => {
   fetchRecipe()
@@ -182,16 +222,16 @@ async function fetchFridgeItems () {
     })
 }
 
-function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
+function toggleSelectedItem (ingredient: any) {
   const index = selectedItems.value.findIndex(
     (item) => item.id === ingredient.item.id
   )
   if (index === -1) {
-    // Add the item with its id and quantity
-    selectedItems.value.push({ id: ingredient.item.id, quantity: Math.ceil(ingredient.quantity / ingredient.item.baseAmount) })
-    console.log(selectedItems.value)
+    selectedItems.value.push({
+      id: ingredient.item.id,
+      quantity: Math.ceil(ingredient.quantity / ingredient.item.baseAmount)
+    })
   } else {
-    // Remove the item from the list
     selectedItems.value.splice(index, 1)
   }
 }
@@ -205,7 +245,12 @@ function ingredientAvailable (ingredient: RecipeIngredientInterface): boolean {
 }
 
 function inShoppingList (item: ShoppingListItemCardInterface): boolean {
-  return shoppingList.value.some(listItem => listItem.item.id === item.id)
+  const shoppingListItem = shoppingList.value.find(listItem => listItem.item.id === item.item.id)
+  if (shoppingListItem) {
+    console.log(shoppingListItem.item.name + shoppingListItem.quantity)
+    return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
+  }
+  return false
 }
 
 async function addAllToShoppingList () {
@@ -247,6 +292,10 @@ utilityStore.setTransparentStatus(false)
 
 </script>
 <style scoped>
+.checkbox-cell {
+  width: 1%;
+  white-space: nowrap;
+}
 .container {
   display: grid;
   margin-top: 100px;
@@ -275,6 +324,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  float: left;
 }
 
 th, td {

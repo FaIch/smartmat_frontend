@@ -62,6 +62,7 @@ export interface RecipeIngredientInterface {
     id: number;
     quantity: number;
     item: ItemInterface;
+    selected: boolean;
 }
 
 export interface User {

@@ -15,6 +15,10 @@
         v-on:remove="removeProduct(product)"/>
       </div>
     </div>
+    <SuggestedProducts
+    :checkedProducts="checkedProducts"
+    @add-to-shopping-list="addSuggestedProductToShoppingList"
+  />
   </div>
 </template>
 
@@ -27,6 +31,7 @@ import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import ProductSelectorButton from '../components/ProductSelectorButton.vue'
+import SuggestedProducts from '../components/SuggestedProducts.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
@@ -44,6 +49,13 @@ const getCheckedProducts = () => {
 
 function searchProducts (query: string) {
   searchQuery.value = query
+}
+
+const addSuggestedProductToShoppingList = (product: ShoppingListItemCardInterface) => {
+  if (!products.value.find((p) => p.id === product.id)) {
+    products.value.push(product)
+    updateCheckedStatus(product.id, false)
+  }
 }
 
 const filteredProducts = computed(() => {
