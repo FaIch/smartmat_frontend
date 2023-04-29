@@ -68,10 +68,17 @@ export interface ImportedProduct {
   current_price: number;
   description: string;
 }
+export enum Role {
+  // eslint-disable-next-line no-unused-vars
+  CHILD = 'CHILD',
+  // eslint-disable-next-line no-unused-vars
+  PARENT = 'PARENT'
+}
 
 export interface SubUser {
   id: bigint;
+  email: string;
   nickname: string;
-  role: string;
+  role: Role;
   passcode: number;
 }

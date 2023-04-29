@@ -3,7 +3,7 @@ import LoginViewVue from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
-import SubUserView from '../views/SubUserView.vue'
+import NewSubUserViewVue from '../views/NewSubUserView.vue'
 import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -34,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/subuser',
     name: 'subuser',
-    component: SubUserView
+    component: NewSubUserViewVue
   },
   {
     path: '/productSelection',

@@ -47,7 +47,7 @@ https://www.youtube.com/watch?v=U69WL9jInW0
 .login-container-body{
   min-height: 100vh;
   height: 100%;
-  margin-top: 70px;
+  padding-top: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
