@@ -99,8 +99,12 @@ async function submitLogin () {
     await axios.post(path, request, config)
       .then(async (response) => {
         if (response.status === 200) {
-          userStore.login(response.data.userEmail, 'user')
-          router.push('/fridge')
+          userStore.login(response.data.userEmail)
+          if (response.data.childUser) {
+            router.push('/subuser')
+          } else {
+            router.push('/fridge')
+          }
         }
       })
       .catch((error) => {

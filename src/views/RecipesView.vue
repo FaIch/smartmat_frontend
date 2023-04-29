@@ -18,16 +18,13 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import { ref, onMounted } from 'vue'
 import axios, { AxiosError } from 'axios'
-import { useUtilityStore } from '../stores/UtilityStore'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
 
 const userStore = useUserStore()
-const utilityStore = useUtilityStore()
 const searchPlaceholder = ref('Søk etter oppskrifter...')
 const recipes = ref<RecipeCardInterface[]>([])
 onMounted(() => {
-  utilityStore.setTransparentStatus(false)
   getRecipes().then(() => {
     filteredRecipes.value = recipes.value
   })

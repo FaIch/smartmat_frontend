@@ -52,9 +52,8 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  async function login (userEmail: string, userRole: string) {
+  async function login (userEmail: string) {
     email.value = userEmail
-    role.value = userRole
     loggedIn.value = true
 
     startRefreshTimer()

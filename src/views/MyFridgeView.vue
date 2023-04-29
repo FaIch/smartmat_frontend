@@ -17,17 +17,14 @@
 <script setup lang="ts">
 import FridgeComp from '../components/FridgeComp.vue'
 import { ref, onMounted } from 'vue'
-import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 
 const numberOfUnexpiredItems = ref()
 const numberOfExpiredItems = ref()
 const userStore = useUserStore()
-const utilityStore = useUtilityStore()
 const fridge = ref(true)
 onMounted(() => {
-  utilityStore.setTransparentStatus(false)
   getNumberOfFridgeItems()
 })
 
