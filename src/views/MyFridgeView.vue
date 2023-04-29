@@ -84,7 +84,7 @@ function handleDecrement (fridge: boolean, number: number) {
 .fridge-container {
   display: flex;
   flex-direction: column;
-  padding-top: 15vh;
+  padding-top: 120px;
   min-height: 100vh;
   height: 100%;
 }

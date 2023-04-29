@@ -80,6 +80,7 @@ async function filterRecipes (searchInput: string) {
   padding-top: 15vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .recipes-title h1 {
@@ -93,7 +94,6 @@ async function filterRecipes (searchInput: string) {
 #search-bar{
   position: relative;
   text-align: center;
-  left: 25%;
   margin-top: 17px;
   color: black;
   width: 50%;
