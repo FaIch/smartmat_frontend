@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import NewLoginView from '../views/NewLoginView.vue'
-import LoginView from '../views/LoginView.vue'
+import LoginViewVue from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
@@ -18,14 +17,9 @@ const routes: Array<RouteRecordRaw> = [
     component: StartView
   },
   {
-    path: '/oldLogin',
-    name: 'oldLogin',
-    component: LoginView
-  },
-  {
     path: '/login',
     name: 'login',
-    component: NewLoginView
+    component: LoginViewVue
   },
   {
     path: '/fridge',
