@@ -30,6 +30,8 @@
                 <h1>{{ profile }}</h1>
                 </router-link>
 
+                <notification-center-comp />
+
                 <div class="menu" v-if="showHamburgerMenu">
                     <button class="menu-button" @click="toggleMenu">
                     </button>
@@ -60,6 +62,7 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import { useUserStore } from '../stores/UserStore'
+import NotificationCenterComp from './NotificationCenterComp.vue'
 
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()

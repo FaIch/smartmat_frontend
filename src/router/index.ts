@@ -9,6 +9,7 @@ import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import AddProductView from '../views/AddProductView.vue'
 import RecipesView from '../views/RecipesView.vue'
+import NotificationView from '../views/NotificationView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,6 +61,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/addProduct',
     name: 'addProduct',
     component: AddProductView
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView
   }
 ]
 
