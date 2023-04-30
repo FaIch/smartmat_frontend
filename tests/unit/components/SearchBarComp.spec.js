@@ -1,22 +1,13 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, beforeEach } from 'vitest'
 import SearchBarComp from '../../../src/components/SearchBarComp.vue'
-import { createPinia } from 'pinia'
 
-const pinia = createPinia()
-const mockStore = {
-  someGetter: 'mockValue'
-}
 let wrapper
 
 beforeEach(() => {
   wrapper = mount(SearchBarComp, {
-    global: {
-      plugins: [pinia],
-      mocks: {
-        $pinia: pinia,
-        $store: mockStore
-      }
+    props: {
+      searchPlaceholder: 'Search...'
     }
   })
 })

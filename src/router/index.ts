@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import LoginViewVue from '../views/LoginView.vue'
+import LoginView from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
-import NewSubUserViewVue from '../views/NewSubUserView.vue'
+import SubUserView from '../views/SubUserView.vue'
 import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'login',
-    component: LoginViewVue
+    component: LoginView
   },
   {
     path: '/fridge',
@@ -34,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/subuser',
     name: 'subuser',
-    component: NewSubUserViewVue
+    component: SubUserView
   },
   {
     path: '/productSelection',
