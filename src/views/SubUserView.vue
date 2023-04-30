@@ -9,8 +9,13 @@
         @click="selectAccount(subuser, index)"
       >
         <div class="user-info-div">
-          <img
+          <img v-if="subuser.role === 'PARENT'"
             src="../assets/capybara.jpg"
+            alt="Profile image"
+            class="profile-image"
+          />
+          <img v-if="subuser.role === 'CHILD'"
+            src="../assets/baby-capybara.jpg"
             alt="Profile image"
             class="profile-image"
           />

@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
+import NewShoppingListViewVue from '../views/NewShoppingListView.vue'
 import SubUserView from '../views/SubUserView.vue'
 import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
@@ -27,9 +28,14 @@ const routes: Array<RouteRecordRaw> = [
     component: MyFridgeView
   },
   {
+    path: '/oldshoppinglist',
+    name: 'oldshoppinglist',
+    component: ShoppingListView
+  },
+  {
     path: '/shoppinglist',
     name: 'shoppinglist',
-    component: ShoppingListView
+    component: NewShoppingListViewVue
   },
   {
     path: '/subuser',
