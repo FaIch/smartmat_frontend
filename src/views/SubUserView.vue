@@ -87,6 +87,7 @@ async function getSubUsers () {
 function selectAccount (subuser: SubUser, index: number) {
   resetUpdate()
   if (subuser.role === 'CHILD') {
+    userStore.subUserLogin(subuser)
     router.push('/fridge')
     return
   }
@@ -123,6 +124,7 @@ async function validateAndLogin (subuser: SubUser, index: number) {
 
   const isPinCorrect = pin === subuser.passcode.toString()
   if (isPinCorrect) {
+    userStore.subUserLogin(subuser)
     router.push('/fridge')
   } else {
     selectAccount(subuser, index)
