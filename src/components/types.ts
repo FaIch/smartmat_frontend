@@ -58,6 +58,17 @@ export interface RecipeCardInterface {
   amountNearlyExpired: number;
 }
 
+export interface WeekMenuCardInterface {
+  firstRecipeImage:string;
+  type:string;
+}
+
+export type WeekMenuData= {
+    totalAmountOfItems:number;
+    totalAmountOfMissingItems:number;
+    totalAmountOfItemsToExpire:number;
+};
+
 export interface User {
   id: number;
 }
