@@ -6,19 +6,25 @@
     <div class="card-body">
       <div class="section-one">
         <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
+        <div class="section-one-bot">
           <div class="quantity-div">
             <p class="card-text">Antall: </p>
             <div class="edit-quantity-div">
-              <img src="../assets/icons/remove.svg">
+              <img src="../assets/icons/remove.svg" @click="decrement()">
               <input class="input-field"
-                :disabled="edit"
                 v-model.number="quantity"
                 id="quantity"
+                disabled
                 ref="quantityInput"
               />
-              <img src="../assets/icons/add.svg">
+              <img src="../assets/icons/add.svg" @click="increment()">
             </div>
           </div>
+          <div class="amount">
+            <h5> {{ props.product.quantity * props.product.item.baseAmount }}</h5>
+            <h6> {{ unitType }}</h6>
+          </div>
+        </div>
       </div>
       <div class="section-two">
         <input
@@ -33,17 +39,31 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import { ShoppingListItemCardInterface, Unit } from './types'
 
-import { ref, watch, computed } from 'vue'
-import { ShoppingListItemCardInterface } from './types'
-
-const edit = ref(true)
-const emit = defineEmits(['update', 'selection-changed'])
-
+const emit = defineEmits(['update-quantity', 'checked'])
 const props = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
+  }
+})
+
+const quantity = ref(props.product.quantity)
+const selected = ref(false)
+const quantityInput = ref<HTMLInputElement | null>(null)
+
+const unitType = computed(() => {
+  switch (props.product.item.unit) {
+    case Unit.GRAMS:
+      return 'g'
+    case Unit.MILLILITER:
+      return 'ml'
+    case Unit.ITEM:
+      return 'stk'
+    default:
+      return ''
   }
 })
 
@@ -58,30 +78,28 @@ const titleFontSize = computed(() => {
   } else if (length <= 25) {
     return '1.1rem'
   } else {
-    return '1rem' // Smallest font size
+    return '1rem'
   }
 })
 
-const quantity = ref(props.product.quantity)
-const selected = ref(false)
-const quantityInput = ref<HTMLInputElement | null>(null)
-
 function onCheckboxChange () {
-  emit('selection-changed', {
-    selected: selected.value,
-    product: props.product
+  emit('checked', {
+    product: props.product,
+    selected: selected.value
   })
 }
 
-watch(
-  () => props.product,
-  (newProduct, oldProduct) => {
-    if (newProduct !== oldProduct) {
-      quantity.value = newProduct.quantity
-    }
-  },
-  { deep: true }
-)
+function decrement () {
+  if (quantity.value > 1) {
+    quantity.value--
+    emit('update-quantity', { ...props.product, quantity: quantity.value })
+  }
+}
+
+function increment () {
+  quantity.value++
+  emit('update-quantity', { ...props.product, quantity: quantity.value })
+}
 
 </script>
 
@@ -141,7 +159,7 @@ watch(
 .card-text {
   margin: 0;
   padding: 0;
-  padding-left: 40px;
+  padding-left: 30px;
   color: black;
 }
 
@@ -153,6 +171,10 @@ watch(
   width: 30%;
   border-radius: 20px;
   text-align: center;
+}
+
+.input-field:disabled {
+  background-color: white;
 }
 
 .card {
@@ -208,4 +230,24 @@ watch(
   justify-content: center;
 }
 
+.amount {
+  width: 50%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.amount h5{
+  font-size: 20px;
+  padding-bottom: 3px;
+  margin: 0;
+}
+.amount h6 {
+  margin: 0;
+  padding-left: 5px;
+  padding-bottom: 4px;
+}
+
+.section-one-bot {
+  display: flex;
+}
 </style>

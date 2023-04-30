@@ -32,7 +32,6 @@ const handleSelect = (productId: number) => {
 /* Add your global styles here */
 .plus-button-container {
   position: relative;
-  background-color: white;
 }
 
 .product-selector-popup {

@@ -8,8 +8,24 @@
       <FridgeItemCardComp :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
     </div>
     <div class="buttons">
-      <button v-if="products.length > 0" class="fridge-button" @click="markAsEaten">Jeg har spist dette</button>
-      <button v-if="products.length > 0" class="fridge-button" @click="markAsWaste">Jeg har kastet dette</button>
+      <button
+        v-if="products.length > 0"
+        class="fridge-button delete-button"
+        @click="markAsWaste"
+        v-bind:disabled="!isAnyProductSelected"
+        v-bind:class="{ 'disabled-button': !isAnyProductSelected }"
+      >
+      Jeg har kastet dette
+      </button>
+      <button
+        v-if="products.length > 0"
+        class="fridge-button add-button"
+        @click="markAsEaten"
+        v-bind:disabled="!isAnyProductSelected"
+        v-bind:class="{ 'disabled-button': !isAnyProductSelected }"
+      >
+      Jeg har spist dette
+      </button>
       <div  v-if="products.length === 0" class="no-items">
         <h2 v-if="!props.fridge">Ingen utgåtte varer i kjøleskapet</h2>
         <h2 v-if="props.fridge">Ingen varer i kjøleskapet</h2>
@@ -19,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import SearchBarComp from './SearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
@@ -38,7 +54,8 @@ const products = ref<FridgeItemCardInterface[]>([])
 const selectedProducts = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
 const updateMessage = ref('')
-const searchPlaceholder = ref('Søk etter varer...')
+const searchPlaceholder = ref('Søk i kjøleskapet...')
+const isAnyProductSelected = computed(() => selectedProducts.value.length > 0)
 const config = {
   headers: {
     'Content-Type': 'application/json'
@@ -215,13 +232,13 @@ async function markAsWaste () {
 }
 
 #search-bar{
-    text-align: center;
-    margin-top: 10px;
-    color: black;
-    width: 50%;
-    max-width: 1000px;
-    z-index: 3;
-    scale: 0.8;
+  text-align: center;
+  margin-top: 10px;
+  color: black;
+  width: 50%;
+  max-width: 1000px;
+  z-index: 3;
+  scale: 0.8;
 }
 
 .update-message {
@@ -240,12 +257,21 @@ async function markAsWaste () {
   margin-bottom: -40px;
 }
 
-.fridge-button {
+.add-button {
   background-color: #1A7028;
+}
+
+.add-button:hover {
+  background-color: #25A13A;
+}
+
+.fridge-button {
   color: white;
   height: 40px;
   width: 200px;
-  margin: 60px;
+  margin-top: 60px;
+  margin-left: 20px;
+  margin-right: 20px;
   margin-bottom: 100px;
   border-radius: 100px;
   border: none;
@@ -253,7 +279,6 @@ async function markAsWaste () {
 
 .fridge-button:hover {
   transform: scale(1.1);
-  background-color: #25A13A;
   color: white;
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
@@ -263,4 +288,26 @@ async function markAsWaste () {
   box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
   transform: scale(.90);
 }
+
+.delete-button {
+  background-color: rgb(147, 0, 0);
+}
+
+.delete-button:hover {
+  background-color: rgb(179, 6, 6);
+}
+
+.disabled-button {
+  background-color: #bbb;
+  color: black;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.disabled-button:hover {
+  background-color: #bbb;
+  color: black;
+  transform: scale(1);
+}
+
 </style>
