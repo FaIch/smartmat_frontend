@@ -25,12 +25,10 @@ import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
 import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
-import { useUtilityStore } from '../stores/UtilityStore'
 import ProductSelectorButton from '../components/ProductSelectorButton.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
-const utilityStore = useUtilityStore()
 const userStore = useUserStore()
 const searchQuery = ref('')
 const searchPlaceholder = ref('Søk etter varer...')
@@ -153,7 +151,6 @@ const sendToFridge = async () => {
 }
 
 onMounted(() => {
-  utilityStore.setTransparentStatus(false)
   loadProducts()
   userStore.loggedIn = true
 })

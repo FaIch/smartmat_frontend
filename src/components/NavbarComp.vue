@@ -1,5 +1,5 @@
 <template>
-    <nav class="navbar" :class="{ 'is-opaque': isOpaque }">
+    <nav class="navbar is-opaque">
         <div class="navbar-container">
             <div class="navbar-logo">
                 <router-link to="/" @click.prevent="closeMenu" exact-active-class="active">
@@ -59,30 +59,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
-import { useUtilityStore } from '../stores/UtilityStore'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 import NotificationCenterComp from './NotificationCenterComp.vue'
 
-const utilityStore = useUtilityStore()
 const userStore = useUserStore()
-const isOpaque = ref(true)
 const screenWidth = ref(window.innerWidth)
 const showHamburgerMenu = computed(() => screenWidth.value < 500)
 const isMenuVisible = ref(false)
 
 const toggleMenu = () => {
   isMenuVisible.value = !isMenuVisible.value
-  if (isMenuVisible.value) {
-    isOpaque.value = true
-  } else {
-    isOpaque.value = false
-  }
 }
 
 const closeMenu = () => {
   isMenuVisible.value = false
-  utilityStore.setTransparentStatus(true)
 }
 
 const updateScreenWidth = () => {
@@ -125,15 +116,7 @@ const targetRoute = computed(() => {
   return userStore.loggedIn ? '/profile' : '/login'
 })
 
-watch(() => utilityStore.transparent, (newValue) => {
-  if (isMenuVisible.value) {
-    return
-  }
-  isOpaque.value = !newValue
-})
-
 onMounted(() => {
-  isOpaque.value = !utilityStore.transparent
   window.addEventListener('resize', updateScreenWidth)
 })
 

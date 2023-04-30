@@ -18,16 +18,13 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import { ref, onMounted } from 'vue'
 import axios, { AxiosError } from 'axios'
-import { useUtilityStore } from '../stores/UtilityStore'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
 
 const userStore = useUserStore()
-const utilityStore = useUtilityStore()
 const searchPlaceholder = ref('Søk etter oppskrifter...')
 const recipes = ref<RecipeCardInterface[]>([])
 onMounted(() => {
-  utilityStore.setTransparentStatus(false)
   getRecipes().then(() => {
     filteredRecipes.value = recipes.value
   })
@@ -80,6 +77,7 @@ async function filterRecipes (searchInput: string) {
   padding-top: 15vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .recipes-title h1 {
@@ -93,7 +91,6 @@ async function filterRecipes (searchInput: string) {
 #search-bar{
   position: relative;
   text-align: center;
-  left: 25%;
   margin-top: 17px;
   color: black;
   width: 50%;

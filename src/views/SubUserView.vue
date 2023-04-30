@@ -1,30 +1,43 @@
 <template>
-  <div class="container">
-    <div class="main">
-      <h1 class="title">Velg Bruker</h1>
-      <div class="user-list">
+  <div class="sub-user-page-container">
+    <h1 class="update-message"> {{ updateMessage }}</h1>
+    <div class="sub-user-container">
+      <div
+        class="profile-image-container"
+        v-for="(subuser, index) in subUsers"
+        :key="index"
+        @click="selectAccount(subuser, index)"
+      >
+        <div class="user-info-div">
+          <img
+            src="../assets/capybara.jpg"
+            alt="Profile image"
+            class="profile-image"
+          />
+          <div class="user-name">
+            <h1> {{ subuser.nickname }}</h1>
+            <img src="../assets/icons/lock.svg" v-if="subuser.role === 'PARENT'">
+          </div>
+        </div>
         <div
-            v-for="(user, index) in users"
-            :key="index"
-            class="user-item"
-            :class="{ 'user-item-selected': selectedUser && selectedIndex === index }"
-            @click="user.role === 'PARENT' ? showPasscodeInput(user, index) : null"
+          class="pin-code-field"
+          v-show="subuser.role === 'PARENT' && selectedIndex === index"
+          @click.stop
         >
-          <img src="../assets/logo.png" :alt="user.nickname" class="avatar" />
-          <p>{{ user.nickname }}</p>
-          <div
-              v-if="selectedUser && selectedIndex === index"
-              class="passcode-wrapper"
-              @click.stop="() => {}"
-          >
-            <div class="passcode-input">
+          <div class="pin-inputs">
+            <h2 v-if="subuser.passcode !== 0">PIN:</h2>
+            <h2 v-if="subuser.passcode === 0">Sett PIN:</h2>
+            <div class="pin-row">
               <input
-                  v-model="passcodeInput"
-                  type="password"
-                  placeholder="Passcode"
-                  maxlength="4"
+                v-for="(_, pinIndex) in Array(4)"
+                :key="pinIndex"
+                v-model="pinCodes[index][pinIndex]"
+                class="pin-input"
+                type="text"
+                maxlength="1"
+                @input="focusNextInput($event, pinIndex)"
+                @keydown="navigateInput($event, pinIndex)"
               />
-              <p class="error" v-if="passcodeError">{{ passcodeError }}</p>
             </div>
           </div>
         </div>
@@ -34,193 +47,293 @@
 </template>
 
 <script setup lang="ts">
-// import logo from '@/assets/logo.png'
+import { SubUser } from '../components/types'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { SubUser } from '../components/types'
+import { useUserStore } from '../stores/UserStore'
+import router from '../router/index'
 
-const users = ref<SubUser[]>([])
-const selectedUser = ref<SubUser>()
-const passcodeInput = ref('')
-const passcodeError = ref('')
-const selectedIndex = ref<number>()
-const config = {
-  headers: {
-    'Content-type': 'application/json'
-  },
-  withCredentials: true
-}
-
-async function fetchUsers () {
-  try {
-    const response = await axios.get('http://localhost:8080/user/sub-user/get', config)
-    users.value = response.data
-    console.log(response.data)
-  } catch (error) {
-    console.error('Error fetching users:', error)
-  }
-}
+const userStore = useUserStore()
+const subUsers = ref<SubUser[]>([])
+const selectedIndex = ref<number | null>(null)
+const pinCodes = ref<Array<Array<string>>>([])
+const updateMessage = ref('')
 
 onMounted(() => {
-  fetchUsers()
+  getSubUsers()
 })
 
-/*
-async function validatePasscode () {
-  if (passcodeInput.value.length === 4) {
-    try {
-      const response = await axios.post('http://localhost:8080/user', {
-        userId: selectedUser.value.id, // assuming each user has a unique id
-        passcode: passcodeInput.value
-      })
-
-      if (response.data.valid) {
-        // Passcode is correct
-        console.log('Tilgang godkjent for bruker')
-        passcodeError.value = ''
-        passcodeInput.value = ''
-        selectedUser.value = null
-      } else {
-        passcodeError.value = 'Feil kode. PrÃ¸v igjen!'
-        passcodeInput.value = ''
-      }
-    } catch (error) {
-      console.error('Error validating passcode:', error)
-    }
-  } else {
-    passcodeError.value = ''
+async function getSubUsers () {
+  const path = 'http://localhost:8080/user/sub-user/get'
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
   }
+  await axios.get(path, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        subUsers.value = response.data
+        pinCodes.value = subUsers.value.map(() => Array(4).fill(''))
+      }
+    }).catch((error) => {
+      if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
 }
-*/
 
-function showPasscodeInput (user: SubUser, index: number) {
-  if (selectedUser.value === user) {
-    selectedUser.value = undefined
-    selectedIndex.value = undefined
+function selectAccount (subuser: SubUser, index: number) {
+  resetUpdate()
+  if (subuser.role === 'CHILD') {
+    userStore.subUserLogin(subuser)
+    router.push('/fridge')
+    return
+  }
+  if (selectedIndex.value === index) {
+    pinCodes.value[index] = Array(4).fill('')
+    selectedIndex.value = null
   } else {
-    selectedUser.value = user
     selectedIndex.value = index
   }
 }
 
+function isDigitsOnly (input: string): boolean {
+  return /^\d+$/.test(input)
+}
+
+function resetUpdate () {
+  updateMessage.value = ''
+}
+
+async function validateAndLogin (subuser: SubUser, index: number) {
+  const pin = pinCodes.value[index].join('')
+
+  if (!isDigitsOnly(pin)) {
+    selectAccount(subuser, index)
+    updateMessage.value = 'PIN-kode kan bare være tall.'
+    return
+  }
+  if (subuser.passcode === 0) {
+    selectAccount(subuser, index)
+    subuser.passcode = parseInt(pin, 10)
+    setSubUserPasscode(subuser)
+    return
+  }
+
+  const isPinCorrect = pin === subuser.passcode.toString()
+  if (isPinCorrect) {
+    userStore.subUserLogin(subuser)
+    router.push('/fridge')
+  } else {
+    selectAccount(subuser, index)
+    updateMessage.value = 'Feil PIN-kode'
+    pinCodes.value[index] = Array(4).fill('')
+  }
+}
+
+function focusNextInput (event: Event, pinIndex: number) {
+  resetUpdate()
+  const target = event.target as HTMLInputElement
+  if (target.value.length === 1 && pinIndex < 3) {
+    (target.nextElementSibling as HTMLInputElement)?.focus()
+  } else if (target.value.length === 1 && pinIndex === 3) {
+    const index = selectedIndex.value
+    if (index !== null) {
+      validateAndLogin(subUsers.value[index], index)
+    }
+  }
+}
+
+function navigateInput (event: KeyboardEvent, pinIndex: number) {
+  const target = event.target as HTMLInputElement
+
+  if (event.key === 'ArrowRight' && pinIndex < 3) {
+    const nextInput = target.nextElementSibling as HTMLInputElement
+    nextInput?.focus()
+    setTimeout(() => {
+      nextInput?.setSelectionRange(nextInput.value.length, nextInput.value.length) // Set the cursor to the end
+    }, 0)
+  } else if (event.key === 'ArrowLeft' && pinIndex > 0) {
+    const prevInput = target.previousElementSibling as HTMLInputElement
+    prevInput?.focus()
+    setTimeout(() => {
+      prevInput?.setSelectionRange(prevInput.value.length, prevInput.value.length) // Set the cursor to the end
+    }, 0)
+  }
+}
+
+async function setSubUserPasscode (subuser: SubUser) {
+  const path = 'http://localhost:8080/user/sub-user/edit'
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+  const subUserRequest = {
+    userEmail: subuser.email,
+    nickname: subuser.nickname,
+    role: subuser.role,
+    passcode: subuser.passcode
+  }
+  await axios.put(path, subUserRequest, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        updateMessage.value = `PIN kode satt: ${subuser.passcode}`
+      }
+    }).catch((error) => {
+      if (error.response.status === 600) {
+        userStore.logout()
+      } else {
+        updateMessage.value = 'Kunne ikke sette PIN-kode.'
+      }
+    })
+}
 </script>
 
 <style scoped>
 
-.passcode-wrapper {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  transform: translateY(100%);
-  transition: transform 0.3s ease-in-out;
-}
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #4a4a4a;
+.update-message {
+  color: white;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  font-size: 30px;
 }
 
-.main {
-  width: 1000px;
-  padding: 30px;
+.sub-user-page-container {
+  background-image: url("../assets/startpagebackground3.png");
   display: flex;
   flex-direction: column;
+  padding-top: 75px;
+  min-height: 100vh;
+  height: 100%;
   align-items: center;
-  gap: 30px;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #4a4a4a;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.user-list {
+.sub-user-container {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
+  gap: 16px;
 }
 
-.user-item {
+.profile-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 350px;
+  height: 450px;
+  position: relative;
+  margin: 30px;
   cursor: pointer;
-  width: 150px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  background-color: #f1f1f1;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
 }
 
-.user-item:hover {
-  background-color: #e0e0e0;
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.user-info-div {
+  height: 100%;
+  padding-top: 10px;
 }
 
-.avatar {
-  width: 100px;
-  height: 100px;
+.profile-image {
   border-radius: 50%;
+  width: 300px;
+  height: 300px;
   object-fit: cover;
-  z-index: 2;
-  position: relative;
+  margin-bottom: 10px;
 }
 
-.passcode-input {
-  position: absolute;
-  bottom: 45px; /* Adjust this value to move the passcode input box vertically */
-  left: 0;
-  width: 100%;
-  padding: 20px;
-  background-color: white;
-  border-top: 1px solid #ccc;
+.user-name {
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.user-name h1 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 30px;
+  margin: 0;
+  transition: color 0.1s;
+}
+
+.profile-image-container:hover .profile-image {
+  box-shadow: 0 0 10px white, 0 0 20px white;
+  transition: box-shadow 0.1s;
+}
+
+/* Change text color to white on hover */
+.profile-image-container:hover .user-name h1 {
+  color: #fff;
+}
+.pin-code-field {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  transform: translateY(100%);
-  transition: transform 0.3s ease-in-out;
-  z-index: 3; /* Increase the z-index value to prevent the input from disappearing when clicked */
+  margin-top: 10px;
 }
 
-.passcode-input input {
+.pin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 10px;
+  width: 200px;
+  height: 50px;
+  background-color: white;
+}
+
+.pin-inputs {
+  justify-content: center;
+  align-items: center;
+}
+
+.pin-inputs h2{
+  color: white;
+  font-size: 25px;
+}
+.pin-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
+  height: 100%;
+  text-align: center;
+  border: 0.1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 22px;
+  font-weight: normal;
   outline: none;
-  transition: all 0.3s ease;
 }
 
-.passcode-input input:focus {
-  border-color: #90caf9;
-  box-shadow: 0 0 0 1px #90caf9, 0 2px 4px rgba(0, 0, 0, 0.1);
+@media only screen and (max-width: 400px){
+  .profile-image-container {
+    width: 200px;
+    height: 300px;
+  }
+  .profile-image {
+    border-radius: 50%;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  .sub-user-page-container {
+    padding-top: 60px;
+  }
 }
 
-.error {
-  color: #f44336;
-  font-size: 1rem;
-  font-weight: 500;
+@media only screen and (max-width: 835px) {
+  .profile-image-container {
+    padding: 0;
+    padding-top: 20px;
+    margin-bottom: 30px;
+  }
 }
-.user-item-selected .passcode-wrapper {
-  transform: translateY(0%);
-}
-.user-item p {
-  z-index: 2;
-  position: relative;
-}
+
 </style>

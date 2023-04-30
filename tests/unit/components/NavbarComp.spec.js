@@ -16,6 +16,9 @@ beforeEach(() => {
       mocks: {
         $pinia: pinia,
         $store: mockStore
+      },
+      stubs: {
+        RouterLink: true
       }
     }
   })

@@ -207,10 +207,15 @@ async function markAsWaste () {
 </script>
 
 <style scoped>
+
+.my-fridge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #search-bar{
-    position: relative;
     text-align: center;
-    left: 25%;
     margin-top: 10px;
     color: black;
     width: 50%;
