@@ -8,6 +8,8 @@ import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import AddProductView from '../views/AddProductView.vue'
+import WeekMenuView from '../views/WeekMenuView.vue'
+import SpecificWeekMenu from '../views/SpecificWeekMenuView.vue'
 import RecipesView from '../views/RecipesView.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -60,6 +62,16 @@ const routes: Array<RouteRecordRaw> = [
     path: '/addProduct',
     name: 'addProduct',
     component: AddProductView
+  },
+  {
+    path: '/weekMenu',
+    name: 'weekMenu',
+    component: WeekMenuView
+  },
+  {
+    path: '/specificMenu',
+    name: 'specificMenu',
+    component: SpecificWeekMenu
   }
 ]
 

@@ -18,6 +18,10 @@
                 <h1>{{ recipes }}</h1>
                 </router-link>
 
+              <router-link v-if="!showHamburgerMenu" to="/weekMenu" class="icon-link" exact-active-class="active">
+                <h1>{{ weekMenu }}</h1>
+              </router-link>
+
                 <router-link v-if="!showHamburgerMenu" to="/shoppinglist" class="icon-link" exact-active-class="active">
                 <h1>{{ shoppingCart }}</h1>
                 </router-link>
@@ -79,7 +83,15 @@ const updateScreenWidth = () => {
 
 const recipes = computed(() => {
   if (screenWidth.value > 850) {
-    return 'Matforslag'
+    return 'Oppskrifter'
+  } else {
+    return ''
+  }
+})
+
+const weekMenu = computed(() => {
+  if (screenWidth.value > 850) {
+    return 'Ukesmeny'
   } else {
     return ''
   }
