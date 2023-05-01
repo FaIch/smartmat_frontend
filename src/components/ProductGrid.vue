@@ -135,7 +135,7 @@ onMounted(fetchProducts)
   flex-direction: column;
   align-items: center;
   justify-self: center;
-  height: 250px; /* Set a fixed height for the grid item */
+  height: 250px;
   width: 250px;
   cursor: pointer;
   padding: 16px;

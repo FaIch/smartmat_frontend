@@ -61,8 +61,6 @@ const addToFridge = async () => {
 }
 
 function updateSelectedProducts (updatedList: ItemInterface[]) {
-  // Use the updatedList to update the parent's state
-  // For example, if you have a ref for selected products in the parent component:
   selectedProductsInParent.value = updatedList
   numberSelected.value = selectedProductsInParent.value.length
 }

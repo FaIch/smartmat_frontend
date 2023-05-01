@@ -249,8 +249,8 @@ function removeCheckedProducts () {
   width: 50%;
   min-width: 300px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  max-height: 80%;
-  overflow-y: auto;
+  height: 80%;
+  overflow-y: scroll;
 }
 
 .close-button {
