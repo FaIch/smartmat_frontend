@@ -11,6 +11,7 @@ import AddProductView from '../views/AddProductView.vue'
 import WeekMenuView from '../views/WeekMenuView.vue'
 import SpecificWeekMenu from '../views/SpecificWeekMenuView.vue'
 import RecipesView from '../views/RecipesView.vue'
+import NotificationView from '../views/NotificationView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -72,6 +73,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/specificMenu',
     name: 'specificMenu',
     component: SpecificWeekMenu
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView
   }
 ]
 
