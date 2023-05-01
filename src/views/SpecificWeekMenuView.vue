@@ -7,8 +7,8 @@
     <p>Mangler: {{weekMenuData.totalAmountOfMissingItems}}</p>
     <p>Antall datovarer:  {{weekMenuData.totalAmountOfItemsToExpire}}</p>
     <br>
-    <button @click="saveMenu">Lagre Ukesmeny</button>
-    <button  @click="removeMenu">Fjern Ukesmeny</button>
+    <button class="button" v-if="!recipeStore.getHasWeekMenu()" @click="saveMenu" :class="{'dark-green': isButtonClicked}">Lagre Ukesmeny</button>
+    <button class="button" v-else @click="removeMenu">Fjern Ukesmeny</button>
     <div class="recipe-row">
       <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
     </div>
@@ -24,19 +24,20 @@ import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
 import { RecipeCardInterface, WeekMenuData } from '../components/types'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
+import router from '../router'
 const userStore = useUserStore()
 const recipeStore = useRecipeStore()
 const recipes = ref<RecipeCardInterface[]>([])
 const weekMenuData = ref<WeekMenuData[]>([])
 const recipeIds: number[] = recipeStore.getRecipeIds()
 const type = recipeStore.getType()
+const isButtonClicked = ref(false)
 
 onMounted(() => {
   getRecipesWeekMenu(recipeIds)
   getWeekMenuData(recipeIds)
 })
 
-// eslint-disable-next-line no-unused-vars
 async function getRecipesWeekMenu (intList: number[]): Promise<void> {
   const path = 'http://localhost:8080/week-menu/get-recipes-by-id'
   const config = {
@@ -60,7 +61,6 @@ async function getRecipesWeekMenu (intList: number[]): Promise<void> {
     })
 }
 
-// eslint-disable-next-line no-unused-vars
 async function getWeekMenuData (intList: number[]): Promise<void> {
   const path = 'http://localhost:8080/week-menu/get-data-week-menu'
   const config = {
@@ -85,6 +85,7 @@ async function getWeekMenuData (intList: number[]): Promise<void> {
 }
 
 async function saveMenu () {
+  isButtonClicked.value = true
   const weekMenuRequest = {
     intList: recipeIds,
     message: type
@@ -101,6 +102,7 @@ async function saveMenu () {
     .then(async (response) => {
       if (response.status === 200) {
         console.log(response.data)
+        await router.push('/specificMenu')
       }
     })
     .catch((error) => {
@@ -120,13 +122,20 @@ async function removeMenu () {
     },
     withCredentials: true
   }
-  await axios.post(path, config)
+  await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
+        recipeStore.setHasWeekMenu(false)
+        recipeStore.setType('')
+        recipeStore.setRecipeIds([])
+        recipeStore.setWeekMenu([])
+        await router.push('/weekMenu')
       }
     })
     .catch((error) => {
+      if (error.response.status === 404) {
+        console.log('no week menu for user in db')
+      }
       if (error.response.status === 400) {
         console.log('error')
       } else if (error.response.status === 600) {
@@ -147,6 +156,10 @@ async function removeMenu () {
 
 .title {
   padding: 20px;
+}
+
+.dark-green {
+  opacity: 0;
 }
 
 .recipes {

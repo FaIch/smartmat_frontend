@@ -34,6 +34,10 @@ export const useRecipeStore = defineStore('recipeStore', () => {
   function getWeekMenu () {
     return weekMenu.value
   }
+  function setWeekMenu (newWeekMenu: WeekMenu[]) {
+    weekMenu.value = newWeekMenu
+  }
+  // TODO: exception if week menu not in db but that should not be exception...
   async function checkForWeekMenu () {
     const path = 'http://localhost:8080/week-menu/get'
     const config = {
@@ -45,7 +49,6 @@ export const useRecipeStore = defineStore('recipeStore', () => {
     await axios.get(path, config)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log(response.data)
           const weekMenuData = response.data
           setType(weekMenuData.type)
           setHasWeekMenu(true)
@@ -55,7 +58,6 @@ export const useRecipeStore = defineStore('recipeStore', () => {
             .filter((id: any) => id !== null)
 
           setRecipeIds(recipeIdsData)
-          console.log('store recipes ' + getRecipeIds())
         }
       })
       .catch((error) => {
@@ -75,6 +77,7 @@ export const useRecipeStore = defineStore('recipeStore', () => {
     setType,
     getHasWeekMenu,
     setHasWeekMenu,
-    getWeekMenu
+    getWeekMenu,
+    setWeekMenu
   }
 })
