@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div :class="cardClass" @click="toggleCheckbox">
     <div class="card-image">
       <img :src=props.product.image class="card-img-top" alt="...">
     </div>
@@ -52,6 +52,11 @@ const unitType = computed(() => {
   }
 })
 
+const cardClass = computed(() => ({
+  card: true,
+  'card-checked': selected.value
+}))
+
 const titleFontSize = computed(() => {
   const length = props.product.name.length
   if (length <= 10) {
@@ -74,27 +79,16 @@ function onCheckboxChange () {
   })
 }
 
+function toggleCheckbox (event: MouseEvent) {
+  if ((event.target as HTMLElement) !== document.getElementById('checkbox')) {
+    selected.value = !selected.value
+    onCheckboxChange()
+  }
+}
+
 </script>
 
 <style scoped>
-.expiration-date-div {
-  display: grid;
-  text-align: left;
-}
-
-#expiration-date {
-  width: 120px;
-}
-
-.quantity-div {
-  display: grid;
-  align-items: flex-start;
-  text-align: left;
-}
-
-#quantity {
-  justify-self: left;
-}
 
 #checkbox:checked {
   background-color: royalblue;
@@ -129,27 +123,6 @@ function onCheckboxChange () {
   text-align: left;
 }
 
-.card-text {
-  margin: 0;
-  padding: 0;
-  padding-left: 30px;
-  color: black;
-}
-
-.edit-quantity-div img{
-  width: 30px;
-  cursor: pointer;
-}
-.input-field {
-  width: 30%;
-  border-radius: 20px;
-  text-align: center;
-}
-
-.input-field:disabled {
-  background-color: white;
-}
-
 .card {
   width: 550px;
   flex-direction: row;
@@ -157,6 +130,10 @@ function onCheckboxChange () {
   height: 150px; /* Set a fixed height for the grid item */
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+.card-checked {
+  background-color: rgba(35, 173, 58, 0.6);
 }
 
 .card-image {

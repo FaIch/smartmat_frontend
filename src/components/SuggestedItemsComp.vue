@@ -123,48 +123,6 @@ function removeCheckedProducts () {
 
 <style scoped>
 
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.product-selector-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1001;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 20px;
-  width: 50%;
-  min-width: 300px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  max-height: 80%;
-  overflow-y: auto;
-}
-
-.close-button {
-  position: absolute;
-  top: -15px;
-  right: 0px;
-  background: none;
-  border: none;
-  font-size: 40px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close-button:focus {
-  outline: none;
-}
-
 .page-container {
   display: flex;
   flex-direction: column;
@@ -199,41 +157,6 @@ function removeCheckedProducts () {
   font-size: 20px;
 }
 
-#search-bar {
-  text-align: center;
-  justify-self: center;
-  align-self: center;
-  color: black;
-  max-width: 1000px;
-  width: 70%;
-  z-index: 3;
-  margin-right: 0;
-  scale: 0.8;
-}
-
-.products-button {
-  background-color: #1A7028;
-  color: white;
-  height: 40px;
-  width: 200px;
-  border-radius: 100px;
-  border: none;
-  margin: 0;
-  padding: 0;
-  z-index: 4;
-  margin-left: -50px;
-}
-
-.search-div {
-  margin-top: 10px;
-  display: flex;
-  width: 100%;
-  max-width: 1000px;
-  justify-content: center;
-  align-items: center;
-  justify-self: center;
-  align-self: center;
-}
 .shopping-list-button {
   background-color: #1A7028;
   color: white;
@@ -258,14 +181,6 @@ function removeCheckedProducts () {
   background-color: black;
   box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
   transform: scale(.90);
-}
-
-.remove-button {
-  background-color: rgb(147, 0, 0);
-}
-
-.remove-button:hover {
-  background-color: rgb(179, 6, 6);
 }
 
 .add-button {

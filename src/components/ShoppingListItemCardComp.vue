@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div :class="cardClass" @click="toggleCheckbox">
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -10,14 +10,24 @@
           <div class="quantity-div">
             <p class="card-text">Antall: </p>
             <div class="edit-quantity-div">
-              <img src="../assets/icons/remove.svg" @click="decrement()">
+              <img
+                src="../assets/icons/remove.svg"
+                @mousedown="startDecrement"
+                @mouseup="stopDecrement"
+                @mouseleave="stopDecrement"
+              />
               <input class="input-field"
                 v-model.number="quantity"
                 id="quantity"
                 disabled
                 ref="quantityInput"
               />
-              <img src="../assets/icons/add.svg" @click="increment()">
+              <img
+                src="../assets/icons/add.svg"
+                @mousedown="startIncrement"
+                @mouseup="stopIncrement"
+                @mouseleave="stopIncrement"
+              />
             </div>
           </div>
           <div class="amount">
@@ -39,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { ShoppingListItemCardInterface, Unit } from './types'
 
 const emit = defineEmits(['update-quantity', 'checked'])
@@ -53,6 +63,40 @@ const props = defineProps({
 const quantity = ref(props.product.quantity)
 const selected = ref(false)
 const quantityInput = ref<HTMLInputElement | null>(null)
+
+let intervalId: ReturnType<typeof setInterval> | null = null
+
+function startDecrement (): void {
+  intervalId = setInterval(() => {
+    decrement()
+  }, 70)
+}
+
+function startIncrement (): void {
+  intervalId = setInterval(() => {
+    increment()
+  }, 70)
+}
+
+function stopDecrement (): void {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
+}
+
+function stopIncrement (): void {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
+}
+
+onUnmounted(() => {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+  }
+})
 
 const unitType = computed(() => {
   switch (props.product.item.unit) {
@@ -82,6 +126,11 @@ const titleFontSize = computed(() => {
   }
 })
 
+const cardClass = computed(() => ({
+  card: true,
+  'card-checked': selected.value
+}))
+
 function onCheckboxChange () {
   emit('checked', {
     product: props.product,
@@ -101,17 +150,19 @@ function increment () {
   emit('update-quantity', { ...props.product, quantity: quantity.value })
 }
 
+function toggleCheckbox (event: MouseEvent) {
+  if (
+    !(event.target as HTMLElement).closest('.edit-quantity-div') &&
+    (event.target as HTMLElement) !== document.getElementById('checkbox')
+  ) {
+    selected.value = !selected.value
+    onCheckboxChange()
+  }
+}
+
 </script>
 
 <style scoped>
-.expiration-date-div {
-  display: grid;
-  text-align: left;
-}
-
-#expiration-date {
-  width: 120px;
-}
 
 .quantity-div {
   display: grid;
@@ -163,12 +214,19 @@ function increment () {
   color: black;
 }
 
+.edit-quantity-div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  width: 120px;
+}
+
 .edit-quantity-div img{
   width: 30px;
   cursor: pointer;
 }
 .input-field {
-  width: 30%;
+  width: 100%;
   border-radius: 20px;
   text-align: center;
 }
@@ -184,6 +242,11 @@ function increment () {
   height: 150px; /* Set a fixed height for the grid item */
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+
+.card-checked {
+  background-color: rgba(35, 173, 58, 0.6);
 }
 
 .card-image {
@@ -233,6 +296,7 @@ function increment () {
   width: 50%;
   display: flex;
   align-items: flex-end;
+  margin-left: 50px;
 }
 
 .amount h5{
