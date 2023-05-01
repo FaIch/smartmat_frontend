@@ -89,7 +89,8 @@ const showWishlist = () => {
   justify-content: center;
   align-items: center;
   min-height: 60px;
-  width: 100%;
+  width: 50%;
+  align-self: center;
 }
 .separator {
   position: relative;

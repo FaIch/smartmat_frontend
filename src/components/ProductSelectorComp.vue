@@ -36,7 +36,7 @@ const addToFridge = async () => {
   const checkedProductsData = selectedProductsInParent.value.map((value) => ({
     itemId: value.id,
     quantity: value.baseAmount,
-    expirationDate: '2023-05-01'
+    expirationDate: '2023-05-20'
   }))
 
   const config = {
@@ -57,6 +57,7 @@ const addToFridge = async () => {
       userStore.logout()
     }
   }
+  emit('refresh-page')
 }
 
 function updateSelectedProducts (updatedList: ItemInterface[]) {

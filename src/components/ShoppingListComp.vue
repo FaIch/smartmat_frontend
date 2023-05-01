@@ -157,7 +157,7 @@ async function sendToFridge () {
   const checkedProductsData = getCheckedProducts().map((product) => ({
     itemId: product.item.id,
     quantity: product.quantity * product.item.baseAmount,
-    expirationDate: '2023-05-01'
+    expirationDate: '2023-05-20'
   }))
   const config = {
     headers: {

@@ -190,6 +190,7 @@ function toggleCheckbox (event: MouseEvent) {
   background-color: #fff;
   border: 1px solid #1A7028;
   border-radius: 2px;
+  cursor: pointer;
 }
 
 #checkbox:checked:after {

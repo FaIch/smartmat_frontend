@@ -74,7 +74,7 @@ async function filterRecipes (searchInput: string) {
 .recipes-container {
   min-height: 100vh;
   height: 100%;
-  padding-top: 15vh;
+  padding-top: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;

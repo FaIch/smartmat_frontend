@@ -196,6 +196,7 @@ function toggleCheckbox (event: MouseEvent) {
   padding: 0;
   width: 20px;
   height: 20px;
+  cursor: pointer;
 }
 
 .card-title {

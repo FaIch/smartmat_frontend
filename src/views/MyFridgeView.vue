@@ -10,7 +10,7 @@
         Utgåtte varer ({{ numberOfExpiredItems }})
       </h2>
     </div>
-    <fridge-comp :key="Number(fridge)" :fridge="fridge" @handle-swap="handleSwap" @handle-decrement="handleDecrement"/>
+    <fridge-comp :key="Number(fridge)" :fridge="fridge" @handle-swap="handleSwap" @handle-decrement="handleDecrement" @refresh-page="refreshPage"/>
   </div>
 </template>
 
@@ -74,6 +74,10 @@ function handleDecrement (fridge: boolean, number: number) {
   } else {
     numberOfExpiredItems.value -= number
   }
+}
+
+function refreshPage () {
+  getNumberOfFridgeItems()
 }
 </script>
 
