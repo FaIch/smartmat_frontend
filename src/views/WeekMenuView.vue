@@ -28,8 +28,16 @@ const recipeItemsIdList: number[] = []
 const randomMenu = ref<WeekMenuCardInterface>()
 
 onMounted(() => {
+  checkForWeekMenuStored()
   getWeekMenuRandom()
 })
+
+async function checkForWeekMenuStored () {
+  await recipeStore.checkForWeekMenu()
+  if (recipeStore.getHasWeekMenu()) {
+    await router.push('/specificMenu')
+  }
+}
 
 async function getWeekMenuRandom () {
   const path = 'http://localhost:8080/week-menu/list-random'

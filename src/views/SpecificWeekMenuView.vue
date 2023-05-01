@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="title">{{type}} ukemeny forslag</h1>
+    <h1 class="title">Din {{type}} ukemeny </h1>
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
     <p>Ingredienser: {{weekMenuData.totalAmountOfItems}}</p>
@@ -32,9 +32,8 @@ const recipeIds: number[] = recipeStore.getRecipeIds()
 const type = recipeStore.getType()
 
 onMounted(() => {
-  recipeStore.checkForWeekMenu()
-  // getRecipesWeekMenu(recipeIds)
-  // getWeekMenuData(recipeIds)
+  getRecipesWeekMenu(recipeIds)
+  getWeekMenuData(recipeIds)
 })
 
 // eslint-disable-next-line no-unused-vars
