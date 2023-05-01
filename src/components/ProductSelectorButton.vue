@@ -1,18 +1,10 @@
 <template>
-  <div id="app">
-    <div class="plus-button-container">
-      <PlusButton @click="toggleProductSelector" />
-      <div v-if="showProductSelector" class="product-selector-popup">
-        <ProductSelectorView @select="handleSelect" />
-      </div>
-    </div>
-    <!-- Add the rest of your application's components here -->
+  <button class="products-button" @click="toggleProductSelector">Se alle produkter</button>
+  <div v-if="showProductSelector" class="product-selector-popup">
   </div>
 </template>
 
 <script setup lang="ts">
-import PlusButton from '../components/PlusButton.vue'
-import ProductSelectorView from '../views/ProductSelectorView.vue'
 import { ref } from 'vue'
 
 const showProductSelector = ref(false)
@@ -29,10 +21,6 @@ const handleSelect = (productId: number) => {
 </script>
 
 <style scoped>
-/* Add your global styles here */
-.plus-button-container {
-  position: relative;
-}
 
 .product-selector-popup {
   position: absolute;
@@ -48,5 +36,31 @@ const handleSelect = (productId: number) => {
 .ProductSelectorView {
   width: 100%;
   height: 100%;
+}
+
+.products-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  margin-top: 60px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 100px;
+  border-radius: 100px;
+  border: none;
+}
+
+.products-button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.products-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
 }
 </style>

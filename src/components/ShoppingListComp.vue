@@ -2,9 +2,16 @@
   <div class="page-container">
     <div class="loading" v-if="isLoading">Loading...</div>
     <div v-else>
-      <ProductSelectorButton />
       <div class="shopping-list-container">
-        <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
+        <div class="search-div">
+          <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
+          <button class="products-button" @click="toggleProductSelector">Se alle produkter</button>
+          <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
+          <div v-if="showProductSelector" class="product-selector-popup">
+            <button class="close-button" @click="toggleProductSelector">x</button>
+            <ProductSelectorView :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
+          </div>
+        </div>
         <div class="update-message">
           {{ updateMessage }}
         </div>
@@ -29,7 +36,7 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref, computed } from 'vue'
 import axios, { AxiosError } from 'axios'
 import { ShoppingListItemCardInterface } from '../components/types'
-import ProductSelectorButton from '../components/ProductSelectorButton.vue'
+import ProductSelectorView from '../components/ProductSelectorComp.vue'
 import NewShoppingListItemCardComp from '../components/NewShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
 
@@ -40,7 +47,9 @@ const searchPlaceholder = ref('Søk i handlelisten...')
 const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateMessage = ref('')
 const userStore = useUserStore()
-
+const showProductSelector = ref(false)
+const buttonType = ref(true)
+const emit = defineEmits(['refresh-page'])
 onMounted(() => {
   loadProducts()
 })
@@ -60,6 +69,13 @@ function searchProducts (query: string) {
   searchQuery.value = query
 }
 
+const toggleProductSelector = () => {
+  showProductSelector.value = !showProductSelector.value
+}
+const handleSelect = () => {
+  showProductSelector.value = false
+}
+
 const filteredProducts = computed(() => {
   if (!searchQuery.value) return products.value
   return products.value.filter((product) =>
@@ -67,6 +83,11 @@ const filteredProducts = computed(() => {
   )
 })
 
+function refreshShoppingList () {
+  emit('refresh-page')
+  loadProducts()
+  toggleProductSelector()
+}
 async function loadProducts () {
   const config = {
     headers: {
@@ -162,8 +183,9 @@ async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
     itemId: updatedProduct.id,
     quantity: updatedProduct.quantity
   }
+  const requestArray = [requestBody]
 
-  await axios.put(path, requestBody, config)
+  await axios.put(path, requestArray, config)
     .catch((error) => {
       if (error.response.status === 600) {
         userStore.logout()
@@ -189,17 +211,58 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
 
 <style scoped>
 
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.product-selector-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  width: 50%;
+  min-width: 300px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+.close-button {
+  position: absolute;
+  top: -15px;
+  right: 0px;
+  background: none;
+  border: none;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-button:focus {
+  outline: none;
+}
+
 .page-container {
   display: flex;
   flex-direction: column;
-  padding-top: 75px;
   min-height: 100vh;
   height: 100%;
 }
+
 .shopping-list-container {
   justify-content: center;
   align-content: center;
-  padding-top: 5vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -224,18 +287,41 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
   font-size: 20px;
 }
 
-#search-bar{
+#search-bar {
   text-align: center;
   justify-self: center;
   align-self: center;
-  margin-top: 10px;
   color: black;
-  width: 50%;
   max-width: 1000px;
+  width: 70%;
   z-index: 3;
+  margin-right: 0;
   scale: 0.8;
 }
 
+.products-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  border-radius: 100px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  z-index: 4;
+  margin-left: -50px;
+}
+
+.search-div {
+  margin-top: 10px;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
+}
 .shopping-list-button {
   background-color: #1A7028;
   color: white;

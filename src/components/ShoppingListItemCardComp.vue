@@ -29,7 +29,7 @@
     </div>
     </div>
   </div>
-    <div v-else>Loading ...</div>
+  <div v-else>Loading ...</div>
 </template>
 
 <script setup lang="ts">

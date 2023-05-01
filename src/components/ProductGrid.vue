@@ -1,6 +1,6 @@
 <template>
-    <div>
-      <SearchBarComp :search-placeholder="searchPlaceholder" @search="searchProducts" />
+    <div class="product-grid-container">
+      <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" />
       <div class="grid-container">
         <div
           v-for="product in displayedProducts"
@@ -14,19 +14,21 @@
         </div>
       </div>
       <div class="pagination">
-        <button @click="previousPage" :disabled="currentPage === 1">Previous</button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+        <button class="page-button" @click="previousPage" :disabled="currentPage === 1">Previous</button>
+        <span>Side {{ currentPage }} of {{ totalPages }}</span>
+        <button class="page-button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
       </div>
     </div>
   </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import SearchBarComp from './SearchBarComp.vue'
 import { ItemInterface } from './types'
+import { useUserStore } from '../stores/UserStore'
 
+const userStore = useUserStore()
 const products = ref<ItemInterface[]>([])
 const searchQuery = ref('')
 const itemsPerPage = 20
@@ -73,8 +75,10 @@ async function fetchProducts () {
     if (response.status === 200) {
       products.value = response.data
     }
-  } catch (error) {
-    console.error('Error fetching products:', error)
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+      userStore.logout()
+    }
   }
 }
 
@@ -98,15 +102,33 @@ function searchProducts (query: string) {
 onMounted(fetchProducts)
 </script>
 
-  <style scoped>
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 16px;
-    margin-bottom: 16px;
-  }
+<style scoped>
 
-  .grid-item {
+#search-bar{
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  color: black;
+  width: 100%;
+  max-width: 1000px;
+  z-index: 3;
+  scale: 0.8;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-gap: 16px;
+  margin-bottom: 16px;
+}
+
+.product-grid-container {
+  width: 100%;
+}
+
+.grid-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,28 +136,23 @@ onMounted(fetchProducts)
   height: 250px; /* Set a fixed height for the grid item */
   cursor: pointer;
   padding: 16px;
-  border: 1px solid #ccc;
+  border: 3px solid #ccc;
   border-radius: 8px;
   transition: background-color 0.2s;
 }
 
-  .grid-item:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
+.grid-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
 
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
-  }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
 
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .grid-item img {
+.grid-item img {
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
@@ -145,7 +162,35 @@ onMounted(fetchProducts)
 }
 
 .grid-item.selected {
-    background-color: rgba(144, 238, 144, 0.3);
-  }
+  background-color: rgba(144, 238, 144, 0.3);
+}
 
-  </style>
+.page-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  margin: 20px;
+  border-radius: 100px;
+  border: none;
+}
+
+.page-button:hover {
+  transform: scale(1.1);
+  background-color: #25A13A;
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.page-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
+
+.page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+</style>
