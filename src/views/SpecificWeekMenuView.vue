@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="title">Ukemeny forslag</h1>
+    <h1 class="title">{{type}} ukemeny forslag</h1>
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
     <p>Ingredienser: {{weekMenuData.totalAmountOfItems}}</p>
@@ -8,6 +8,7 @@
     <p>Antall datovarer:  {{weekMenuData.totalAmountOfItemsToExpire}}</p>
     <br>
     <button @click="saveMenu">Lagre Ukesmeny</button>
+    <button  @click="removeMenu">Fjern Ukesmeny</button>
     <div class="recipe-row">
       <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
     </div>
@@ -28,12 +29,15 @@ const recipeStore = useRecipeStore()
 const recipes = ref<RecipeCardInterface[]>([])
 const weekMenuData = ref<WeekMenuData[]>([])
 const recipeIds: number[] = recipeStore.getRecipeIds()
+const type = recipeStore.getType()
 
 onMounted(() => {
-  getRecipesWeekMenu(recipeIds)
-  getWeekMenuData(recipeIds)
+  recipeStore.checkForWeekMenu()
+  // getRecipesWeekMenu(recipeIds)
+  // getWeekMenuData(recipeIds)
 })
 
+// eslint-disable-next-line no-unused-vars
 async function getRecipesWeekMenu (intList: number[]): Promise<void> {
   const path = 'http://localhost:8080/week-menu/get-recipes-by-id'
   const config = {
@@ -57,6 +61,7 @@ async function getRecipesWeekMenu (intList: number[]): Promise<void> {
     })
 }
 
+// eslint-disable-next-line no-unused-vars
 async function getWeekMenuData (intList: number[]): Promise<void> {
   const path = 'http://localhost:8080/week-menu/get-data-week-menu'
   const config = {
@@ -80,9 +85,55 @@ async function getWeekMenuData (intList: number[]): Promise<void> {
     })
 }
 
-function saveMenu () {
-  // TODO: request to db for storing, set boolean weekmenu to true, now gets roter straight here
-  console.log('todo: save menu')
+async function saveMenu () {
+  const weekMenuRequest = {
+    intList: recipeIds,
+    message: type
+  }
+
+  const path = 'http://localhost:8080/week-menu/save'
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+  await axios.post(path, weekMenuRequest, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log(response.data)
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
+}
+
+async function removeMenu () {
+  const path = 'http://localhost:8080/week-menu/remove'
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+  await axios.post(path, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log(response.data)
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
 }
 </script>
 
