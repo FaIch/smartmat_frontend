@@ -4,24 +4,35 @@
             <img :src=props.product.item.image class="card-img-top" alt="...">
         </div>
         <div class="card-body">
-            <div class="section-one">
                 <h5 class="card-title">{{ props.product.item.name }}</h5>
                 <div class="card-info">
-                    <p class="expDate">Utløpsdato: {{ props.product.expirationDate }} </p>
-                    <p class="quantity">Antall: {{ props.product.quantity }}</p>
+                    <p>Utløpsdato: {{ props.product.expirationDate }} <br> {{ props.product.quantity }} {{ unitType }} </p>
                 </div>
-            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { FridgeItemCardInterface } from './types'
+import { computed } from 'vue'
+import { FridgeItemCardInterface, Unit } from './types'
 
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
     required: true
+  }
+})
+
+const unitType = computed(() => {
+  switch (props.product.item.unit) {
+    case Unit.GRAMS:
+      return 'g'
+    case Unit.MILLILITER:
+      return 'mL'
+    case Unit.ITEM:
+      return 'Stk'
+    default:
+      return ''
   }
 })
 </script>
@@ -49,7 +60,6 @@ const props = defineProps({
     /* Increase max-height value */
     margin: auto;
     padding: 0.5em;
-    border-radius: 0.7em;
     overflow: hidden;
 }
 
@@ -62,13 +72,6 @@ const props = defineProps({
 }
 
 .card-body {
-    display: flex;
-    padding: 30px 0 30px 0;
-    align-items: center;
-    height: 160px;
-}
-
-.section-one {
     position: relative;
     height: 100%;
     justify-content: space-between;
@@ -76,6 +79,25 @@ const props = defineProps({
     max-width: 67%;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
 }
+
+.card-info {
+    padding: 0;
+    text-align: left;
+}
+
+@media only screen and (max-width: 640px) {
+  .card-image {
+    display: none;
+  }
+
+  .card-title {
+    text-align: center;
+  }
+
+  .card-info {
+    text-align: center;
+  }
+}
+
 </style>
