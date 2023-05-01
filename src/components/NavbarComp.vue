@@ -15,23 +15,23 @@
             <div class="navbar-icons">
 
                 <router-link v-if="!showHamburgerMenu" to="/recipes" class="icon-link" exact-active-class="active">
-                <h1>{{ recipes }}</h1>
+                <h1 data-cy="recipes">{{ recipes }}</h1>
                 </router-link>
 
               <router-link v-if="!showHamburgerMenu" to="/weekMenu" class="icon-link" exact-active-class="active">
-                <h1>{{ weekMenu }}</h1>
+                <h1 data-cy="weekMenu">{{ weekMenu }}</h1>
               </router-link>
 
                 <router-link v-if="!showHamburgerMenu" to="/shoppinglist" class="icon-link" exact-active-class="active">
-                <h1>{{ shoppingCart }}</h1>
+                <h1 data-cy="shoppingCart">{{ shoppingCart }}</h1>
                 </router-link>
 
                 <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
-                <h1>{{ inventory }}</h1>
+                <h1 data-cy="inventory">{{ inventory }}</h1>
                 </router-link>
 
                 <router-link v-if="!showHamburgerMenu" :to="targetRoute" class="icon-link" exact-active-class="active">
-                <h1>{{ profile }}</h1>
+                <h1 data-cy="profile">{{ profile }}</h1>
                 </router-link>
 
                 <notification-center-comp />

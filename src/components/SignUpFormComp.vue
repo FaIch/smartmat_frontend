@@ -72,7 +72,7 @@
           <input type="submit" value="Registrer">
         </div>
         <div class="text sign-up-text">Har du allerede bruker?
-          <label @click="emit('switch-view')">Logg inn</label>
+          <label data-cy="switch-to-login" @click="emit('switch-view')">Logg inn</label>
         </div>
       </div>
     </form>
