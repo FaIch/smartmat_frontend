@@ -1,27 +1,14 @@
 <template>
   <div class="card">
     <div class="card-image">
-      <img :src=props.product.item.image class="card-img-top" alt="...">
+      <img :src=props.product.image class="card-img-top" alt="...">
     </div>
     <div class="card-body">
       <div class="section-one">
-        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
+        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.name }}</h5>
         <div class="section-one-bot">
-          <div class="quantity-div">
-            <p class="card-text">Antall: </p>
-            <div class="edit-quantity-div">
-              <img src="../assets/icons/remove.svg" @click="decrement()">
-              <input class="input-field"
-                v-model.number="quantity"
-                id="quantity"
-                disabled
-                ref="quantityInput"
-              />
-              <img src="../assets/icons/add.svg" @click="increment()">
-            </div>
-          </div>
           <div class="amount">
-            <h5> {{ props.product.quantity * props.product.item.baseAmount }}</h5>
+            <h5> {{ props.product.baseAmount }}</h5>
             <h6> {{ unitType }}</h6>
           </div>
         </div>
@@ -40,22 +27,20 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ShoppingListItemCardInterface, Unit } from './types'
+import { ItemInterface, Unit } from './types'
 
 const emit = defineEmits(['update-quantity', 'checked'])
 const props = defineProps({
   product: {
-    type: Object as () => ShoppingListItemCardInterface,
+    type: Object as () => ItemInterface,
     required: true
   }
 })
 
-const quantity = ref(props.product.quantity)
 const selected = ref(false)
-const quantityInput = ref<HTMLInputElement | null>(null)
 
 const unitType = computed(() => {
-  switch (props.product.item.unit) {
+  switch (props.product.unit) {
     case Unit.GRAMS:
       return 'g'
     case Unit.MILLILITER:
@@ -68,7 +53,7 @@ const unitType = computed(() => {
 })
 
 const titleFontSize = computed(() => {
-  const length = props.product.item.name.length
+  const length = props.product.name.length
   if (length <= 10) {
     return '1.8rem'
   } else if (length <= 15) {
@@ -87,18 +72,6 @@ function onCheckboxChange () {
     product: props.product,
     selected: selected.value
   })
-}
-
-function decrement () {
-  if (quantity.value > 1) {
-    quantity.value--
-    emit('update-quantity', { ...props.product, quantity: quantity.value })
-  }
-}
-
-function increment () {
-  quantity.value++
-  emit('update-quantity', { ...props.product, quantity: quantity.value })
 }
 
 </script>

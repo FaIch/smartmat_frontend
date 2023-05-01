@@ -1,151 +1,253 @@
 <template>
-  <div v-if = "productProps.product.item.name != undefined">
   <div class="card">
-    <img :src=productProps.product.item.image class="card-img-top" alt="...">
+    <div class="card-image">
+      <img :src=props.product.item.image class="card-img-top" alt="...">
+    </div>
     <div class="card-body">
-      <div class="text-section-one" id="shopping-list-section-one">
-        <h5 class="card-title">{{ productProps.product.item.name }}</h5>
-        <div class="shopping-list-quantity-div">
-          <img
-            src="../assets/icons/remove.svg"
-            />
-          <input class="input-field" :disabled="true" :placeholder="productProps.product.quantity.toString()" id="shopping-list-quantity"/>
-          <img
-            src="../assets/icons/add.svg"
-            />
+      <div class="section-one">
+        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
+        <div class="section-one-bot">
+          <div class="quantity-div">
+            <p class="card-text">Antall: </p>
+            <div class="edit-quantity-div">
+              <img src="../assets/icons/remove.svg" @click="decrement()">
+              <input class="input-field"
+                v-model.number="quantity"
+                id="quantity"
+                disabled
+                ref="quantityInput"
+              />
+              <img src="../assets/icons/add.svg" @click="increment()">
+            </div>
+          </div>
+          <div class="amount">
+            <h5> {{ props.product.quantity * props.product.item.baseAmount }}</h5>
+            <h6> {{ unitType }}</h6>
+          </div>
         </div>
       </div>
-      <!-- <div class="text-section-two">
-        <h5 class="card-title" id="shopping-list-item-unit">{{ productProps.product.quantity }}</h5>
-      </div> -->
-      <div class="text-section-three" id="shopping-list-check">
+      <div class="section-two">
         <input
-          id="shopping-list-item-checkbox"
+          id="checkbox"
           type="checkbox"
-          :checked="checked"
-          @change="$emit('checked-changed', ($event.target as HTMLInputElement)?.checked)"
+          v-model="selected"
+          @change="onCheckboxChange"
         />
       </div>
     </div>
-    </div>
   </div>
-  <div v-else>Loading ...</div>
 </template>
 
 <script setup lang="ts">
-import { ShoppingListItemCardInterface } from './types'
+import { ref, computed } from 'vue'
+import { ShoppingListItemCardInterface, Unit } from './types'
 
-const productProps = defineProps({
+const emit = defineEmits(['update-quantity', 'checked'])
+const props = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
-  },
-  checked: {
-    type: Boolean,
-    default: false
   }
 })
 
-// const props = defineEmits(['remove'])
+const quantity = ref(props.product.quantity)
+const selected = ref(false)
+const quantityInput = ref<HTMLInputElement | null>(null)
 
-// const removeProduct = () => {
-//   props.remove(product)
-// }
+const unitType = computed(() => {
+  switch (props.product.item.unit) {
+    case Unit.GRAMS:
+      return 'g'
+    case Unit.MILLILITER:
+      return 'ml'
+    case Unit.ITEM:
+      return 'stk'
+    default:
+      return ''
+  }
+})
+
+const titleFontSize = computed(() => {
+  const length = props.product.item.name.length
+  if (length <= 10) {
+    return '1.8rem'
+  } else if (length <= 15) {
+    return '1.5rem'
+  } else if (length <= 20) {
+    return '1.3rem'
+  } else if (length <= 25) {
+    return '1.1rem'
+  } else {
+    return '1rem'
+  }
+})
+
+function onCheckboxChange () {
+  emit('checked', {
+    product: props.product,
+    selected: selected.value
+  })
+}
+
+function decrement () {
+  if (quantity.value > 1) {
+    quantity.value--
+    emit('update-quantity', { ...props.product, quantity: quantity.value })
+  }
+}
+
+function increment () {
+  quantity.value++
+  emit('update-quantity', { ...props.product, quantity: quantity.value })
+}
 
 </script>
 
 <style scoped>
-
-.shopping-list-quantity-div {
-  display: flex;
-}
-#shopping-list-quantity{
-  width: 80px;
-  height: 40px;
-}
-
-#shopping-list-section-one {
+.expiration-date-div {
   display: grid;
- }
-
-#shopping-list-item-unit {
-  margin-top: 3px;
-}
-#shopping-list-check {
-  justify-content: center;
+  text-align: left;
 }
 
-#shopping-list-item-checkbox {
-  margin: 0 20px 0 0;
+#expiration-date {
+  width: 120px;
+}
+
+.quantity-div {
+  display: grid;
+  align-items: flex-start;
+  text-align: left;
+}
+
+#quantity {
+  justify-self: left;
+}
+
+#checkbox:checked {
+  background-color: royalblue;
+  border-color: royalblue;
+}
+
+#checkbox {
+  margin: 0;
   padding: 0;
   width: 20px;
   height: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  border: 1px solid #1A7028;
+  border-radius: 2px;
+}
+
+#checkbox:checked:after {
+  content: '✔';
+  display: block;
+  position: relative;
+  left: 3px;
+  bottom: 2px;
+  color: #fff;
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  max-width: 100%; /* Set a max-width for the card-title */
-  white-space: nowrap; /* Prevent the text from wrapping */
-  overflow: hidden; /* Hide any overflowing text */
-  text-overflow: ellipsis; /* Display an ellipsis when the text overflows */
+  text-align: left;
+}
+
+.card-text {
+  margin: 0;
+  padding: 0;
+  padding-left: 30px;
+  color: black;
+}
+
+.edit-quantity-div img{
+  width: 30px;
+  cursor: pointer;
 }
 .input-field {
-  width: 80%;
+  width: 30%;
   border-radius: 20px;
   text-align: center;
 }
 
-.card {
-  max-width: 550px;
-  flex-direction: row;
-  background-color: rgba(35, 173, 58, 0.3);
-  border: 0;
-  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
-  margin: 1em auto;
+.input-field:disabled {
+  background-color: white;
 }
 
-.card img {
-  max-width: 25%;
+.card {
+  width: 550px;
+  flex-direction: row;
+  background-color: rgba(35, 173, 58, 0.3);
+  height: 150px; /* Set a fixed height for the grid item */
+  border: 0;
+  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
+  margin: 3em auto;
+}
+
+.card-image {
+  width: 35%;
+  max-height: 150px; /* Increase max-height value */
   margin: auto;
   padding: 0.5em;
   border-radius: 0.7em;
+  overflow: hidden;
+}
+
+.card-img-top {
+  max-width: 100%;
+  max-height: 140px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .card-body {
   display: flex;
   padding: 30px 0 30px 0;
   align-items: center;
+  height: 160px;
 }
 
-.text-section-one {
-  width: 80%;
+.section-one {
+  position: relative;
+  height: 100%;
+  justify-content: space-between;
+  min-width: 67%;
+  max-width: 67%;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-two {
+  width: 30%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-left: 15px;
-
-}
-.text-section-two {
-  width: 70%;
-  position: relative;
-  height: 100%;
-  align-items: center;
-  justify-content: space-between;
-  text-align: right;
-
 }
 
-.text-section-three {
-  width: 20%;
-  height: 100%;
+.amount {
+  width: 50%;
   display: flex;
-  flex-direction: column;
   align-items: flex-end;
-  justify-content: space-between;
-  padding-right: 15px;
 }
 
+.amount h5{
+  font-size: 20px;
+  padding-bottom: 3px;
+  margin: 0;
+}
+.amount h6 {
+  margin: 0;
+  padding-left: 5px;
+  padding-bottom: 4px;
+}
+
+.section-one-bot {
+  display: flex;
+}
 </style>

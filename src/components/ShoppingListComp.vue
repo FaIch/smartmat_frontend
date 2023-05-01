@@ -16,16 +16,19 @@
           {{ updateMessage }}
         </div>
         <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
-          <NewShoppingListItemCardComp
+          <ShoppingListItemCardComp
             :product="product"
             @update-quantity="updateProductQuantity"
             @checked="updateCheckedStatus"
           />
         </div>
       </div>
-      <div class="buttons">
+      <div v-if="products.length > 0" class="buttons">
         <button class="shopping-list-button remove-button" @click="removeAll" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Fjern valgte</button>
         <button class="shopping-list-button add-button" @click="sendToFridge" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Legg til i kjøleskap</button>
+      </div>
+      <div v-else class="no-items">
+        <h2>Ingen varer i handleliste</h2>
       </div>
     </div>
   </div>
@@ -37,7 +40,7 @@ import { onMounted, ref, computed } from 'vue'
 import axios, { AxiosError } from 'axios'
 import { ShoppingListItemCardInterface } from '../components/types'
 import ProductSelectorView from '../components/ProductSelectorComp.vue'
-import NewShoppingListItemCardComp from '../components/NewShoppingListItemCardComp.vue'
+import ShoppingListItemCardComp from './ShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
@@ -50,6 +53,7 @@ const userStore = useUserStore()
 const showProductSelector = ref(false)
 const buttonType = ref(true)
 const emit = defineEmits(['refresh-page'])
+
 onMounted(() => {
   loadProducts()
 })
@@ -88,7 +92,9 @@ function refreshShoppingList () {
   loadProducts()
   toggleProductSelector()
 }
+
 async function loadProducts () {
+  const path = 'http://localhost:8080/shopping-list/get'
   const config = {
     headers: {
       'Content-type': 'application/json'
@@ -97,7 +103,9 @@ async function loadProducts () {
   }
 
   isLoading.value = true
-  const path = 'http://localhost:8080/shopping-list/get'
+  if (path == null) {
+    return
+  }
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -134,6 +142,7 @@ async function removeAll () {
     const response = await axios.delete(path, config)
     if (response.status === 200) {
       await loadProducts()
+      emit('refresh-page')
       updateMessage.value = 'Varer fjernet fra liste'
     }
   } catch (error: unknown) {
@@ -256,8 +265,6 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
 .page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  height: 100%;
 }
 
 .shopping-list-container {
@@ -266,6 +273,10 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
   width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.no-items {
+  margin-top: 80px;
 }
 
 .loading {
