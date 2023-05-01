@@ -1,8 +1,8 @@
 <template>
   <div class="notification-view">
-    <p class="notification-info">Du har {{ numberOfItems }} produkter som snart går ut på dato!</p>
+    <p class="notification-info">Du har {{ numberOfItems }} produkter som snart går ut på dato</p>
     <div class="list-of-items" v-for="product in products" :key="product.id">
-      <FridgeItemCardComp :product="product" />
+      <NotificationItemCardComp :product="product" />
     </div>
   </div>
 </template>
@@ -12,7 +12,7 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
-import FridgeItemCardComp from '../components/FridgeItemCardComp.vue'
+import NotificationItemCardComp from '../components/NotificationItemCardComp.vue'
 
 const numberOfItems = ref<number>(0)
 const products = ref<FridgeItemCardInterface[]>([])
@@ -53,9 +53,14 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2vh;
-  padding: 2rem;
+  margin-top: 10px;
+  padding-top: 2rem;
   background-color: white;
   border-style: solid;
+}
+
+.notification-info {
+  font-size: large;
+  font-weight: bold;
 }
 </style>
