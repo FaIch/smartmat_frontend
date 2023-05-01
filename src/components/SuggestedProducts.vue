@@ -3,37 +3,38 @@
     <h3>Suggested Products</h3>
     <div class="suggested-products-list" ref="suggestedProductsList">
       <div
-        v-for="product in filteredSuggestedProducts"
+        v-for="product in props.suggestedProducts"
         :key="product.id"
         class="suggested-product"
         @click="addToShoppingList(product)"
-      > {{ product.item.name }}
+      >
+        {{ product.name }}
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { ShoppingListItemCardInterface } from './types'
 
 const emit = defineEmits(['add-to-shopping-list'])
 
-const suggestedProducts = ref<ShoppingListItemCardInterface[]>([
-// Your suggested products list goes here
-])
+const props = defineProps<{
+  checkedProducts: object,
+  suggestedProducts: ShoppingListItemCardInterface[],
+}>()
 
-const checkedProducts = ref({})
-
-const filteredSuggestedProducts = computed(() => {
-  return suggestedProducts.value.filter(
-    (product) => !checkedProducts.value[product.id]
-  )
-})
+// const filteredSuggestedProducts = computed(() => {
+//   return props.suggestedProducts.filter(
+//     (product) => product && !props.checkedProducts[product.id]
+//   )
+// })
 
 const addToShoppingList = (product: ShoppingListItemCardInterface) => {
   emit('add-to-shopping-list', product)
 }
 </script>
+
 <style scoped>
 .suggested-products {
   position: fixed;

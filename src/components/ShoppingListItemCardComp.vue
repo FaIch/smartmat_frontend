@@ -6,18 +6,9 @@
       <div class="text-section-one" id="shopping-list-section-one">
         <h5 class="card-title">{{ productProps.product.item.name }}</h5>
         <div class="shopping-list-quantity-div">
-          <img
-            src="../assets/icons/remove.svg"
-            />
           <input class="input-field" :disabled="true" :placeholder="productProps.product.quantity.toString()" id="shopping-list-quantity"/>
-          <img
-            src="../assets/icons/add.svg"
-            />
         </div>
       </div>
-      <!-- <div class="text-section-two">
-        <h5 class="card-title" id="shopping-list-item-unit">{{ productProps.product.quantity }}</h5>
-      </div> -->
       <div class="text-section-three" id="shopping-list-check">
         <input
           id="shopping-list-item-checkbox"
@@ -97,16 +88,18 @@ const productProps = defineProps({
 }
 
 .card {
-  max-width: 550px;
+  width: 550px;
   flex-direction: row;
   background-color: rgba(35, 173, 58, 0.3);
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
   margin: 1em auto;
+  height: 100px;
 }
 
 .card img {
   max-width: 25%;
+  max-height: 100%;
   margin: auto;
   padding: 0.5em;
   border-radius: 0.7em;

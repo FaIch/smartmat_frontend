@@ -4,6 +4,7 @@
     <img class="recipe-image" :src="recipe.image" alt="">
     <h2 class="recipe-title">Ingredients</h2>
   <button @click="addAllToShoppingList">Add All to Shopping List</button>
+  <button @click="removeFromFridge">I've cooked this recipe</button>
   <table>
     <thead>
       <tr>
@@ -210,7 +211,20 @@ async function fetchFridgeItems () {
       if (response.status === 200) {
         console.log('Fridge')
         console.log(response.data)
-        fridgeItems.value = response.data
+
+        // Aggregate the quantities of items with the same ID
+        const aggregatedFridgeItems = response.data.reduce((acc, item) => {
+          const existingItemIndex = acc.findIndex(accItem => accItem.item.id === item.item.id)
+
+          if (existingItemIndex !== -1) {
+            acc[existingItemIndex].quantity += item.quantity
+          } else {
+            acc.push(item)
+          }
+
+          return acc
+        }, [])
+        fridgeItems.value = aggregatedFridgeItems
       }
     })
     .catch((error) => {
@@ -276,6 +290,40 @@ async function addAllToShoppingList () {
           fetchShoppingList()
           // Clear the selected items
           selectedItems.value = []
+        }
+      })
+      .catch((error) => {
+        if (error.response.status === 400) {
+          console.log('error')
+        } else if (error.response.status === 600) {
+          userStore.logout()
+        }
+      })
+  }
+}
+
+async function removeFromFridge () {
+  const fridgeItemsToRemove = recipeItems.value.filter(ingredient => ingredientAvailable(ingredient))
+  const itemsData = fridgeItemsToRemove.map(item => ({
+    itemId: item.item.id,
+    quantity: (item.quantity)
+  }))
+
+  if (itemsData.length) {
+    const path = 'http://localhost:8080/fridge/remove/byRecipe'
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    }
+
+    await axios.post(path, itemsData, config)
+      .then(async (response) => {
+        if (response.status === 200) {
+          console.log('All items removed from the fridge')
+          // Refresh the fridge items
+          fetchFridgeItems()
         }
       })
       .catch((error) => {

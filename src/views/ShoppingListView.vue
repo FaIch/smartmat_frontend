@@ -17,6 +17,7 @@
     </div>
     <SuggestedProducts
     :checkedProducts="checkedProducts"
+    :suggestedProducts="suggestedProducts"
     @add-to-shopping-list="addSuggestedProductToShoppingList"
   />
   </div>
@@ -27,13 +28,14 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import axios from 'axios'
 import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
-import { ShoppingListItemCardInterface } from '../components/types'
+import { ShoppingListItemCardInterface, ItemInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import ProductSelectorButton from '../components/ProductSelectorButton.vue'
 import SuggestedProducts from '../components/SuggestedProducts.vue'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
+const suggestedProducts = ref<ItemInterface[]>([])
 const isLoading = ref(true)
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
@@ -43,9 +45,6 @@ const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateCheckedStatus = (id: number, checked: boolean) => {
   checkedProducts.value[id] = checked
 }
-const getCheckedProducts = () => {
-  return products.value.filter((product) => checkedProducts.value[product.id])
-}
 
 function searchProducts (query: string) {
   searchQuery.value = query
@@ -53,7 +52,20 @@ function searchProducts (query: string) {
 
 const addSuggestedProductToShoppingList = (product: ShoppingListItemCardInterface) => {
   if (!products.value.find((p) => p.id === product.id)) {
-    products.value.push(product)
+    console.log(product)
+    axios.post('http://localhost:8080/shopping-list/add', [{ itemId: product.id, quantity: 1 }], { withCredentials: true })
+      .then((response) => {
+        if (response.status === 200) {
+          products.value.push(product)
+          loadProducts()
+          loadSuggestedProducts()
+        }
+      })
+      .catch((error) => {
+        if (error.response.status === 400) {
+          console.error(error)
+        }
+      })
     updateCheckedStatus(product.id, false)
   }
 }
@@ -164,14 +176,40 @@ const sendToFridge = async () => {
   }
 }
 
+async function loadSuggestedProducts () {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+
+  const path = 'http://localhost:8080/suggestion/get'
+  try {
+    const response = await axios.get(path, config)
+    if (response.status === 200) {
+      suggestedProducts.value = response.data
+      console.log(suggestedProducts.value)
+    }
+  } catch (error) {
+    console.error('Error fetching suggested products data:', error)
+  }
+}
+
+const getCheckedProducts = () => {
+  return products.value.filter((product) => checkedProducts.value[product.id])
+}
+
 onMounted(() => {
   utilityStore.setTransparentStatus(false)
   loadProducts()
+  loadSuggestedProducts()
   userStore.loggedIn = true
 })
 
 onUnmounted(() => {
   products.value = []
+  suggestedProducts.value = []
 })
 
 </script>
