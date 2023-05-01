@@ -143,6 +143,7 @@ async function removeAll () {
     if (response.status === 200) {
       await loadProducts()
       emit('refresh-page')
+      removeCheckedProducts()
       updateMessage.value = 'Varer fjernet fra liste'
     }
   } catch (error: unknown) {
@@ -216,6 +217,11 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
     updateItem(updatedProduct)
   }
 }
+
+function removeCheckedProducts () {
+  products.value = products.value.filter((product) => !checkedProducts.value[product.id])
+  checkedProducts.value = {}
+}
 </script>
 
 <style scoped>
@@ -254,7 +260,8 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
   background: none;
   border: none;
   font-size: 40px;
-  font-weight: bold;
+  color: black;
+  font-weight: 500;
   cursor: pointer;
 }
 

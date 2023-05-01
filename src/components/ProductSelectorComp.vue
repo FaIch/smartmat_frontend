@@ -1,13 +1,13 @@
 <template>
-    <div class="product-selector-view">
-      <h2>Selected ({{ numberSelected }})</h2>
-      <div class="button-container">
-        <button class="selector-button" v-if="!props.buttonType" @click="addToFridge">Legg til i kjøleskap</button>
-        <button class="selector-button" v-else @click="addToShoppingList">Legg til i handleliste</button>
-      </div>
-      <ProductGrid :searchQuery="searchQuery" @update-selected-products="updateSelectedProducts"/>
+  <div class="product-selector-view">
+    <h2>Selected ({{ numberSelected }})</h2>
+    <div class="button-container">
+      <button class="selector-button" v-if="!props.buttonType" @click="addToFridge">Legg til i kjøleskap</button>
+      <button class="selector-button" v-else @click="addToShoppingList">Legg til i handleliste</button>
     </div>
-  </template>
+    <ProductGrid :searchQuery="searchQuery" @update-selected-products="updateSelectedProducts"/>
+  </div>
+</template>
 
 <script setup lang="ts">
 import axios, { AxiosError } from 'axios'

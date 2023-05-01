@@ -1,25 +1,25 @@
 <template>
-    <div class="product-grid-container">
-      <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" />
-      <div class="grid-container">
-        <div
-          v-for="product in displayedProducts"
-          :key="product.id"
-          class="grid-item"
-          @click="toggleProductSelection(product)"
-          :class="{ selected: selectedProducts.includes(product) }"
-        >
-          <img :src="product.image" :alt="product.name" />
-          <div>{{ product.name }}</div>
-        </div>
-      </div>
-      <div class="pagination">
-        <button class="page-button" @click="previousPage" :disabled="currentPage === 1">Previous</button>
-        <span>Side {{ currentPage }} of {{ totalPages }}</span>
-        <button class="page-button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+  <div class="product-grid-container">
+    <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" />
+    <div class="grid-container">
+      <div
+        v-for="product in displayedProducts"
+        :key="product.id"
+        class="grid-item"
+        @click="toggleProductSelection(product)"
+        :class="{ selected: selectedProducts.includes(product) }"
+      >
+        <img :src="product.image" :alt="product.name" />
+        <div>{{ product.name }}</div>
       </div>
     </div>
-  </template>
+    <div class="pagination">
+      <button class="page-button" @click="previousPage" :disabled="currentPage === 1">Previous</button>
+      <span>Side {{ currentPage }} of {{ totalPages }}</span>
+      <button class="page-button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+    </div>
+  </div>
+</template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -119,12 +119,14 @@ onMounted(fetchProducts)
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   grid-gap: 16px;
   margin-bottom: 16px;
+  min-width: 300px;
 }
 
 .product-grid-container {
+  min-width: 300px;
   width: 100%;
 }
 
@@ -132,17 +134,20 @@ onMounted(fetchProducts)
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-self: center;
   height: 250px; /* Set a fixed height for the grid item */
+  width: 250px;
   cursor: pointer;
   padding: 16px;
   border: 3px solid #ccc;
   border-radius: 8px;
   transition: background-color 0.2s;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .grid-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .pagination {
@@ -153,8 +158,8 @@ onMounted(fetchProducts)
 }
 
 .grid-item img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: cover;
   margin: auto;
   padding: 0.5em;
@@ -162,7 +167,7 @@ onMounted(fetchProducts)
 }
 
 .grid-item.selected {
-  background-color: rgba(144, 238, 144, 0.3);
+  background-color: rgba(35, 173, 58, 0.6);
 }
 
 .page-button {
