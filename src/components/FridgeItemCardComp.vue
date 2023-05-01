@@ -203,7 +203,6 @@ watch(
   height: 150px; /* Set a fixed height for the grid item */
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
-  margin: 3em auto;
 }
 
 .card-image {

@@ -289,8 +289,8 @@ function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
 .item-cards {
   display: flex;
   justify-content: center;
-  margin: 0;
-  margin-bottom: -40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .update-message {
