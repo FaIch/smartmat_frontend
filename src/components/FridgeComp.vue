@@ -98,11 +98,10 @@ async function getItemsInFridge () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      updateMessage.value = error.response.data.message
     })
 }
 
@@ -136,11 +135,10 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      updateMessage.value = error.response.data.message
     })
 }
 
@@ -213,11 +211,10 @@ async function axiosMarkAsEaten () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
-      } else if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
       }
+      updateMessage.value = error.response.data.message
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
@@ -250,12 +247,10 @@ async function markAsWaste () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
-      }
+      updateMessage.value = error.response.data.message
     })
 }
 </script>

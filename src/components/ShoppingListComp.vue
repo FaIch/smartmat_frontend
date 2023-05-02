@@ -114,7 +114,7 @@ async function loadProducts () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
       updateMessage.value = error.response.data.message
@@ -147,7 +147,7 @@ async function removeAll () {
       updateMessage.value = 'Varer fjernet fra liste'
     }
   } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
       userStore.logout()
     }
   }
@@ -174,13 +174,14 @@ async function sendToFridge () {
       updateMessage.value = 'Varer sendt til ditt kjøleskap'
     }
   } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
       userStore.logout()
     }
   }
 }
 
 async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
+  console.log('test')
   const path = 'http://localhost:8080/shopping-list/update'
   const config = {
     headers: {
@@ -197,7 +198,7 @@ async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
 
   await axios.put(path, requestArray, config)
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
       updateMessage.value = error.response.data

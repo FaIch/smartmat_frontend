@@ -86,7 +86,7 @@ async function getSubUsers () {
         pinCodes.value = subUsers.value.map(() => Array(4).fill(''))
       }
     }).catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
     })
@@ -194,7 +194,7 @@ async function setSubUserPasscode (subuser: SubUser) {
         updateMessage.value = `PIN kode satt: ${subuser.passcode}`
       }
     }).catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       } else {
         updateMessage.value = 'Kunne ikke sette PIN-kode.'
