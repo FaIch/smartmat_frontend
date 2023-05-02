@@ -13,7 +13,14 @@
       {{ updateMessage }}
     </div>
     <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
-      <FridgeItemCard :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
+      <FridgeItemCard
+        :product="product"
+        @update="onUpdate"
+        @selection-changed="onSelectionChanged"
+        @item-eaten="singleItemEaten"
+        @item-thrown="singleItemThrown"
+        @item-partially-thrown="singleItemPartialThrown"
+      />
     </div>
     <div class="buttons">
       <button
@@ -186,14 +193,21 @@ const normalizeDate = (date: Date) => {
 }
 
 async function markAsEaten () {
-  await axiosMarkAsEaten()
+  await removeItemsFromFridge(selectedProducts.value)
   emit('handle-decrement', props.fridge, selectedProducts.value.length)
   selectedProducts.value = []
 }
 
-async function axiosMarkAsEaten () {
-  const selectedIds = selectedProducts.value.map((item) => item.id)
-  const goNextAxios = ref<boolean>(false)
+async function markAsWaste () {
+  const selectedProductsCopy = [...selectedProducts.value]
+  await removeItemsFromFridge(selectedProducts.value)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  const weightToBeThrown = turnItemsToWaste(selectedProductsCopy)
+  await addItemsToWaste(weightToBeThrown)
+}
+
+async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) {
+  const selectedIds = productsParam.map((item) => item.id)
 
   const pathRemove = 'http://localhost:8080/fridge/remove'
   const request = selectedIds
@@ -203,7 +217,6 @@ async function axiosMarkAsEaten () {
       if (response.status === 200) {
         updateMessage.value = 'Varer spist'
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-        goNextAxios.value = true
 
         setTimeout(() => {
           updateMessage.value = ''
@@ -218,25 +231,13 @@ async function axiosMarkAsEaten () {
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-  return goNextAxios
 }
 
-async function markAsWaste () {
-  const selectedProductsCopy = [...selectedProducts.value]
-  const goNextAxios = await axiosMarkAsEaten()
-
-  if (!goNextAxios.value) {
-    return false
-  }
-  const totalWeight = selectedProductsCopy.reduce(
-    (sum, item) => sum + item.item.weightPerUnit * item.quantity,
-    0
-  )
+async function addItemsToWaste (totalWeight: number) {
   const wasteRequest = {
     weight: totalWeight,
     entryDate: new Date().toISOString().split('T')[0]
   }
-
   const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
   await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
     .then(async (response) => {
@@ -252,6 +253,36 @@ async function markAsWaste () {
       }
       updateMessage.value = error.response.data.message
     })
+}
+
+function turnItemsToWaste (productsParam: FridgeItemCardInterface[]) {
+  const totalWeight = productsParam.reduce(
+    (sum, item) => sum + item.item.weightPerUnit * item.quantity,
+    0
+  )
+  return totalWeight
+}
+
+async function singleItemEaten (productParam: FridgeItemCardInterface) {
+  const list = [productParam]
+  removeItemsFromFridge(list)
+  emit('handle-decrement', props.fridge, 1)
+}
+
+async function singleItemThrown (productParam: FridgeItemCardInterface) {
+  const list = [productParam]
+  removeItemsFromFridge(list)
+  const weightToBeThrown = turnItemsToWaste(list)
+  addItemsToWaste(weightToBeThrown)
+  emit('handle-decrement', props.fridge, 1)
+  return true
+}
+
+async function singleItemPartialThrown (productParam: FridgeItemCardInterface, unitsReduced: number) {
+  console.log('units reduced', unitsReduced)
+  console.log('weight per unit', productParam.item.weightPerUnit)
+  addItemsToWaste(unitsReduced * productParam.item.weightPerUnit)
+  onUpdate(productParam)
 }
 </script>
 

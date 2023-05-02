@@ -1,8 +1,22 @@
 <template>
-  <div :class="cardClass" @click="toggleCheckbox">
-    <div class="trash-icon-container" @click.stop="deleteCard">
+  <div :class="cardClass" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
+    <div
+      v-tippy="'Kast i søpla'"
+      class="trash-icon-container"
+      :class="{ 'disable-hover': disableHover }"
+      @click.stop="deleteCard"
+    >
       <img src="../assets/icons/trash.svg" alt="Trash Icon" class="trash-icon" />
       <img src="../assets/icons/white-trash.svg" alt="Trash Icon Hover" class="trash-icon trash-icon-hover" />
+    </div>
+    <div
+      v-tippy="'Marker som spist'"
+      class="eaten-icon-container"
+      :class="{ 'disable-hover': disableHover }"
+      @click.stop="itemEaten"
+    >
+      <img src="../assets/icons/utensils.svg" alt="Eaten Icon" class="eaten-icon" />
+      <img src="../assets/icons/white-utensils.svg" alt="Eaten Icon Hover" class="eaten-icon eaten-icon-hover" />
     </div>
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
@@ -36,7 +50,6 @@
           :disabled="!edit"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
-        <button v-if="!edit" id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
       </div>
     </div>
     <div v-if="popup" class="popup">
@@ -47,41 +60,63 @@
         </div>
         <div class="popup-quantity-div">
           <p class="card-text">{{ unitType }}</p>
-          <input class="input-field" v-model.number="quantity" id="quantity" ref="quantityInput" />
+          <input
+            class="input-field"
+            v-model.number="quantity"
+            id="quantity"
+            ref="quantityInput"
+            @input="onQuantityChange"/>
         </div>
-        <div class="popup-new-quantity-div">
-          <p>
-            {{ unitsReduced }} {{ unit }}
-          </p>
-          <p>fjernet.</p>
-          <div class="buttons-div">
-            <div class="checkboxes-div">
-              <label>
-                <input
-                  type="radio"
-                  class="fridge-checkbox add-checkbox"
-                  name="fridge-item-action"
-                  v-model="action"
-                  value="eaten"
-                />
-                Spist?
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  class="fridge-checkbox remove-checkbox"
-                  name="fridge-item-action"
-                  v-model="action"
-                  value="thrown"
-                />
-                Kastet?
-              </label>
+        <div class="outer-new-quantity-div">
+          <div v-if="quantityChanged" class="popup-new-quantity-div">
+            <p v-if="unitsReduced > 0">{{ unitsReduced }} {{ unit }}</p>
+            <p v-if="unitsReduced > 0">fjernet.</p>
+            <p v-if="unitsReduced < 0">{{ -unitsReduced }} {{ unit }}</p>
+            <p v-if="unitsReduced < 0">lagt til.</p>
+            <div class="buttons-div">
+              <div class="checkboxes-div">
+                <label v-if="checkboxDisabled">
+                  <input
+                    type="radio"
+                    class="fridge-checkbox"
+                    name="fridge-item-action"
+                    v-model="action"
+                    value="eaten"
+                  />
+                  Spist?
+                </label>
+                <label v-if="checkboxDisabled">
+                  <input
+                    type="radio"
+                    class="fridge-checkbox"
+                    name="fridge-item-action"
+                    v-model="action"
+                    value="thrown"
+                  />
+                  Kastet?
+                </label>
+              </div>
             </div>
           </div>
         </div>
         <div class="popup-save-button">
-          <button id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
+          <button
+            id="save-button"
+            class="btn btn-dark"
+            @click.stop="activateSave"
+            :disabled="saveButtonDisabled"
+          >
+            Lagre
+          </button>
         </div>
+      </div>
+    </div>
+    <div v-if="confirmEat || confirmThrow" class="confirm-popup">
+      <div class="confirm-div">
+        <p v-if="confirmThrow">Vil du markere '{{ product.item.name }}' som kastet?</p>
+        <p v-if="confirmEat">Vil du markere '{{ product.item.name }}' som spist?</p>
+        <button class="confirm-button confirm-yes-button" @click.stop="confirmAction">Ja</button>
+        <button class="confirm-button confirm-no-button" @click.stop="cancelAction">Nei</button>
       </div>
     </div>
   </div>
@@ -93,9 +128,16 @@ import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface, Unit } from './types'
 
 const edit = ref(true)
-const emit = defineEmits(['update', 'selection-changed'])
+const emit = defineEmits(['update', 'selection-changed', 'item-eaten', 'item-thrown', 'item-partially-thrown'])
 const popup = ref(false)
+const confirmThrow = ref(false)
+const confirmEat = ref(false)
 const unitsReduced = ref(0)
+const quantityChanged = ref(false)
+const disableHover = ref(false)
+const disableCheckboxToggle = ref(false)
+const disableCardPointer = ref(false)
+const saveButtonDisabled = ref(false)
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
@@ -114,7 +156,7 @@ const titleFontSize = computed(() => {
   } else if (length <= 25) {
     return '1.1rem'
   } else {
-    return '1rem' // Smallest font size
+    return '1rem'
   }
 })
 
@@ -144,6 +186,10 @@ const unit = computed(() => {
   }
 })
 
+const checkboxDisabled = computed(() => {
+  return (quantity.value < props.product.quantity) && quantityChanged
+})
+
 const cardClass = computed(() => ({
   card: true,
   'card-checked': selected.value
@@ -168,7 +214,7 @@ const activateEdit = () => {
 }
 
 const validateQuantity = (quantity: number) => {
-  return quantity > 0
+  return quantity > 0 && quantity < 30000
 }
 
 const activateSave = () => {
@@ -176,7 +222,9 @@ const activateSave = () => {
     return
   }
   const isQuantityValid = validateQuantity(quantity.value)
-
+  console.log('Quantity', props.product.quantity)
+  console.log('Base amount', props.product.item.baseAmount)
+  console.log('Weight per unit', props.product.item.weightPerUnit)
   if (!isQuantityValid) {
     expirationDate.value = props.product.expirationDate
     quantity.value = props.product.quantity
@@ -188,17 +236,28 @@ const activateSave = () => {
   quantityInput.value.disabled = true
   edit.value = true
 
-  // Check if the values have been changed
   if (
     expirationDate.value !== props.product.expirationDate ||
     quantity.value !== props.product.quantity
   ) {
-    // Emit the update event with the updated item data
-    emit('update', {
-      ...props.product,
-      expirationDate: expirationDate.value,
-      quantity: quantity.value
-    })
+    if (quantity.value < props.product.quantity) {
+      if (action.value === 'thrown') {
+        console.log(unitsReduced.value)
+        emit('item-partially-thrown', {
+          ...props.product,
+          expirationDate: expirationDate.value,
+          quantity: quantity.value
+        },
+        unitsReduced.value)
+        unitsReduced.value = 0
+      }
+    } else {
+      emit('update', {
+        ...props.product,
+        expirationDate: expirationDate.value,
+        quantity: quantity.value
+      })
+    }
   }
   popup.value = false
 }
@@ -221,7 +280,28 @@ watch(
   { deep: true }
 )
 
+watch(
+  () => quantity.value,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      saveButtonDisabled.value = !action.value
+    }
+  }
+)
+
+watch(
+  () => action.value,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      saveButtonDisabled.value = !newValue
+    }
+  }
+)
+
 function toggleCheckbox (event: MouseEvent) {
+  if (disableCheckboxToggle.value) {
+    return
+  }
   const isExpirationDateInput = (event.target as HTMLElement).closest('#expiration-date')
   const isQuantityInput = (event.target as HTMLElement).closest('#quantity')
   const isEditButton = (event.target as HTMLElement).closest('#edit-button')
@@ -235,8 +315,58 @@ function toggleCheckbox (event: MouseEvent) {
   }
 }
 
+function disableToggleCheckbox () {
+  disableCheckboxToggle.value = true
+  disableCardPointer.value = true
+}
+
+function enableToggleCheckbox () {
+  disableCheckboxToggle.value = false
+  disableCardPointer.value = false
+}
+
+function onQuantityChange () {
+  quantityChanged.value = quantity.value !== props.product.quantity
+  if (quantityChanged.value) {
+    unitsReduced.value = props.product.quantity - quantity.value
+    saveButtonDisabled.value = !action.value
+  } else {
+    unitsReduced.value = 0
+    saveButtonDisabled.value = false
+  }
+}
+
 function deleteCard () {
-  console.log('Card deleted')
+  confirmThrow.value = true
+  disableHover.value = true
+  disableToggleCheckbox()
+}
+
+function itemEaten () {
+  confirmEat.value = true
+  disableHover.value = true
+  disableToggleCheckbox()
+}
+
+function confirmAction () {
+  console.log('Action confirmed')
+  confirmThrow.value = false
+  confirmEat.value = false
+  disableHover.value = false
+  enableToggleCheckbox()
+}
+
+function cancelAction () {
+  console.log('Action canceled')
+  if (confirmThrow.value) {
+    emit('item-thrown', props.product)
+  } else if (confirmEat.value) {
+    emit('item-eaten', props.product)
+  }
+  confirmThrow.value = false
+  confirmEat.value = false
+  disableHover.value = false
+  enableToggleCheckbox()
 }
 </script>
 
@@ -286,11 +416,22 @@ function deleteCard () {
   text-align: center;
 }
 
+.card::before {
+  content: '';
+  position: absolute;
+  left: 10%;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  border-radius: 50% / 100%;
+  z-index: 0;
+}
+
 .card {
   width: 550px;
   flex-direction: row;
   background-color: rgba(35, 173, 58, 0.3);
-  height: 150px; /* Set a fixed height for the grid item */
+  height: 150px;
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
   cursor: pointer;
@@ -377,56 +518,6 @@ function deleteCard () {
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
 
-.trash-icon-container {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 10%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: transparent;
-  cursor: pointer;
-  z-index: 1;
-  transition: all 0.3s ease;
-}
-
-.trash-icon-container:hover {
-  background-color: red;
-  transform: translateX(10px);
-  width: 12%;
-  margin-left: -10px;
-}
-
-.trash-icon {
-  width: 50%;
-  height: 50%;
-}
-
-.trash-icon-hover {
-  display: none;
-}
-
-.trash-icon-container:hover .trash-icon {
-  display: none;
-}
-
-.trash-icon-container:hover .trash-icon-hover {
-  display: block;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  left: 10%;
-  top: 15%;
-  bottom: 15%;
-  width: 2px;
-  border-radius: 50% / 100%;
-  z-index: 0;
-}
-
 .popup {
   position: absolute;
   top: 0;
@@ -437,8 +528,22 @@ function deleteCard () {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #aaa;
+  background-color: #949594;
   z-index: 2;
+}
+
+.confirm-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 10;
 }
 
 .popup-expiration-date-div{
@@ -449,9 +554,14 @@ function deleteCard () {
   margin-right: 10px;
 }
 
+.outer-new-quantity-div {
+  width: 20%;
+}
+
 .popup-expiration-date-div,
 .popup-quantity-div,
 .popup-new-quantity-div,
+.outer-new-quantity-div,
 .popup-save-button {
   align-self: center;
 }
@@ -460,7 +570,7 @@ function deleteCard () {
   width: 25%;
 }
 .popup-new-quantity-div {
-  width: 20%;
+  width: 100%;
 }
 .popup-new-quantity-div p {
   text-align: center;
@@ -490,5 +600,135 @@ function deleteCard () {
 .fridge-checkbox {
   margin-right: 5px;
   scale: 1.4;
+}
+
+.trash-icon-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 50%;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.trash-icon-container:hover {
+  background-color: red;
+  transform: translateX(10px);
+  width: 12%;
+  height: 50%; /* Add this to make the trash icon grow to fit half of the height */
+  margin-left: -10px;
+  top: 0; /* Add this to center the trash icon vertically */
+}
+
+.trash-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.trash-icon-hover {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon-hover {
+  display: block;
+}
+
+.eaten-icon-container {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.eaten-icon-container:hover {
+  background-color: green;
+  transform: translateX(10px);
+  width: 12%;
+  margin-left: -10px;
+}
+
+.eaten-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.eaten-icon-hover {
+  display: none;
+}
+
+.eaten-icon-container:hover .eaten-icon {
+  display: none;
+}
+
+.eaten-icon-container:hover .eaten-icon-hover {
+  display: block;
+}
+
+.disable-hover .trash-icon-hover,
+.disable-hover .eaten-icon-hover {
+  display: none;
+}
+
+.confirm-div {
+  color: white;
+  font-size: 20px;
+}
+
+.confirm-button {
+  color: white;
+  height: 40px;
+  width: 100px;
+  margin-left: 20px;
+  margin-right: 20px;
+  border-radius: 100px;
+  border: none;
+  font-size: 20px;
+}
+
+.confirm-button:hover {
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.confirm-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
+
+.confirm-yes-button {
+  background-color: #1A7028;
+}
+
+.confirm-yes-button {
+  background-color: #25A13A;
+}
+
+.confirm-no-button {
+  background-color: rgb(147, 0, 0);
+}
+
+.confirm-no-button {
+  background-color: rgb(179, 6, 6);
 }
 </style>
