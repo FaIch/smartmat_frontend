@@ -4,13 +4,13 @@ import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
 import SubUserView from '../views/SubUserView.vue'
-import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import AddProductView from '../views/AddProductView.vue'
 import WeekMenuView from '../views/WeekMenuView.vue'
 import SpecificWeekMenu from '../views/SpecificWeekMenuView.vue'
 import RecipesView from '../views/RecipesView.vue'
+import NotificationView from '../views/NotificationView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -37,11 +37,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/subuser',
     name: 'subuser',
     component: SubUserView
-  },
-  {
-    path: '/productSelection',
-    name: 'productSelection',
-    component: ProductSelectorView
   },
   {
     path: '/savings',
@@ -72,6 +67,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/specificMenu',
     name: 'specificMenu',
     component: SpecificWeekMenu
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView
   }
 ]
 

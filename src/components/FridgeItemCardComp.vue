@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div :class="cardClass" @click="toggleCheckbox">
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -29,9 +29,10 @@
           type="checkbox"
           v-model="selected"
           @change="onCheckboxChange"
+          :disabled="!edit"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
-        <button v-if="!edit" id="save-button" class="btn btn-dark" @click="activateSave">Lagre</button>
+        <button v-if="!edit" id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
       </div>
     </div>
   </div>
@@ -79,6 +80,11 @@ const unitType = computed(() => {
       return ''
   }
 })
+
+const cardClass = computed(() => ({
+  card: true,
+  'card-checked': selected.value
+}))
 
 const expirationDate = ref(props.product.expirationDate)
 const quantity = ref(props.product.quantity)
@@ -149,6 +155,20 @@ watch(
   { deep: true }
 )
 
+function toggleCheckbox (event: MouseEvent) {
+  const isExpirationDateInput = (event.target as HTMLElement).closest('#expiration-date')
+  const isQuantityInput = (event.target as HTMLElement).closest('#quantity')
+  const isEditButton = (event.target as HTMLElement).closest('#edit-button')
+  const isCheckbox = (event.target as HTMLElement) === document.getElementById('checkbox')
+
+  if (edit.value) {
+    if (!isEditButton && !isCheckbox && !isExpirationDateInput && !isQuantityInput) {
+      selected.value = !selected.value
+      onCheckboxChange()
+    }
+  }
+}
+
 </script>
 
 <style scoped>
@@ -176,6 +196,7 @@ watch(
   padding: 0;
   width: 20px;
   height: 20px;
+  cursor: pointer;
 }
 
 .card-title {
@@ -203,7 +224,11 @@ watch(
   height: 150px; /* Set a fixed height for the grid item */
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
-  margin: 3em auto;
+  cursor: pointer;
+}
+
+.card-checked {
+  background-color: rgba(35, 173, 58, 0.6);
 }
 
 .card-image {
