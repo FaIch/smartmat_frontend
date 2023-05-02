@@ -9,6 +9,7 @@
         <div class="input-box">
           <i class="fas fa-envelope"></i>
           <input
+          data-cy="input-email"
           type="email"
           v-model="email"
           placeholder="Email..."
@@ -18,17 +19,18 @@
         <div class="input-box">
           <i class="fas fa-lock"></i>
           <input
+          data-cy="input-password"
           type="password"
           v-model="password"
           placeholder="Passord..."
           @input="resetUpdate"
           required>
         </div>
-        <div class="button input-box">
+        <div class="button input-box" data-cy="button-login">
           <input type="submit" value="Logg inn">
         </div>
         <div class="text sign-up-text">Har du ikke bruker?
-          <label @click="emit('switch-view')">Registrer deg</label>
+          <label data-cy="switch-to-signup" @click="emit('switch-view')">Registrer deg</label>
         </div>
       </div>
     </form>

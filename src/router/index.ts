@@ -3,7 +3,7 @@ import { requireAuth } from '../auth-guard' // Update the import path accordingl
 import { checkIsSubUserLoggedIn, checkIsUserLoggedIn } from '../stores/UserStore'
 import LoginView from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
-
+import RecipePageView from '../views/RecipePageView.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -104,6 +104,11 @@ const routes: Array<RouteRecordRaw> = [
       const isLoggedIn = await checkIsSubUserLoggedIn()
       requireAuth(isLoggedIn, to, from, next)
     }
+  },
+  {
+    path: '/recipe/:id',
+    name: 'recipe',
+    component: RecipePageView
   }
 ]
 

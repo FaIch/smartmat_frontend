@@ -69,6 +69,32 @@ export type WeekMenuData= {
     totalAmountOfItemsToExpire:number;
 };
 
+export type WeekMenu= {
+  id:number;
+  recipe1:RecipeInterface;
+  recipe2: RecipeInterface;
+  recipe3: RecipeInterface;
+  recipe4:RecipeInterface;
+  recipe5:RecipeInterface;
+  type:string;
+
+}
+
+export interface menuItem {
+  recipe1:RecipeInterface;
+  recipe2: RecipeInterface;
+  recipe3: RecipeInterface;
+  recipe4:RecipeInterface;
+  recipe5:RecipeInterface;
+}
+
+export interface RecipeIngredientInterface {
+    id: number;
+    quantity: number;
+    item: ItemInterface;
+    selected: boolean;
+}
+
 export interface User {
   id: number;
 }

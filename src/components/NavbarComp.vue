@@ -18,7 +18,7 @@
           @click.prevent="() => navigate('/recipes')"
           :class="{ active: isActiveLink('/recipes') }"
         >
-        <h1>{{ recipes }}</h1>
+        <h1 data-cy="recipes">{{ recipes }}</h1>
         </div>
         <div
           v-if="!showHamburgerMenu"
@@ -26,7 +26,7 @@
           @click.prevent="() => navigate('/weekMenu')"
           :class="{ active: isActiveLink('/weekMenu') }"
         >
-          <h1>{{ weekMenu }}</h1>
+          <h1 data-cy="weekMenu">{{ weekMenu }}</h1>
         </div>
 
         <div
@@ -35,17 +35,12 @@
           @click.prevent="() => navigate('/shoppinglist')"
           :class="{ active: isActiveLink('/shoppinglist') }"
         >
-        <h1>{{ shoppingCart }}</h1>
+        <h1 data-cy="shoppingCart">{{ shoppingCart }}</h1>
         </div>
 
-        <div
-          v-if="!showHamburgerMenu"
-          class="icon-link"
-          @click.prevent="() => navigate('/fridge')"
-          :class="{ active: isActiveLink('/fridge') }"
-        >
-        <h1>{{ inventory }}</h1>
-        </div>
+                <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
+                <h1>{{ inventory }}</h1>
+                </router-link>
 
         <div
           v-if="!showHamburgerMenu"
@@ -53,7 +48,7 @@
           @click.prevent="() => navigate('/profile')"
           :class="{ active: isActiveLink('/profile') }"
         >
-        <h1>{{ profile }}</h1>
+        <h1 data-cy="profile">{{ profile }}</h1>
         </div>
 
         <div
