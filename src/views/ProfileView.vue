@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineExpose } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 import { SHA256 } from 'crypto-js'

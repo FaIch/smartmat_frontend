@@ -1,389 +1,235 @@
 <template>
-  <div class="container">
-    <div class="main">
-      <div class="update-div">
-        <p class="update">{{ update }}</p>
+  <div class="login-container-body">
+    <div class="login-container">
+      <div class="form-container">
+        <div class="login-forms">
+          <div class="login-form-content">
+            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" />
+            <SignUpFormComp v-show="!showLoginForm" @switchView="toggleView" />
+          </div>
+        </div>
       </div>
-      <input type="checkbox" id="chk" aria-hidden="true">
-      <div class="login">
-        <form class="form" @submit.prevent="submitLogin">
-          <label id="login" for="chk" aria-hidden="true">Logg inn</label>
-          <input class="input" type="text" autocomplete="email" name="email" placeholder="Email"
-            v-model="loginInputs.email" @input="resetUpdate">
-          <input class="input" type="password" name="pswd" placeholder="Passord" v-model="loginInputs.password"
-            @input="resetUpdate">
-          <button type="submit">Logg inn</button>
-        </form>
-      </div>
-      <div class="signup">
-        <form class="form" @submit.prevent="submitSignup">
-          <label id="signup" for="chk" aria-hidden="true">Registrer deg</label>
-          <input class="input" id="signup1" type="text" autocomplete="email" name="email" placeholder="Email"
-            v-model="signupInput.email" @input="resetUpdate">
-          <input class="input" id="password1" type="password" name="pswd" placeholder="Passord"
-            v-model="signupInput.password" @input="resetUpdate">
-          <input class="input" id="password2" type="password" name="pswd" placeholder="Bekreft passord"
-            v-model="signupInput.confirmPassword" @input="resetUpdate">
-          <button id="sign-up-button" type="submit">Registrer</button>
-        </form>
+      <div class="image-container">
+        <img class="logo-image" src="../assets/food-pic.jpg">
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { useUserStore } from '../stores/UserStore'
-import router from '../router/index'
+import SignUpFormComp from '../components/SignUpFormComp.vue'
+import LoginFormComp from '../components/LoginFormComp.vue'
 import { useUtilityStore } from '../stores/UtilityStore'
-import axios from 'axios'
-import { SHA256 } from 'crypto-js'
+import { ref, onMounted } from 'vue'
 
-const userStore = useUserStore()
-const navbarStore = useUtilityStore()
-const update = ref('')
-const emailRegex = ref(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
-
-const loginInputs = ref({
-  email: '',
-  password: ''
-})
-
-const signupInput = ref({
-  email: '',
-  password: '',
-  confirmPassword: ''
-})
-
+const utilityStore = useUtilityStore()
 onMounted(() => {
-  navbarStore.setTransparentStatus(false)
-  navbarStore.showItems = false
-  userStore.logout()
+  utilityStore.showItems = false
 })
 
-onUnmounted(() => {
-  navbarStore.showItems = true
-})
+const showLoginForm = ref(true)
 
-function resetUpdate () {
-  update.value = ''
+const toggleView = () => {
+  showLoginForm.value = !showLoginForm.value
 }
 
-function validateLogin () {
-  if (loginInputs.value.email === '' || loginInputs.value.password === '') {
-    update.value = 'Please fill out all fields.'
-    return false
-  }
-  if (!emailRegex.value.test(String(loginInputs.value.email).toLowerCase())) {
-    update.value = 'Invalid email.'
-    return false
-  }
-  if (loginInputs.value.email.length > 50) {
-    update.value = 'Email is too long.'
-    return false
-  }
-  if (loginInputs.value.password.length > 200) {
-    update.value = 'Password is too long.'
-    return false
-  }
-  return true
-}
-
-function validateSignup () {
-  if (signupInput.value.email === '' || signupInput.value.password === '' || signupInput.value.confirmPassword === '') {
-    update.value = 'Please fill out all fields.'
-    return false
-  }
-  if (!emailRegex.value.test(String(signupInput.value.email).toLowerCase())) {
-    update.value = 'Invalid email.'
-    return false
-  }
-  if (signupInput.value.password !== signupInput.value.confirmPassword) {
-    update.value = 'Passwords are not the same.'
-    return false
-  }
-  if (signupInput.value.email.length > 50) {
-    update.value = 'Email is too long.'
-    return false
-  }
-  if (signupInput.value.password.length < 8) {
-    update.value = 'Password must be at least 8 characters.'
-    return false
-  }
-  if (signupInput.value.password.length > 200) {
-    update.value = 'Password is too long.'
-    return false
-  }
-  return true
-}
-
-async function submitLogin () {
-  resetUpdate()
-  if (validateLogin()) {
-    const path = 'http://localhost:8080/user/login'
-    const hashedPassword = SHA256(loginInputs.value.password)
-    const request = {
-      email: loginInputs.value.email,
-      password: hashedPassword.toString()
-    }
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    }
-
-    await axios.post(path, request, config)
-      .then(async (response) => {
-        if (response.status === 200) {
-          userStore.login(response.data.userEmail, 'user')
-          router.push('/fridge')
-        }
-      })
-      .catch((error) => {
-        if (error.response.status === 400) {
-          update.value = error.response.data.message
-        }
-      })
-  }
-}
-
-function submitSignup () {
-  resetUpdate()
-  if (validateSignup()) {
-    const path = 'http://localhost:8080/user/create'
-    const hashedPassword = SHA256(signupInput.value.password)
-
-    const data = {
-      email: signupInput.value.email,
-      password: hashedPassword.toString()
-    }
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-
-    axios.post(path, data, config).then(response => {
-      if (response.status === 200) {
-        update.value = response.data
-        userStore.loggedIn = true
-        router.push('/login')
-      }
-    }).catch((error) => {
-      if (error.response.status === 400) {
-        update.value = error.response.data
-      } else if (error.response.status === 409) {
-        update.value = error.response.data
-      }
-    })
-  }
-}
 </script>
 
-<style scoped>
-.container {
-  display: flex;
-  justify-content: center;
-  padding-top: 15vh;
-  height: 100vh;
-  background-color: white;
+<style>
+/* Login/signup page based on code found here:
+https://www.youtube.com/watch?v=U69WL9jInW0
+*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+  box-sizing: border-box;
+  font-family: "Poppins" , sans-serif;
 }
-
-.update {
-  margin: 0;
-  margin-top: 20px;
-  font-family: 'Lato', sans-serif;
-  font-size: 25px;
-  color: red;
-}
-
-.update-div {
-  margin-bottom: 0;
-  margin-top: 30px;
-  min-height: 35px;
-}
-
-.main {
-  scale: 1.5;
-  width: 450px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background-color: transparent;
-  height: 500px;
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/*checkbox to switch from sign up to login*/
-#chk {
-  display: none;
-}
-
-/*Login*/
-.login {
-  position: relative;
-  width: 100%;
+.login-container-body{
+  min-height: 100vh;
   height: 100%;
-}
-
-.login label {
-  margin: 10% 0 5%;
-}
-
-label {
-  color: black;
-  font-size: 2rem;
-  justify-content: center;
+  padding-top: 70px;
   display: flex;
-  font-weight: bold;
-  cursor: pointer;
-  transition: .5s ease-in-out;
-  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url("../assets/startpagebackground3.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.input {
-  height: 40px;
-  font-size: 1.2rem;
-  background: #e0dede;
-  margin: 10px;
-  padding-left: 10px;
-  border: none;
+.login-container{
+  position: relative;
+  min-height: 580px;
+  max-width: 850px;
+  width: 100%;
+  background: #fff;
+  padding-left: 20px;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  perspective: 2700px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.form-container {
+  flex-basis: 50%;
+  max-width: 50%;
+}
+
+.image-container {
+  padding-left: 20px;
+  flex-basis: 50%;
+  min-width: 50%;
+  min-height: 580px;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-image {
+  width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+.login-container .login-forms{
+  height: 100%;
+  width: 100%;
+  background: #fff;
+}
+.login-forms .login-form-content .title{
+  position: relative;
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+}
+.login-forms .login-form-content .title:before{
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 25px;
+}
+.login-forms .signup-form  .title:before{
+  width: 20px;
+}
+.login-forms .login-form-content .input-boxes{
+  margin-top: 30px;
+}
+.login-forms .login-form-content .input-box{
+  display: flex;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  margin: 10px 0;
+  position: relative;
+}
+.login-form-content .input-box input{
+  height: 100%;
+  width: 100%;
   outline: none;
-  border-radius: 4px;
-}
-
-/*Register*/
-.signup {
-  background-color: #1A7028;
-  border-radius: 60% / 10%;
-  transform: translateY(5%);
-  transition: .8s ease-in-out;
-}
-
-.signup input {
-  margin: 0;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
-.signup label {
-  padding-top: 10px;
-  color: white;
-  transform: scale(.6);
-  margin-top: 0;
-}
-
-.signup form {
-  height: 400px;
-}
-
-#chk:checked~.signup {
-  transform: translateY(-68%);
-}
-
-#chk:checked~.signup label {
-  transform: scale(1);
-  margin: 10% 0 5%;
-}
-
-#chk:checked~.login label {
-  transform: scale(.6);
-  margin: 5% 0 5%;
-}
-
-/*Button*/
-.form button {
-  width: 85%;
-  height: 40px;
-  margin: 12px auto 10%;
-  color: #fff;
-  background: #1A7028;
-  font-size: 1.2rem;
-  font-weight: bold;
   border: none;
-  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.login-form-content .input-box i{
+  position: absolute;
+  color: #7d2ae8;
+  font-size: 17px;
+}
+.login-forms .login-form-content .text{
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+.login-forms .login-form-content .text a{
+  text-decoration: none;
+}
+.login-forms .login-form-content .text a:hover{
+  text-decoration: underline;
+}
+.login-forms .login-form-content .button{
+  color: #fff;
+  margin-top: 40px;
+}
+.login-forms .login-form-content .button input{
+  color: #fff;
+  background-color: #1A7028;
+  border-radius: 6px;
+  padding: 0;
   cursor: pointer;
-  transition: .2s ease-in;
+  transition: all 0.4s ease;
 }
-
-#sign-up-button {
-  background-color: #FFC306;
-  color: black;
-}
-
-#sign-up-button:hover {
-  background-color: #ffff06;
-}
-
-.form button:hover {
+.login-forms .login-form-content .button input:hover{
   background-color: #25A13A;
 }
-
-button:disabled {
-  opacity: 0.6;
-  cursor: auto;
+.login-forms .login-form-content label{
+  color: #5b13b9;
+  cursor: pointer;
 }
-
-button:disabled:hover {
-  background-color: #573b8a;
+.login-forms .login-form-content label:hover{
+  text-decoration: underline;
 }
-
-@media screen and (max-width: 1700px) {
-  .main {
-    scale: 1.1;
+.login-forms .login-form-content .login-text,
+.login-forms .login-form-content .sign-up-text{
+  text-align: center;
+  margin-top: 25px;
+}
+@media (max-width: 730px) {
+  .login-form-content .login-form,
+  .login-form-content .signup-form{
+    width: 100%;
   }
 }
 
-@media screen and (max-width: 700px) {
-  .main {
-    scale: 1.2;
-  }
-}
-
-@media screen and (max-width: 550px) {
-  .main {
+@media only screen and (min-width: 992px){
+  .login-container {
     scale: 1;
   }
 }
 
-@media screen and (max-width: 450px) {
-  .main {
-    width: 350px;
-    height: 520px;
+@media only screen and (max-width: 900px){
+  .image-container {
+    display: none;
   }
-
-  .input {
-    height: 60px;
+  .login-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    width: 500px;
+    padding: 20px 20px;
   }
-
-  .signup input {
-    margin-top: 2px;
-    margin-bottom: 2px;
+  .form-container {
+    justify-self: center;
+    max-width: 100%;
+    width: 90%;
+    padding: 0;
   }
-
-  #chk:checked~.signup {
-    transform: translateY(-71%);
-  }
-
 }
 
-@media screen and (max-width: 300px) {
-  .main {
-    width: 280px;
-    height: 525px;
+@media only screen and (max-width: 600px){
+  .login-container {
+    width: 85%;
   }
+}
 
-  #chk:checked~.signup {
-    transform: translateY(-70%);
+@media only screen and (min-width: 600px){
+  .input-box input {
+    padding: 0 30px;
   }
-}</style>
+}
+
+@media only screen and (max-width: 450px){
+  .input-box {
+    text-align: left;
+    justify-content: left;
+    padding: 0;
+  }
+}
+
+</style>

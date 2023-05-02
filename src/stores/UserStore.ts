@@ -2,12 +2,14 @@ import { defineStore } from 'pinia'
 import { ref, onMounted } from 'vue'
 import axios, { AxiosError } from 'axios'
 import router from '../router/index'
+import { SubUser } from '@/components/types'
 
 // Define user store using Pinia
 export const useUserStore = defineStore('userStore', () => {
   const email = ref('')
   const loggedIn = ref(false)
   const role = ref('')
+  const subUser = ref<SubUser>()
   const refreshTokenTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
   // Function for refreshing user token
@@ -52,18 +54,22 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  async function login (userEmail: string, userRole: string) {
+  async function login (userEmail: string) {
     email.value = userEmail
-    role.value = userRole
     loggedIn.value = true
 
     startRefreshTimer()
+  }
+
+  function subUserLogin (subUserParam: SubUser) {
+    subUser.value = subUserParam
   }
 
   async function logout () {
     email.value = ''
     role.value = ''
     loggedIn.value = false
+    subUser.value = undefined
     stopRefreshTimer()
     router.push('/login')
   }
@@ -74,7 +80,8 @@ export const useUserStore = defineStore('userStore', () => {
     loggedIn,
     refreshToken,
     login,
-    logout
+    logout,
+    subUserLogin
   }
 },
 {

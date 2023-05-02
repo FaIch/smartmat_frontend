@@ -8,7 +8,7 @@ export enum Unit {
 }
 
 export interface ItemInterface {
-  id?: number;
+  id: number;
   category: string;
   image: string;
   name: string;
@@ -58,6 +58,43 @@ export interface RecipeCardInterface {
   amountNearlyExpired: number;
 }
 
+export interface WeekMenuCardInterface {
+  firstRecipeImage:string;
+  type:string;
+}
+
+export type WeekMenuData= {
+    totalAmountOfItems:number;
+    totalAmountOfMissingItems:number;
+    totalAmountOfItemsToExpire:number;
+};
+
+export type WeekMenu= {
+  id:number;
+  recipe1:RecipeInterface;
+  recipe2: RecipeInterface;
+  recipe3: RecipeInterface;
+  recipe4:RecipeInterface;
+  recipe5:RecipeInterface;
+  type:string;
+
+}
+
+export interface menuItem {
+  recipe1:RecipeInterface;
+  recipe2: RecipeInterface;
+  recipe3: RecipeInterface;
+  recipe4:RecipeInterface;
+  recipe5:RecipeInterface;
+}
+
+export interface RecipeIngredientInterface {
+    id: number;
+    quantity: number;
+    item: ItemInterface;
+    selected: boolean;
+}
+
 export interface User {
   id: number;
 }
@@ -68,10 +105,17 @@ export interface ImportedProduct {
   current_price: number;
   description: string;
 }
+export enum Role {
+  // eslint-disable-next-line no-unused-vars
+  CHILD = 'CHILD',
+  // eslint-disable-next-line no-unused-vars
+  PARENT = 'PARENT'
+}
 
 export interface SubUser {
   id: bigint;
+  email: string;
   nickname: string;
-  role: string;
+  role: Role;
   passcode: number;
 }
