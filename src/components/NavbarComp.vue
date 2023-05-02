@@ -1,5 +1,5 @@
 <template>
-    <nav class="navbar" :class="{ 'is-opaque': isOpaque }">
+    <nav class="navbar is-opaque">
         <div class="navbar-container">
             <div class="navbar-logo">
                 <router-link to="/" @click.prevent="closeMenu" exact-active-class="active">
@@ -14,21 +14,27 @@
             </div>
             <div class="navbar-icons">
 
-                <router-link v-if="!showHamburgerMenu" to="/recipesuggestions" class="icon-link" exact-active-class="active">
-                <h1>{{ recipes }}</h1>
+                <router-link v-if="!showHamburgerMenu" to="/recipes" class="icon-link" exact-active-class="active">
+                <h1 data-cy="recipes">{{ recipes }}</h1>
                 </router-link>
 
+              <router-link v-if="!showHamburgerMenu" to="/weekMenu" class="icon-link" exact-active-class="active">
+                <h1 data-cy="weekMenu">{{ weekMenu }}</h1>
+              </router-link>
+
                 <router-link v-if="!showHamburgerMenu" to="/shoppinglist" class="icon-link" exact-active-class="active">
-                <h1>{{ shoppingCart }}</h1>
+                <h1 data-cy="shoppingCart">{{ shoppingCart }}</h1>
                 </router-link>
 
                 <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
-                <h1>{{ inventory }}</h1>
+                <h1 data-cy="inventory">{{ inventory }}</h1>
                 </router-link>
 
                 <router-link v-if="!showHamburgerMenu" :to="targetRoute" class="icon-link" exact-active-class="active">
-                <h1>{{ profile }}</h1>
+                <h1 data-cy="profile">{{ profile }}</h1>
                 </router-link>
+
+                <notification-center-comp />
 
                 <div class="menu" v-if="showHamburgerMenu">
                     <button class="menu-button" @click="toggleMenu">
@@ -57,29 +63,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
-import { useUtilityStore } from '../stores/UtilityStore'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useUserStore } from '../stores/UserStore'
+import NotificationCenterComp from './NotificationCenterComp.vue'
 
-const utilityStore = useUtilityStore()
 const userStore = useUserStore()
-const isOpaque = ref(true)
 const screenWidth = ref(window.innerWidth)
 const showHamburgerMenu = computed(() => screenWidth.value < 500)
 const isMenuVisible = ref(false)
 
 const toggleMenu = () => {
   isMenuVisible.value = !isMenuVisible.value
-  if (isMenuVisible.value) {
-    isOpaque.value = true
-  } else {
-    isOpaque.value = false
-  }
 }
 
 const closeMenu = () => {
   isMenuVisible.value = false
-  utilityStore.setTransparentStatus(true)
 }
 
 const updateScreenWidth = () => {
@@ -88,7 +86,15 @@ const updateScreenWidth = () => {
 
 const recipes = computed(() => {
   if (screenWidth.value > 850) {
-    return 'Matforslag'
+    return 'Oppskrifter'
+  } else {
+    return ''
+  }
+})
+
+const weekMenu = computed(() => {
+  if (screenWidth.value > 850) {
+    return 'Ukesmeny'
   } else {
     return ''
   }
@@ -122,15 +128,7 @@ const targetRoute = computed(() => {
   return userStore.loggedIn ? '/profile' : '/login'
 })
 
-watch(() => utilityStore.transparent, (newValue) => {
-  if (isMenuVisible.value) {
-    return
-  }
-  isOpaque.value = !newValue
-})
-
 onMounted(() => {
-  isOpaque.value = !utilityStore.transparent
   window.addEventListener('resize', updateScreenWidth)
 })
 

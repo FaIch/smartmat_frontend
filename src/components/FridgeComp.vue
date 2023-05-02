@@ -1,15 +1,39 @@
 <template>
   <div class="my-fridge">
-    <NewSearchBarComp :with-dropdown="false" v-if="props.fridge" id="search-bar"/>
+    <div class="search-div">
+      <SearchBar id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" v-if="props.fridge"/>
+      <button class="products-button" @click="toggleProductSelector">Se alle produkter</button>
+      <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
+      <div v-if="showProductSelector" class="product-selector-popup">
+        <button class="close-button" @click="toggleProductSelector">x</button>
+        <ProductSelector :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
+      </div>
+    </div>
     <div class="update-message">
       {{ updateMessage }}
     </div>
-    <div class="item-cards" v-for="product in products" :key="product.id">
-      <FridgeItemCardComp :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
+    <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
+      <FridgeItemCard :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
     </div>
     <div class="buttons">
-      <button v-if="products.length > 0" class="fridge-button" @click="markAsEaten">Jeg har spist dette</button>
-      <button v-if="products.length > 0" class="fridge-button" @click="markAsWaste">Jeg har kastet dette</button>
+      <button
+        v-if="products.length > 0"
+        class="fridge-button delete-button"
+        @click="markAsWaste"
+        v-bind:disabled="!isAnyProductSelected"
+        v-bind:class="{ 'disabled-button': !isAnyProductSelected }"
+      >
+      Jeg har kastet dette
+      </button>
+      <button
+        v-if="products.length > 0"
+        class="fridge-button add-button"
+        @click="markAsEaten"
+        v-bind:disabled="!isAnyProductSelected"
+        v-bind:class="{ 'disabled-button': !isAnyProductSelected }"
+      >
+      Jeg har spist dette
+      </button>
       <div  v-if="products.length === 0" class="no-items">
         <h2 v-if="!props.fridge">Ingen utgåtte varer i kjøleskapet</h2>
         <h2 v-if="props.fridge">Ingen varer i kjøleskapet</h2>
@@ -19,11 +43,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import NewSearchBarComp from './NewSearchBarComp.vue'
+import { onMounted, ref, computed } from 'vue'
+import SearchBar from './SearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
-import FridgeItemCardComp from './FridgeItemCardComp.vue'
+import FridgeItemCard from './FridgeItemCardComp.vue'
+import ProductSelector from './ProductSelectorComp.vue'
 import axios from 'axios'
 
 const props = defineProps({
@@ -33,11 +58,16 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['handle-swap', 'handle-decrement'])
+const emit = defineEmits(['handle-swap', 'handle-decrement', 'refresh-page'])
 const products = ref<FridgeItemCardInterface[]>([])
 const selectedProducts = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
 const updateMessage = ref('')
+const searchPlaceholder = ref('Søk i kjøleskapet...')
+const searchQuery = ref('')
+const showProductSelector = ref(false)
+const buttonType = ref(false)
+const isAnyProductSelected = computed(() => selectedProducts.value.length > 0)
 const config = {
   headers: {
     'Content-Type': 'application/json'
@@ -122,6 +152,31 @@ function onSelectionChanged (event: { selected: boolean; product: FridgeItemCard
   }
 }
 
+function searchProducts (query: string) {
+  searchQuery.value = query
+}
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value) return products.value
+  return products.value.filter((product) =>
+    product.item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
+
+const toggleProductSelector = () => {
+  showProductSelector.value = !showProductSelector.value
+}
+
+const handleSelect = () => {
+  showProductSelector.value = false
+}
+
+function refreshShoppingList () {
+  emit('refresh-page')
+  getItemsInFridge()
+  toggleProductSelector()
+}
+
 const checkExpirationDate = (date: string) => {
   const currentDate = normalizeDate(new Date())
   const inputDate = normalizeDate(new Date(date))
@@ -134,7 +189,8 @@ const normalizeDate = (date: Date) => {
 
 async function markAsEaten () {
   await axiosMarkAsEaten()
-  emit('handle-decrement', props.fridge)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
 }
 
 async function axiosMarkAsEaten () {
@@ -149,7 +205,6 @@ async function axiosMarkAsEaten () {
       if (response.status === 200) {
         updateMessage.value = 'Varer spist'
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-        selectedProducts.value = []
         goNextAxios.value = true
 
         setTimeout(() => {
@@ -166,8 +221,6 @@ async function axiosMarkAsEaten () {
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-  selectedProducts.value = []
-
   return goNextAxios
 }
 
@@ -192,7 +245,8 @@ async function markAsWaste () {
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'
-        emit('handle-decrement', props.fridge)
+        emit('handle-decrement', props.fridge, selectedProducts.value.length)
+        selectedProducts.value = []
       }
     })
     .catch((error) => {
@@ -207,18 +261,90 @@ async function markAsWaste () {
 </script>
 
 <style scoped>
-#search-bar{
-    position: relative;
-    text-align: center;
-    left: 25%;
-    margin-top: 10px;
-    color: black;
-    width: 50%;
-    max-width: 1000px;
-    z-index: 3;
-    scale: 0.8;
+
+.search-div {
+  margin-top: 10px;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
 }
 
+.products-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  border-radius: 100px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  z-index: 4;
+  margin-left: -50px;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.product-selector-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  width: 50%;
+  min-width: 300px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+.close-button {
+  position: absolute;
+  top: -15px;
+  right: 0px;
+  background: none;
+  border: none;
+  font-size: 40px;
+  color: black;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.close-button:focus {
+  outline: none;
+}
+.my-fridge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#search-bar {
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  color: black;
+  max-width: 1000px;
+  width: 70%;
+  z-index: 3;
+  margin-right: 0;
+  scale: 0.8;
+}
 .update-message {
   margin-top: 30px;
   font-size: 20px;
@@ -231,16 +357,25 @@ async function markAsWaste () {
 .item-cards {
   display: flex;
   justify-content: center;
-  margin: 0;
-  margin-bottom: -40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.add-button {
+  background-color: #1A7028;
+}
+
+.add-button:hover {
+  background-color: #25A13A;
 }
 
 .fridge-button {
-  background-color: #1A7028;
   color: white;
   height: 40px;
   width: 200px;
-  margin: 60px;
+  margin-top: 60px;
+  margin-left: 20px;
+  margin-right: 20px;
   margin-bottom: 100px;
   border-radius: 100px;
   border: none;
@@ -248,7 +383,6 @@ async function markAsWaste () {
 
 .fridge-button:hover {
   transform: scale(1.1);
-  background-color: #25A13A;
   color: white;
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
@@ -258,4 +392,26 @@ async function markAsWaste () {
   box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
   transform: scale(.90);
 }
+
+.delete-button {
+  background-color: rgb(147, 0, 0);
+}
+
+.delete-button:hover {
+  background-color: rgb(179, 6, 6);
+}
+
+.disabled-button {
+  background-color: #bbb;
+  color: black;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.disabled-button:hover {
+  background-color: #bbb;
+  color: black;
+  transform: scale(1);
+}
+
 </style>

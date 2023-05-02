@@ -34,21 +34,23 @@ function navigateToLogin () {
 <style scoped>
 
 .start-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-image: url("../assets/startpagebackground3.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    min-height: 100vh;
+    padding: 5rem;
+    background-image: url("../assets/startpagebackground3.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: repeat;
 }
 
 h1 {
   color: white;
   font-size: 40px;
   margin-top: 2rem;
+    white-space: nowrap;
 }
 
 .icon-container {
@@ -95,5 +97,58 @@ h1 {
 #register-button:hover{
   color: #1A7028;
   background: white;
+}
+@media only screen and (max-width: 768px) {
+    h1 {
+        margin-top: 2rem;
+        font-size: 32px;
+    }
+
+    .icon-container {
+        flex-direction: column;
+    }
+
+    .icon-wrapper {
+        margin: 1rem 0;
+    }
+
+    .icon-wrapper img {
+        max-width: 60%;
+    }
+
+    .icon-wrapper p {
+        font-size: 10px;
+    }
+
+    #register-button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+    .icon-wrapper p{
+        font-size: 18px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    h1 {
+        font-size: 28px;
+        margin-top: 1rem;
+    }
+
+    .icon-wrapper img {
+        max-width: 50%;
+    }
+
+    .icon-wrapper p {
+        font-size: 10px;
+    }
+
+    #register-button {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+    .icon-wrapper p{
+        font-size: 18px;
+    }
 }
 </style>

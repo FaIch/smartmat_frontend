@@ -1,219 +1,133 @@
 <template>
-  <div class="navbar"></div>
-  <ProductSelectorButton></ProductSelectorButton>
-  <div class="container">
-    <div v-if="isLoading">Loading...</div>
-    <div class="product-container" v-else>
-      <button @click="sendToFridge">Send to fridge</button>
-      <button @click="removeAll">Remove Selected</button>
-      <NewSearchBarComp :with-dropdown="false" @search="searchProducts"/>
-      <div class="product-table" v-for="product in filteredProducts" :key="product.id">
-        <ShoppingListItemCardComp
-        :product="product"
-        :checked="checkedProducts[product.id] || false"
-        @checked-changed="updateCheckedStatus(product.id, $event)"
-        v-on:remove="removeProduct(product)"/>
+  <div class="fridge-container">
+    <div class="task-bar">
+      <h2 :class="{ active: activeTab === 1, inactive: activeTab !== 1 }" @click="showShoppingList">
+        Min handleliste ({{ numberOfShoppingListItems }})
+      </h2>
+      <div class="separator"></div>
+      <h2 :class="{ active: activeTab === 2, inactive: activeTab !== 2 }" @click="showSuggestions">
+        Foreslåtte varer ({{ numberOfSuggestions }})
+      </h2>
+      <div class="separator">
       </div>
+      <h2 :class="{ active: activeTab === 3, inactive: activeTab !== 3 }" @click="showWishlist">
+        Barnas ønskeliste ({{ numberOfWishListItems }})
+      </h2>
     </div>
+    <ShoppingListComp v-if="activeTab === 1" @refresh-page="refreshPage"/>
+    <SuggestedItemsComp v-if="activeTab === 2" @refresh-page="refreshPage"/>
   </div>
 </template>
 
 <script setup lang="ts">
-import NewSearchBarComp from '../components/NewSearchBarComp.vue'
-import { onMounted, onUnmounted, ref, computed } from 'vue'
+import ShoppingListComp from '../components/ShoppingListComp.vue'
+import SuggestedItemsComp from '../components/SuggestedItemsComp.vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import ShoppingListItemCardComp from '../components/ShoppingListItemCardComp.vue'
-import { ShoppingListItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
-import { useUtilityStore } from '../stores/UtilityStore'
-import ProductSelectorButton from '../components/ProductSelectorButton.vue'
 
-const products = ref<ShoppingListItemCardInterface[]>([])
-const isLoading = ref(true)
-const utilityStore = useUtilityStore()
+const numberOfShoppingListItems = ref()
+const numberOfSuggestions = ref()
+const numberOfWishListItems = ref()
 const userStore = useUserStore()
-const searchQuery = ref('')
+const activeTab = ref(1)
 
-const checkedProducts = ref<{ [key: number]: boolean }>({})
-const updateCheckedStatus = (id: number, checked: boolean) => {
-  checkedProducts.value[id] = checked
-}
-const getCheckedProducts = () => {
-  return products.value.filter((product) => checkedProducts.value[product.id])
-}
-
-function searchProducts (query: string) {
-  searchQuery.value = query
-}
-
-const filteredProducts = computed(() => {
-  if (!searchQuery.value) return products.value
-  return products.value.filter((product) =>
-    product.item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+onMounted(() => {
+  getNumberOfShoppingListItems()
 })
 
-async function loadProducts () {
+async function getNumberOfShoppingListItems () {
+  const path = 'http://localhost:8080/shopping-list/get/number'
+
   const config = {
     headers: {
-      'Content-type': 'application/json'
+      'Content-Type': 'application/json'
     },
     withCredentials: true
   }
-
-  console.log(userStore.loggedIn)
-
-  isLoading.value = true
-  const path = 'http://localhost:8080/shopping-list/get'
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
-        products.value = response.data
-        isLoading.value = false
+        numberOfShoppingListItems.value = response.data.shoppingListItemsNumber
+        numberOfSuggestions.value = response.data.suggestedItemsNumber
+      }
+    }).catch((error) => {
+      if (error.response.status === 600) {
+        userStore.logout()
       }
     })
-    .catch((error) => {
-      if (error.response.status === 400) {
-        console.error(error)
-      }
-    })
 }
 
-const removeProduct = async (product: ShoppingListItemCardInterface) => {
-  const config = {
-    headers: {
-      'Response-type': 'application/json'
-    },
-    withCredentials: true
-  }
-  const path = `http://localhost:8080/shopping-list/remove?=${product.id}`
-  axios.delete(path, config)
-    .then(async (response) => {
-      if (response.status === 200) {
-        products.value = products.value.filter(p => p.id !== product.id)
-      }
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+function refreshPage () {
+  getNumberOfShoppingListItems()
 }
 
-const removeAll = async () => {
-  const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
-  console.log(checkedProductsData)
-
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true,
-    params: {
-      shoppingListItemIds: checkedProductsData.value.join(',')
-    }
-  }
-
-  const path = 'http://localhost:8080/shopping-list/remove'
-  try {
-    const response = await axios.delete(path, config)
-    if (response.status === 200) {
-      console.log('Checked products data sent successfully:', response.data)
-      loadProducts()
-    }
-  } catch (error) {
-    console.error('Error sending checked products data:', error)
-  }
+const showShoppingList = () => {
+  activeTab.value = 1
 }
 
-const sendToFridge = async () => {
-  const checkedProductsData = getCheckedProducts().map((product) => ({
-    itemId: product.item.id,
-    quantity: product.quantity,
-    expirationDate: '2023-05-01'
-  }))
-
-  console.log(checkedProductsData)
-
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-
-  const path = 'http://localhost:8080/fridge/add'
-  try {
-    const response = await axios.post(path, checkedProductsData, config)
-    if (response.status === 200) {
-      console.log('Checked products data sent successfully:', response.data)
-      removeAll()
-    }
-  } catch (error) {
-    console.error('Error sending checked products data:', error)
-  }
+const showSuggestions = () => {
+  activeTab.value = 2
 }
 
-onMounted(() => {
-  utilityStore.setTransparentStatus(false)
-  loadProducts()
-  userStore.loggedIn = true
-})
-
-onUnmounted(() => {
-  products.value = []
-})
-
+const showWishlist = () => {
+  activeTab.value = 3
+}
 </script>
 
 <style scoped>
-.container {
+.fridge-container {
   display: flex;
-  justify-content: center;
-  align-content: center;
-  padding-top: 5vh;
-  height: 100vh;
-  background-color: white;
+  flex-direction: column;
+  padding-top: 120px;
+  min-height: 100vh;
+  height: 100%;
 }
 
-.product-container{
-  min-width: 700px;
-}
-
-.product-table {
+.task-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 10px;
+  min-height: 60px;
+  width: 50%;
+  align-self: center;
+}
+.separator {
+  position: relative;
+  width: 2rem;
+  height: 100%;
+  font-size: 50px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-Button {
-  background-color: #1A7028;
-  color: white;
-  height: 40px;
-  width: 200px;
-  margin: 20px;
-  border-radius: 100px;
-  border: none;
+.separator::before {
+  content: "|";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-Button:hover {
-  transform: scale(1.1);
-  background-color: #25A13A;
-  color: white;
-  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+h1 {
+  padding: 0;
 }
 
-Button:active {
-  background-color: black;
-  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
-  transform: scale(.90);
+h2 {
+  cursor: pointer;
+  transition: font-size 0.5s;
+  padding: 0;
+  margin: 0;
+  font-weight: normal;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
-.navbar {
-  height: 15vh;
+.active {
+  font-size: 40px;
 }
 
-.product-table {
-  margin-top: 0;
+.inactive {
+  font-size: 20px;
 }
-
 </style>
