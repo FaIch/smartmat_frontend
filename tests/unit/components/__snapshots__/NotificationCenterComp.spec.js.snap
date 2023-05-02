@@ -2,7 +2,7 @@
 
 exports[`NavbarComp form > renders correctly 1`] = `
 "<div data-v-9ecb1c94=\\"\\" id=\\"app\\">
-  <div data-v-9ecb1c94=\\"\\" class=\\"notification-button-container\\"><button data-v-9ecb1c94=\\"\\" class=\\"notification-button\\"><img data-v-9ecb1c94=\\"\\" src=\\"/src/assets/notificationbell.png\\" alt=\\"NotificationBell\\"></button>
+  <div data-v-9ecb1c94=\\"\\" class=\\"notification-button-container\\"><button data-v-9ecb1c94=\\"\\" class=\\"notification-button\\"><img data-v-9ecb1c94=\\"\\" src=\\"/src/assets/icons/notification.svg\\" alt=\\"NotificationBell\\"></button>
     <!--v-if-->
   </div>
 </div>"

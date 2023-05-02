@@ -1,16 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { requireAuth } from '../auth-guard' // Update the import path accordingly
+import { checkIsSubUserLoggedIn, checkIsUserLoggedIn } from '../stores/UserStore'
 import LoginView from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'
-import MyFridgeView from '../views/MyFridgeView.vue'
-import ShoppingListView from '../views/ShoppingListView.vue'
-import SubUserView from '../views/SubUserView.vue'
-import SavingsOverview from '../views/SavingsOverviewView.vue'
-import ProfileView from '../views/ProfileView.vue'
-import AddProductView from '../views/AddProductView.vue'
-import WeekMenuView from '../views/WeekMenuView.vue'
-import SpecificWeekMenu from '../views/SpecificWeekMenuView.vue'
-import RecipesView from '../views/RecipesView.vue'
-import NotificationView from '../views/NotificationView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -26,52 +18,92 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/fridge',
     name: 'fridge',
-    component: MyFridgeView
+    component: () => import('../views/MyFridgeView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/shoppinglist',
     name: 'shoppinglist',
-    component: ShoppingListView
+    component: () => import('../views/ShoppingListView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/subuser',
     name: 'subuser',
-    component: SubUserView
+    component: () => import('../views/SubUserView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/savings',
     name: 'savings',
-    component: SavingsOverview
+    component: () => import('../views/SavingsOverviewView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/profile',
     name: 'profile',
-    component: ProfileView
+    component: () => import('../views/ProfileView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/recipes',
     name: 'recipes',
-    component: RecipesView
+    component: () => import('../views/RecipesView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/addProduct',
     name: 'addProduct',
-    component: AddProductView
+    component: () => import('../views/AddProductView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/weekMenu',
     name: 'weekMenu',
-    component: WeekMenuView
+    component: () => import('../views/WeekMenuView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/specificMenu',
     name: 'specificMenu',
-    component: SpecificWeekMenu
+    component: () => import('../views/SpecificWeekMenuView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   },
   {
     path: '/notifications',
     name: 'notifications',
-    component: NotificationView
+    component: () => import('../views/NotificationView.vue'),
+    beforeEnter: async (to, from, next) => {
+      const isLoggedIn = await checkIsSubUserLoggedIn()
+      requireAuth(isLoggedIn, to, from, next)
+    }
   }
 ]
 

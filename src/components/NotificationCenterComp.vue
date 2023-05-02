@@ -2,7 +2,7 @@
     <div id="app">
         <div class="notification-button-container">
             <button class="notification-button" @click="toggleNotifications">
-                <img src="../assets/notificationbell.png" alt="NotificationBell" />
+                <img src="../assets/icons/notification.svg" alt="NotificationBell" />
             </button>
             <div v-if="showNotifications" class="notifications-popup">
                 <NotificationView />
@@ -25,9 +25,10 @@ const toggleNotifications = () => {
 
 <style scoped>
 .notification-button {
-    padding-left: 10px;
-    background-color: #1A7028;
-    border: none;
+  padding-left: 10px;
+  background-color: #1A7028;
+  border: none;
+  padding-bottom: 10px;
 }
 
 .notification-button img {

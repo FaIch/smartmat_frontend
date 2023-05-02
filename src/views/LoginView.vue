@@ -21,10 +21,13 @@ import SignUpFormComp from '../components/SignUpFormComp.vue'
 import LoginFormComp from '../components/LoginFormComp.vue'
 import { useUtilityStore } from '../stores/UtilityStore'
 import { ref, onMounted } from 'vue'
-
+import { useUserStore } from '../stores/UserStore'
 const utilityStore = useUtilityStore()
+const userStore = useUserStore()
+
 onMounted(() => {
-  utilityStore.showItems = false
+  userStore.logout()
+  utilityStore.hideItems()
 })
 
 const showLoginForm = ref(true)
