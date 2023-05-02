@@ -3,26 +3,26 @@
     <h1>Sparingsoversikt</h1>
     <div class="numbers">
       <div>
-        <h2>Totalt matsvinn</h2>
+        <h2>Matsvinn</h2>
         <p class="mainNumbers">{{ foodWaste }} kg</p>
-        <p class="averages"><br> {{ averageFoodWaste }}</p>
+        <p class="averages">{{ averageFoodWaste }}</p>
       </div>
       <div>
         <h2>Penger tapt</h2>
         <p class="mainNumbers">{{ moneyLost }} kr</p>
-        <p class="averages">Gjennomsnitt:<br> {{ averageMoneyLost }}</p>
+        <p class="averages">{{ averageMoneyLost }}</p>
       </div>
       <div>
-        <h2>CO2-ekvivalenter</h2>
+        <h2>CO2-utslipp</h2>
         <p class="mainNumbers">{{ co2Emissions }} kg</p>
-        <p class="averages">Gjennomsnitt:<br> {{ averageCO2Emissions }}</p>
+        <p class="averages">{{ averageCO2Emissions }}</p>
       </div>
     </div>
     <div class="menu">
-      <button class="selector" @click="showAllTime()">All Time</button>
-      <button class="selector" @click="showLastYear()">Last Year</button>
-      <button class="selector" @click="showLastMonth()">Last Month</button>
-      <button class="selector" @click="showLastWeek()">Last Week</button>
+      <button class="selector" @click="showAllTime()">Totalt</button>
+      <button class="selector" @click="showLastYear()">Siste år</button>
+      <button class="selector" @click="showLastMonth()">Siste måned</button>
+      <button class="selector" @click="showLastWeek()">Siste Uke</button>
     </div>
   </div>
 </template>
@@ -32,20 +32,19 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
-// Average values for a Norwegian consumer
-const averageFoodWaste = computed(() => {
+// Calculating percentage for each time period based on the average value for money lost
+const averageMoneyLostYear = 5322.0 // kr per year
+const averageMoneyLost = computed(() => {
   if (flag.value === 'yearly') {
-    return `Årlig gjennomsnitt: ${foodWaste.value} kg`
+    return `${(moneyLost.value * 100 / averageMoneyLostYear).toFixed(1)}% av årlig gjennomsnitt`
   } else if (flag.value === 'monthly') {
-    return `Månedtlig gjennomsnitt: ${foodWaste.value / 12} kg`
+    return `${(moneyLost.value * 100 / (averageMoneyLostYear / 12)).toFixed(1)}% av månedtlig gjennomsnitt`
   } else if (flag.value === 'weekly') {
-    return `Ukentlig gjennomsnitt: ${foodWaste.value / 52} kg`
+    return `${(moneyLost.value * 100 / (averageMoneyLostYear / 52)).toFixed(1)}% av ukentlig gjennomsnitt`
   } else {
     return ''
   }
-}) // kg per year
-const averageMoneyLost = 5322 // kr per year
-const averageCO2Emissions = 305 // kg per year
+})
 
 const flag = ref('')
 const foodWaste = ref<number>(0)
@@ -137,7 +136,7 @@ onMounted(() => {
 }
 
 .selector {
-  width: 120px;
+  width: 150px;
   height: 40px;
   margin: 10px;
   color: #fff;
@@ -157,7 +156,7 @@ onMounted(() => {
 
 h1 {
   font-weight: bolder;
-  font-size: 50px;
+  font-size: 40px;
   color: white;
   margin: 2rem 0 0;
   padding: 0.5rem;
