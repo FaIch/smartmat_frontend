@@ -10,7 +10,7 @@ describe('FridgeItemCardComp', () => {
         unit: '300g',
         image: 'https://example.com/image.png'
       },
-      expirationDate: '2023-05-01',
+      expirationDate: '2030-05-01',
       quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
@@ -27,7 +27,7 @@ describe('FridgeItemCardComp', () => {
         unit: '300',
         image: 'https://example.com/image.png'
       },
-      expirationDate: '2023-05-01',
+      expirationDate: '2030-05-01',
       quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
@@ -51,7 +51,7 @@ describe('FridgeItemCardComp', () => {
         unit: '300',
         image: 'https://example.com/image.png'
       },
-      expirationDate: '2023-05-01',
+      expirationDate: '2030-05-01',
       quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {
@@ -81,7 +81,7 @@ describe('FridgeItemCardComp', () => {
         unit: '300',
         image: 'https://example.com/image.png'
       },
-      expirationDate: '2023-05-01',
+      expirationDate: '2030-05-01',
       quantity: 500
     }
     const wrapper = mount(FridgeItemCardComp, {

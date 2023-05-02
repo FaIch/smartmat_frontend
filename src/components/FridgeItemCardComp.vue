@@ -1,5 +1,9 @@
 <template>
   <div :class="cardClass" @click="toggleCheckbox">
+    <div class="trash-icon-container" @click.stop="deleteCard">
+      <img src="../assets/icons/trash.svg" alt="Trash Icon" class="trash-icon" />
+      <img src="../assets/icons/white-trash.svg" alt="Trash Icon Hover" class="trash-icon trash-icon-hover" />
+    </div>
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -35,6 +39,51 @@
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
       </div>
     </div>
+    <div v-if="popup" class="popup">
+      <div class="edits">
+        <div class="popup-expiration-date-div">
+          <p class="card-text">Utløpsdato:</p>
+          <input type="date" class="input-field" id="expiration-date" v-model="expirationDate" ref="expirationDateInput" />
+        </div>
+        <div class="popup-quantity-div">
+          <p class="card-text">{{ unitType }}</p>
+          <input class="input-field" v-model.number="quantity" id="quantity" ref="quantityInput" />
+        </div>
+        <div class="popup-new-quantity-div">
+          <p>
+            {{ unitsReduced }} {{ unit }}
+          </p>
+          <p>fjernet.</p>
+          <div class="buttons-div">
+            <div class="checkboxes-div">
+              <label>
+                <input
+                  type="radio"
+                  class="fridge-checkbox add-checkbox"
+                  name="fridge-item-action"
+                  v-model="action"
+                  value="eaten"
+                />
+                Spist?
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  class="fridge-checkbox remove-checkbox"
+                  name="fridge-item-action"
+                  v-model="action"
+                  value="thrown"
+                />
+                Kastet?
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="popup-save-button">
+          <button id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -45,7 +94,8 @@ import { FridgeItemCardInterface, Unit } from './types'
 
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed'])
-
+const popup = ref(false)
+const unitsReduced = ref(0)
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
@@ -81,6 +131,19 @@ const unitType = computed(() => {
   }
 })
 
+const unit = computed(() => {
+  switch (props.product.item.unit) {
+    case Unit.GRAMS:
+      return 'g'
+    case Unit.MILLILITER:
+      return 'mL'
+    case Unit.ITEM:
+      return 'stk'
+    default:
+      return ''
+  }
+})
+
 const cardClass = computed(() => ({
   card: true,
   'card-checked': selected.value
@@ -91,6 +154,7 @@ const quantity = ref(props.product.quantity)
 const selected = ref(false)
 const expirationDateInput = ref<HTMLInputElement | null>(null)
 const quantityInput = ref<HTMLInputElement | null>(null)
+const action = ref('')
 
 const activateEdit = () => {
   if (!expirationDateInput.value || !quantityInput.value) {
@@ -100,6 +164,7 @@ const activateEdit = () => {
   quantityInput.value.disabled = false
   expirationDateInput.value.focus()
   edit.value = false
+  popup.value = true
 }
 
 const validateQuantity = (quantity: number) => {
@@ -135,6 +200,7 @@ const activateSave = () => {
       quantity: quantity.value
     })
   }
+  popup.value = false
 }
 
 function onCheckboxChange () {
@@ -169,6 +235,9 @@ function toggleCheckbox (event: MouseEvent) {
   }
 }
 
+function deleteCard () {
+  console.log('Card deleted')
+}
 </script>
 
 <style scoped>
@@ -225,6 +294,8 @@ function toggleCheckbox (event: MouseEvent) {
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
   cursor: pointer;
+  position: relative;
+  padding-left: 10%;
 }
 
 .card-checked {
@@ -306,4 +377,118 @@ function toggleCheckbox (event: MouseEvent) {
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
 
+.trash-icon-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.trash-icon-container:hover {
+  background-color: red;
+  transform: translateX(10px);
+  width: 12%;
+  margin-left: -10px;
+}
+
+.trash-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.trash-icon-hover {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon-hover {
+  display: block;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 10%;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  border-radius: 50% / 100%;
+  z-index: 0;
+}
+
+.popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #aaa;
+  z-index: 2;
+}
+
+.popup-expiration-date-div{
+  margin-left: 10px;
+}
+
+.popup-save-button {
+  margin-right: 10px;
+}
+
+.popup-expiration-date-div,
+.popup-quantity-div,
+.popup-new-quantity-div,
+.popup-save-button {
+  align-self: center;
+}
+
+.popup-quantity-div {
+  width: 25%;
+}
+.popup-new-quantity-div {
+  width: 20%;
+}
+.popup-new-quantity-div p {
+  text-align: center;
+}
+
+.popup-expiration-date-div p,
+.popup-quantity-div p,
+.popup-new-quantity-div p {
+  color: black;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+}
+
+.checkboxes-div {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  width: 100%;
+  margin-top: 10px;
+  font-size: 19px;
+  font-weight: 600;
+  color: black;
+}
+
+.fridge-checkbox {
+  margin-right: 5px;
+  scale: 1.4;
+}
 </style>
