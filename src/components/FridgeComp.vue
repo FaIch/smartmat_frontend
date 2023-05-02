@@ -2,7 +2,7 @@
   <div class="my-fridge">
     <div class="search-div">
       <SearchBar id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" v-if="props.fridge"/>
-      <button class="products-button" @click="toggleProductSelector">Se alle produkter</button>
+      <button class="products-button" @click="toggleProductSelector" data-cy="allFridge">Se alle produkter</button>
       <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
       <div v-if="showProductSelector" class="product-selector-popup">
         <button class="close-button" @click="toggleProductSelector">x</button>

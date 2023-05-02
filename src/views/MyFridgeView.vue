@@ -6,7 +6,7 @@
       </h2>
       <div class="separator">
       </div>
-      <h2 :class="{ active: !fridge, inactive: fridge }" @click="showExpiredItems">
+      <h2 :class="{ active: !fridge, inactive: fridge }" @click="showExpiredItems" data-cy="expired">
         Utgåtte varer ({{ numberOfExpiredItems }})
       </h2>
     </div>

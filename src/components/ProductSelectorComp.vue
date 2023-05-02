@@ -2,7 +2,7 @@
   <div class="product-selector-view">
     <h2>Selected ({{ numberSelected }})</h2>
     <div class="button-container">
-      <button class="selector-button" v-if="!props.buttonType" @click="addToFridge">Legg til i kjøleskap</button>
+      <button class="selector-button" v-if="!props.buttonType" @click="addToFridge" data-cy="addFridge">Legg til i kjøleskap</button>
       <button class="selector-button" v-else @click="addToShoppingList" data-cy="addShopping">Legg til i handleliste</button>
     </div>
     <ProductGrid :searchQuery="searchQuery" @update-selected-products="updateSelectedProducts"/>
