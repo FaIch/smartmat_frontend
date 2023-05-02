@@ -85,8 +85,10 @@ watch(
   () => selectAllChecked.value,
   (newValue) => {
     recipeItems.value.forEach((ingredient) => {
-      ingredient.selected = newValue
-      toggleSelectedItem(ingredient)
+      if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
+        ingredient.selected = newValue
+        toggleSelectedItem(ingredient)
+      }
     })
   }
 )
@@ -105,7 +107,11 @@ function toggleSelectAll () {
     })
   } else {
     recipeItems.value.forEach((ingredient) => {
-      if (ingredient.selected) {
+      if (
+        !ingredientAvailable(ingredient) &&
+        !inShoppingList(ingredient) &&
+        ingredient.selected
+      ) {
         ingredient.selected = false
         toggleSelectedItem(ingredient)
       }
@@ -288,6 +294,15 @@ async function addAllToShoppingList () {
           fetchShoppingList()
           // Clear the selected items
           selectedItems.value = []
+
+          // Uncheck the added items
+          recipeItems.value.forEach((ingredient) => {
+            if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
+              ingredient.selected = false
+            }
+          })
+          // Uncheck the 'select all' checkbox
+          selectAllChecked.value = false
         }
       })
       .catch((error) => {
@@ -336,7 +351,7 @@ async function removeFromFridge () {
 
 </script>
 <style scoped>
-.checkbox-cell {
+.checkbox-cell{
   width: 1%;
   white-space: nowrap;
 }
