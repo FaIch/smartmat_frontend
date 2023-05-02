@@ -244,13 +244,30 @@ function toggleSelectedItem (ingredient: any) {
   const index = selectedItems.value.findIndex(
     (item) => item.id === ingredient.item.id
   )
+
+  const fridgeItem = fridgeItems.value.find(
+    (item) => item.item.id === ingredient.item.id
+  )
+
+  const shoppingListItem = shoppingList.value.find(listItem => listItem.item.id === ingredient.item.id)
+
+  let requiredQuantity =
+    fridgeItem && fridgeItem.quantity < ingredient.quantity
+      ? Math.ceil((ingredient.quantity - fridgeItem.quantity) /
+            ingredient.item.baseAmount)
+      : Math.ceil(ingredient.quantity / ingredient.item.baseAmount)
+
+  requiredQuantity = shoppingListItem ? requiredQuantity - shoppingListItem.quantity : requiredQuantity
+
   if (index === -1) {
     selectedItems.value.push({
       id: ingredient.item.id,
-      quantity: Math.ceil(ingredient.quantity / ingredient.item.baseAmount)
+      quantity: requiredQuantity
     })
+    console.log(fridgeItem?.quantity)
+    console.log(requiredQuantity)
   } else {
-    selectedItems.value.splice(index, 1)
+    selectedItems.value[index].quantity = requiredQuantity
   }
 }
 
