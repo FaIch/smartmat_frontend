@@ -4,8 +4,8 @@
       <div class="form-container">
         <div class="login-forms">
           <div class="login-form-content">
-            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" />
-            <SignUpFormComp v-show="!showLoginForm" @switchView="toggleView" />
+            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" data-cy="login-form-comp"/>
+            <SignUpFormComp v-show="!showLoginForm" @switchView="toggleView" data-cy="signup-form-comp"/>
           </div>
         </div>
       </div>
