@@ -10,24 +10,21 @@
         Utgåtte varer ({{ numberOfExpiredItems }})
       </h2>
     </div>
-    <fridge-comp :key="Number(fridge)" :fridge="fridge" @handle-swap="handleSwap" @handle-decrement="handleDecrement"/>
+    <fridge-comp :key="Number(fridge)" :fridge="fridge" @handle-swap="handleSwap" @handle-decrement="handleDecrement" @refresh-page="refreshPage"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import FridgeComp from '../components/FridgeComp.vue'
 import { ref, onMounted } from 'vue'
-import { useUtilityStore } from '../stores/UtilityStore'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 
 const numberOfUnexpiredItems = ref()
 const numberOfExpiredItems = ref()
 const userStore = useUserStore()
-const utilityStore = useUtilityStore()
 const fridge = ref(true)
 onMounted(() => {
-  utilityStore.setTransparentStatus(false)
   getNumberOfFridgeItems()
 })
 
@@ -71,12 +68,16 @@ function handleSwap (fridge: boolean) {
   }
 }
 
-function handleDecrement (fridge: boolean) {
+function handleDecrement (fridge: boolean, number: number) {
   if (fridge) {
-    numberOfUnexpiredItems.value--
+    numberOfUnexpiredItems.value -= number
   } else {
-    numberOfExpiredItems.value--
+    numberOfExpiredItems.value -= number
   }
+}
+
+function refreshPage () {
+  getNumberOfFridgeItems()
 }
 </script>
 
@@ -84,15 +85,15 @@ function handleDecrement (fridge: boolean) {
 .fridge-container {
   display: flex;
   flex-direction: column;
-  padding-top: 15vh;
-  height: 100vh;
+  padding-top: 120px;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .task-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: white;
   min-height: 60px;
   width: 100%;
 }
@@ -123,14 +124,15 @@ h2 {
   transition: font-size 0.5s;
   padding: 0;
   margin: 0;
+  font-weight: normal;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
 .active {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 40px;
 }
 
 .inactive {
-  font-size: 1rem;
+  font-size: 20px;
 }
 </style>

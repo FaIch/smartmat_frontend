@@ -1,5 +1,5 @@
 <template>
-  <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
+  <div :class="[recipeStore.getHasWeekMenu() ? 'recipe-card-saved-menu' : 'recipe-card']" @click="goToRecipe(props.recipe.recipe.id)">
     <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
     <div class="recipe-details">
       <div class="recipe-details-top">
@@ -8,6 +8,10 @@
           <img v-tippy="tooltipOptions" v-show="props.recipe.amountNearlyExpired > 0" src="../assets/icons/warning.svg"/>
           <h5 v-show="props.recipe.amountNearlyExpired > 0">{{ props.recipe.amountNearlyExpired }}</h5>
         </div>
+      </div>
+      <div class="recipe-eaten" v-if="recipeStore.getHasWeekMenu()">
+        <input type="checkbox" :checked="recipeStore.getRecipeIdsCompleted().includes(props.recipe.recipe.id)">
+        <label>Spist</label>
       </div>
       <div class="recipe-details-bot">
         <div class="recipe-time">
@@ -25,8 +29,10 @@
 import { RecipeCardInterface } from './types'
 import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useRecipeStore } from '../stores/RecipeStore'
 
 const router = useRouter()
+const recipeStore = useRecipeStore()
 const goToRecipe = (id: number) => {
   router.push({ name: 'recipe', params: { id } })
 }
@@ -60,9 +66,20 @@ const tooltipOptions = reactive({
   background-color: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  width: 300px;
-  height: 280px;
+  max-width: 300px;
+  max-height: 280px;
   cursor: pointer;
+  margin: 15px;
+}
+
+.recipe-card-saved-menu {
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  max-width: 300px;
+  max-height: 310px;
+  cursor: pointer;
+  margin: 15px;
 }
 
 .recipe-card:hover {
@@ -165,5 +182,13 @@ const tooltipOptions = reactive({
 
 .recipe-alerts {
   display: grid;
+}
+
+.green-border {
+  border: 2px solid green;
+}
+
+.completed {
+  border: solid 2px red;
 }
 </style>

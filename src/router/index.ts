@@ -4,12 +4,14 @@ import StartView from '../views/StartView.vue'
 import MyFridgeView from '../views/MyFridgeView.vue'
 import ShoppingListView from '../views/ShoppingListView.vue'
 import SubUserView from '../views/SubUserView.vue'
-import ProductSelectorView from '../views/ProductSelectorView.vue'
 import SavingsOverview from '../views/SavingsOverviewView.vue'
 import ProfileView from '../views/ProfileView.vue'
-import RecipeSuggestionsView from '../views/RecipeSuggestionsView.vue'
 import AddProductView from '../views/AddProductView.vue'
-
+import WeekMenuView from '../views/WeekMenuView.vue'
+import SpecificWeekMenu from '../views/SpecificWeekMenuView.vue'
+import RecipesView from '../views/RecipesView.vue'
+import NotificationView from '../views/NotificationView.vue'
+import RecipePageView from '../views/RecipePageView.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -37,11 +39,6 @@ const routes: Array<RouteRecordRaw> = [
     component: SubUserView
   },
   {
-    path: '/productSelection',
-    name: 'productSelection',
-    component: ProductSelectorView
-  },
-  {
     path: '/savings',
     name: 'savings',
     component: SavingsOverview
@@ -52,14 +49,34 @@ const routes: Array<RouteRecordRaw> = [
     component: ProfileView
   },
   {
-    path: '/recipesuggestions',
-    name: 'recipesuggestions',
-    component: RecipeSuggestionsView
+    path: '/recipes',
+    name: 'recipes',
+    component: RecipesView
   },
   {
     path: '/addProduct',
     name: 'addProduct',
     component: AddProductView
+  },
+  {
+    path: '/weekMenu',
+    name: 'weekMenu',
+    component: WeekMenuView
+  },
+  {
+    path: '/specificMenu',
+    name: 'specificMenu',
+    component: SpecificWeekMenu
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView
+  },
+  {
+    path: '/recipe/:id',
+    name: 'recipe',
+    component: RecipePageView
   }
 ]
 
