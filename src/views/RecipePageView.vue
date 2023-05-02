@@ -1,64 +1,88 @@
 <template>
   <div v-if="recipe" class="container">
     <h1 class="title">{{ recipe.name }}</h1>
-    <img class="recipe-image" :src="recipe.image" alt="">
-    <h2 class="recipe-title">Ingredients</h2>
-    <div>
-    <label for="portions">Number of portions:</label>
-    <input type="number" id="portions" v-model.number="portions" min="1">
-  </div>
-  <button @click="addAllToShoppingList">Add All to Shopping List</button>
-  <button @click="removeFromFridge">I've cooked this recipe</button>
-  <table>
-    <thead>
-      <tr>
-        <th>Amount & Unit</th>
-        <th>Ingredient</th>
-        <th>Availability</th>
-        <th>
-          <input
-            type="checkbox"
-            @change="toggleSelectAll"
-            v-model="selectAllChecked"
-          />
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-        <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
-        <td>{{ ingredient.item.name }}</td>
-        <td>
-          <span v-if="ingredientAvailable(ingredient)">
-            In fridge
-          </span>
-          <span v-else-if="inShoppingList(ingredient)">
-            In shopping list
-          </span>
-          <span v-else>
-            Not enough
-          </span>
-        </td>
-        <td class="checkbox-cell">
-          <input
-      v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-      type="checkbox"
-      @change="toggleSelectedItem(ingredient)"
-      v-model="ingredient.selected"
-    />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-    <h2 class="recipe-title">Instructions</h2>
-    <div v-html="formattedText">
+    <div class="recipe-info">
+      <div class="image-container">
+        <img class="recipe-image" :src="recipe.image" alt="">
+      </div>
+      <div class="recipe-stats">
+        <div class="portion-stats">
+          <h2 for="portions" class="recipe-title">Number of portions:</h2>
+          <img src="../assets/icons/portion.svg" class="icon"/>
+          <div class="edit-quantity-div">
+              <img
+                src="../assets/icons/remove.svg"
+                @click="decrement"
+              />
+              <div class="portion-number">
+                {{ portions }}
+              </div>
+              <img
+                src="../assets/icons/add.svg"
+                @click="increment"
+              />
+          </div>
+        </div>
+        <div class="estimated-time-stats">
+          <h2 class="recipe-title">Estimated time</h2>
+          <img src="../assets/icons/clock.svg" class="icon"/>
+          <p>{{ recipe.estimatedTime }}</p>
+        </div>
+
+      </div>
     </div>
-    <h2 class="recipe-title">Estimated time</h2>
-    <p>{{ recipe.estimatedTime }}</p>
-    <!-- <h2 class="recipe-title">Number of items in fridge</h2>
-    <p>{{ recipe.numberOfItemsFridge }}</p>
-    <h2 class="recipe-title">Number of items needed for recipe</h2>
-    <p>{{ recipe.numberOfItemsRecipe }}</p> -->
+    <div class="recipe-steps">
+      <div class="ingredients">
+        <h2 class="recipe-title">Ingredients</h2>
+        <button @click="addAllToShoppingList">Add All to Shopping List</button>
+        <button @click="removeFromFridge">I've cooked this recipe</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Amount & Unit</th>
+              <th>Ingredient</th>
+              <th>Availability</th>
+              <th>
+                <input
+                  type="checkbox"
+                  @change="toggleSelectAll"
+                  v-model="selectAllChecked"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
+              <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+              <td>{{ ingredient.item.name }}</td>
+              <td>
+                <span v-if="ingredientAvailable(ingredient)">
+                  In fridge
+                </span>
+                <span v-else-if="inShoppingList(ingredient)">
+                  In shopping list
+                </span>
+                <span v-else>
+                  Not enough
+                </span>
+              </td>
+              <td class="checkbox-cell">
+                <input
+            v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+            type="checkbox"
+            @change="toggleSelectedItem(ingredient)"
+            v-model="ingredient.selected"
+          />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="instructions">
+        <h2 class="recipe-title">Instructions</h2>
+        <div v-html="formattedText"/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -71,17 +95,14 @@ import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterfa
 
 const userStore = useUserStore()
 const route = useRoute()
-
 const recipeId = computed(() => {
   return route.params.id
 })
-
 const recipe = ref<RecipeInterface>()
 const recipeItems = ref<RecipeIngredientInterface[]>([])
 const shoppingList = ref<ShoppingListItemCardInterface[]>([])
 const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectedItems = ref<ShoppingListItem[]>([])
-
 const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<br>'))
 const selectAllChecked = ref(false)
 const portions = ref(4)
@@ -96,6 +117,16 @@ const adjustedRecipeItems = computed(() => {
     }
   })
 })
+
+function increment () {
+  portions.value++
+}
+
+function decrement () {
+  if (portions.value > 1) {
+    portions.value--
+  }
+}
 
 watch(
   () => selectAllChecked.value,
@@ -404,33 +435,113 @@ async function removeFromFridge () {
 }
 
 </script>
+
 <style scoped>
 .checkbox-cell{
   width: 1%;
   white-space: nowrap;
 }
 .container {
-  display: grid;
+  display: flex;
   margin-top: 100px;
   border: 2px;
+  flex-direction: column;
+  background-color: lightblue;
+}
+
+.recipe-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  background-color: lightgreen;
 }
 
 .title {
   padding: 20px;
-}
-
-.title {
   color: #25A13A;
   border-bottom-color: black;
 }
 
+.icon {
+  width: 150px;
+  height: 150px;
+  margin: 10px;
+  font-size: 30px;
+  text-align: center;
+  line-height: 50px;
+}
+
+.ingredients{
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+  background-color: lightyellow;
+}
+
+.edit-quantity-div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0px;
+  background-color: lightpink;
+}
+
+.instructions{
+  background-color: red;
+  width: 40%;
+}
+
+.image-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(9, 134, 175);
+}
+
 .recipe-image {
-  display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 400px;
-  height: 400px;
-  max-width: 50%;
+  width: 90%;
+  height: 90%;
+  aspect-ratio: 1/1;
+}
+
+.recipe-steps {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  background-color: magenta;
+}
+
+.recipe-stats {
+  display: grid;
+  grid-template: auto / auto auto auto;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  background-color: lightpink;
+}
+
+.portion-stats {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  background-color: lightpink;
+
+}
+
+.portion-number {
+  font-size: 34px;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
 table {
@@ -447,11 +558,12 @@ th, td {
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #ffffff;
   font-weight: bold;
 }
 
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }
+
 </style>
