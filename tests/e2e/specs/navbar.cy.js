@@ -1,7 +1,3 @@
-Cypress.on('uncaught:exception', (err, runnable) => {
-  return false
-})
-
 describe('navbar', () => {
   beforeEach(() => {
     cy.visit('http://localhost:5000/login')
