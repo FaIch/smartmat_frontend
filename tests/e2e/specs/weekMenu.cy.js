@@ -4,7 +4,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 
 
-describe('navbar', () => {
+describe('Week Menu', () => {
     beforeEach(()=>{
         cy.visit('http://localhost:5000/login')
         cy.get('[data-cy=input-email]').type('test@test.com')
@@ -16,7 +16,7 @@ describe('navbar', () => {
     it('Should route to specific week menu', () => {
         cy.get('[data-cy=weekMenu]').click()
         cy.wait(500);
-        cy.get('[data-cy=randomMenu').click()
+        cy.get('[data-cy=randomMenu]').click()
         cy.wait(500);
         cy.url().should('include', '/specificMenu')
     })
