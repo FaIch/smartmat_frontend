@@ -1,50 +1,41 @@
 <template>
-    <div class="container">
-        <h1>User Information</h1>
+    <div class="formBody">
         <form @submit.prevent="submitForm">
             <fieldset class="row">
+              <h1>Innloggings Detaljer</h1>
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Your email address" readonly disabled>
-                </div>
-                <div class="form-group">
-                    <label for="mobileNumber">Mobile Number</label>
+                    <label for="oldPassword">Gammelt Passord</label>
+                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Your old password">
                     <div class="checkmarkPosition">
-                        <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Your mobile number">
-                        <img v-if="phoneNumberUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
-                </div>
-            </fieldset>
-            <fieldset class="row">
-                <div class="form-group">
-                    <label for="oldPassword">Old Password</label>
-                    <div class="checkmarkPosition">
-                        <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Your old password">
                         <img v-if="passwordUpdated" class="success-message" src="../assets/Checkmark.png">
                     </div>
                     <div v-if="wrongOldPassword" class="error-message">
                         Incorrect old password
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">New Password</label>
+                    <label for="newPassword">Nytt Passord</label>
+                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Your new password">
                     <div class="checkmarkPosition">
-                        <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Your new password">
                         <img v-if="passwordUpdated" class="success-message" src="../assets/Checkmark.png">
                     </div>
                 </div>
             </fieldset>
             <fieldset class="row">
+              <h1>Personlige detaljer</h1>
                 <div class="form-group">
-                    <label for="address">Address</label>
+                    <label for="mobileNumber">Telefon Nummer</label>
+                    <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Your mobile number">
                     <div class="checkmarkPosition">
-                        <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Your address">
+                        <img v-if="phoneNumberUpdated" class="success-message" src="../assets/Checkmark.png">
+                    </div>
+                    <label for="address">Adresse</label>
+                    <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Your address">
+                    <div class="checkmarkPosition">
                         <img v-if="addressUpdated" class="success-message" src="../assets/Checkmark.png">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="postalCode">Postal Code</label>
-                    <input id="postalCode" type="text" name="postalCode" autocomplete="postal-code" v-model="postalCode" placeholder="Your postal code">
+                    <label for="numberOfHouseholdMembers">Antall I Husholdning</label>
+                    <input id="numberOfHouseholdMembers" type="text" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Your postal code">
                 </div>
             </fieldset>
             <div class="submit-button">
@@ -69,7 +60,7 @@ const phoneNumber = ref('')
 const oldPassword = ref('')
 const newPassword = ref('')
 const address = ref('')
-const postalCode = ref('')
+const numberOfHouseholdMembers = ref('')
 const phoneNumberUpdated = ref(false)
 const addressUpdated = ref(false)
 const passwordUpdated = ref(false)
@@ -84,21 +75,21 @@ const config = {
 // Fetch user data on component creation
 onMounted(async () => {
   if (userStore.loggedIn) {
-    await fetchUserData()
+    await axios.get('http://localhost:8080/user/details', config)
+      .then((response) => {
+        phoneNumber.value = response.data.phoneNumber
+        address.value = response.data.address
+        numberOfHouseholdMembers.value = response.data.numberOfHouseholdMembers
+        console.log(response)
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          userStore.logout()
+        }
+        console.error(error)
+      })
   }
 })
-
-async function fetchUserData () {
-  try {
-    const response = await axios.get('http://localhost:8080/user/details', config)
-    phoneNumber.value = response.data.mobileNumber
-    address.value = response.data.address
-    postalCode.value = response.data.postalCode
-    console.log(response)
-  } catch (error) {
-    console.error('Error', error)
-  }
-}
 
 const submitForm = async () => {
   phoneNumberUpdated.value = false
@@ -171,10 +162,10 @@ const submitForm = async () => {
   }
 
   // Update the postal code
-  if (postalCode.value) {
+  if (numberOfHouseholdMembers.value) {
     try {
       await axios.put(
-        'http://localhost:8080/user/edit/postalCode?postalCode=' + postalCode.value, null,
+        'http://localhost:8080/user/edit/postalCode?postalCode=' + numberOfHouseholdMembers.value, null,
         config
       )
     } catch (error) {
@@ -194,15 +185,17 @@ defineExpose({
 
 <style scoped>
 
-.container {
+.formBody {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    height: 100%;
+    margin-top: 30px;
+    padding-top: 90px;
     align-items: center;
     justify-content: center;
     height: 100vh;
-    margin: 0 auto;
     font-family: Arial, sans-serif;
-    padding-top: 150px;
     background-image: url("../assets/startpagebackground3.png");
     background-size: cover;
     background-position: center;
@@ -211,46 +204,45 @@ defineExpose({
 
 .row {
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    border: none;
-    margin-left: 40px;
-    margin-right: 40px;
+    align-items: center;
+    justify-content: center;
     flex: 1;
-    margin-bottom: 20px;
 }
 
 h1 {
     text-align: center;
+    padding-top: 20px;
     margin-bottom: 20px;
     color: white;
     font-size: 2em;
     font-weight: bold;
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
-
 label {
     color: white;
     display: block;
     margin-bottom: 5px;
+    display: inline-block;
+    align-self: left;
+    justify-self: left;
 }
 
 input {
-    width: 100%;
+    width: 70%;
     padding: 10px;
+    margin: 10px 0 10px 0;
     border: 1px solid #ccc;
+    background-color: #e9f1fe;
     border-radius: 4px;
+    align-self: center;
+    justify-self: center;
 }
 
 .submit-button {
