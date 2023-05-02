@@ -5,7 +5,7 @@
       <div class="shopping-list-container">
         <div class="search-div">
           <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
-          <button class="products-button" @click="toggleProductSelector">Se alle produkter</button>
+          <button class="products-button" @click="toggleProductSelector" data-cy="allProducts">Se alle produkter</button>
           <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
           <div v-if="showProductSelector" class="product-selector-popup">
             <button class="close-button" @click="toggleProductSelector">x</button>

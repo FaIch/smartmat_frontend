@@ -5,7 +5,7 @@
       den ene er anbefalt basert på varene du har i kjøleskapet ditt og varer som snart går ut på dato<br>
       den andre består av helt tilfeldige retter som kan gi inspirasjonn</p>
     <div class="week-menus">
-    <WeekMenuCardComp :week-menu="randomMenu" @click="goToMenu(recipeItemsIdList,'Tilfeldig')"/>
+    <WeekMenuCardComp :week-menu="randomMenu" data-cy="randomMenu" @click="goToMenu(recipeItemsIdList,'Tilfeldig')"/>
     </div>
   </div>
 </template>
