@@ -298,5 +298,38 @@ input:disabled {
     font-size: 0.8em;
     margin-top: 2px;
 }
+@media only screen and (max-width: 768px) {
+    .container {
+        padding-top: 100px;
+    }
+
+    .row {
+        flex-direction: column;
+    }
+
+    .form-group {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .form-group {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+}
 
 </style>
