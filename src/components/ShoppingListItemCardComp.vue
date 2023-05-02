@@ -238,6 +238,7 @@ function toggleCheckbox (event: MouseEvent) {
 
 .card {
   width: 550px;
+  width: 550px;
   flex-direction: row;
   background-color: rgba(35, 173, 58, 0.3);
   height: 150px; /* Set a fixed height for the grid item */

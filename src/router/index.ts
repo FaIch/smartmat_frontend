@@ -11,7 +11,7 @@ import WeekMenuView from '../views/WeekMenuView.vue'
 import SpecificWeekMenu from '../views/SpecificWeekMenuView.vue'
 import RecipesView from '../views/RecipesView.vue'
 import NotificationView from '../views/NotificationView.vue'
-
+import RecipePageView from '../views/RecipePageView.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -72,6 +72,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/notifications',
     name: 'notifications',
     component: NotificationView
+  },
+  {
+    path: '/recipe/:id',
+    name: 'recipe',
+    component: RecipePageView
   }
 ]
 

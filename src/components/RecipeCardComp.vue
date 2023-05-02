@@ -1,5 +1,5 @@
 <template>
-  <div class="recipe-card">
+  <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
     <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
     <div class="recipe-details">
       <div class="recipe-details-top">
@@ -24,6 +24,12 @@
 <script setup lang="ts">
 import { RecipeCardInterface } from './types'
 import { computed, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const goToRecipe = (id: number) => {
+  router.push({ name: 'recipe', params: { id } })
+}
 
 const props = defineProps({
   recipe: {
