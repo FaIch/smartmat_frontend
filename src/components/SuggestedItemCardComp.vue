@@ -1,37 +1,14 @@
 <template>
   <div :class="cardClass" @click="toggleCheckbox">
     <div class="card-image">
-      <img :src=props.product.item.image class="card-img-top" alt="...">
+      <img :src=props.product.image class="card-img-top" alt="...">
     </div>
     <div class="card-body">
       <div class="section-one">
-        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
+        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.name }}</h5>
         <div class="section-one-bot">
-          <div class="quantity-div">
-            <p class="card-text">Antall: </p>
-            <div class="edit-quantity-div">
-              <img
-                src="../assets/icons/remove.svg"
-                @mousedown="startDecrement"
-                @mouseup="stopDecrement"
-                @mouseleave="stopDecrement"
-              />
-              <input class="input-field"
-                v-model.number="quantity"
-                id="quantity"
-                disabled
-                ref="quantityInput"
-              />
-              <img
-                src="../assets/icons/add.svg"
-                @mousedown="startIncrement"
-                @mouseup="stopIncrement"
-                @mouseleave="stopIncrement"
-              />
-            </div>
-          </div>
           <div class="amount">
-            <h5> {{ props.product.quantity * props.product.item.baseAmount }}</h5>
+            <h5> {{ props.product.baseAmount }}</h5>
             <h6> {{ unitType }}</h6>
           </div>
         </div>
@@ -49,57 +26,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
-import { ShoppingListItemCardInterface, Unit } from './types'
+import { ref, computed } from 'vue'
+import { ItemInterface, Unit } from './types'
 
 const emit = defineEmits(['update-quantity', 'checked'])
 const props = defineProps({
   product: {
-    type: Object as () => ShoppingListItemCardInterface,
+    type: Object as () => ItemInterface,
     required: true
   }
 })
 
-const quantity = ref(props.product.quantity)
 const selected = ref(false)
-const quantityInput = ref<HTMLInputElement | null>(null)
-
-let intervalId: ReturnType<typeof setInterval> | null = null
-
-function startDecrement (): void {
-  intervalId = setInterval(() => {
-    decrement()
-  }, 70)
-}
-
-function startIncrement (): void {
-  intervalId = setInterval(() => {
-    increment()
-  }, 70)
-}
-
-function stopDecrement (): void {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-function stopIncrement (): void {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-onUnmounted(() => {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-  }
-})
 
 const unitType = computed(() => {
-  switch (props.product.item.unit) {
+  switch (props.product.unit) {
     case Unit.GRAMS:
       return 'g'
     case Unit.MILLILITER:
@@ -111,8 +52,13 @@ const unitType = computed(() => {
   }
 })
 
+const cardClass = computed(() => ({
+  card: true,
+  'card-checked': selected.value
+}))
+
 const titleFontSize = computed(() => {
-  const length = props.product.item.name.length
+  const length = props.product.name.length
   if (length <= 10) {
     return '1.8rem'
   } else if (length <= 15) {
@@ -126,11 +72,6 @@ const titleFontSize = computed(() => {
   }
 })
 
-const cardClass = computed(() => ({
-  card: true,
-  'card-checked': selected.value
-}))
-
 function onCheckboxChange () {
   emit('checked', {
     product: props.product,
@@ -138,23 +79,8 @@ function onCheckboxChange () {
   })
 }
 
-function decrement () {
-  if (quantity.value > 1) {
-    quantity.value--
-    emit('update-quantity', { ...props.product, quantity: quantity.value })
-  }
-}
-
-function increment () {
-  quantity.value++
-  emit('update-quantity', { ...props.product, quantity: quantity.value })
-}
-
 function toggleCheckbox (event: MouseEvent) {
-  if (
-    !(event.target as HTMLElement).closest('.edit-quantity-div') &&
-    (event.target as HTMLElement) !== document.getElementById('checkbox')
-  ) {
+  if ((event.target as HTMLElement) !== document.getElementById('checkbox')) {
     selected.value = !selected.value
     onCheckboxChange()
   }
@@ -163,16 +89,6 @@ function toggleCheckbox (event: MouseEvent) {
 </script>
 
 <style scoped>
-
-.quantity-div {
-  display: grid;
-  align-items: flex-start;
-  text-align: left;
-}
-
-#quantity {
-  justify-self: left;
-}
 
 #checkbox:checked {
   background-color: royalblue;
@@ -208,34 +124,6 @@ function toggleCheckbox (event: MouseEvent) {
   text-align: left;
 }
 
-.card-text {
-  margin: 0;
-  padding: 0;
-  padding-left: 30px;
-  color: black;
-}
-
-.edit-quantity-div {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
-  width: 120px;
-}
-
-.edit-quantity-div img{
-  width: 30px;
-  cursor: pointer;
-}
-.input-field {
-  width: 100%;
-  border-radius: 20px;
-  text-align: center;
-}
-
-.input-field:disabled {
-  background-color: white;
-}
-
 .card {
   width: 550px;
   flex-direction: row;
@@ -245,7 +133,6 @@ function toggleCheckbox (event: MouseEvent) {
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
   cursor: pointer;
 }
-
 .card-checked {
   background-color: rgba(35, 173, 58, 0.6);
 }
@@ -297,7 +184,6 @@ function toggleCheckbox (event: MouseEvent) {
   width: 50%;
   display: flex;
   align-items: flex-end;
-  margin-left: 50px;
 }
 
 .amount h5{

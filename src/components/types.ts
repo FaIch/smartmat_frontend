@@ -8,7 +8,7 @@ export enum Unit {
 }
 
 export interface ItemInterface {
-  id?: number;
+  id: number;
   category: string;
   image: string;
   name: string;
