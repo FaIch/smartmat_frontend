@@ -5,7 +5,7 @@
       den ene er anbefalt basert på varene du har i kjøleskapet ditt og varer som snart går ut på dato<br>
       den andre består av helt tilfeldige retter som kan gi inspirasjonn</p>
     <div class="week-menus">
-    <WeekMenuCardComp :week-menu="randomMenu" @click="goToMenu(recipeItemsIdList)"/>
+    <WeekMenuCardComp :week-menu="randomMenu" @click="goToMenu(recipeItemsIdList,'Tilfeldig')"/>
     </div>
   </div>
 </template>
@@ -28,8 +28,16 @@ const recipeItemsIdList: number[] = []
 const randomMenu = ref<WeekMenuCardInterface>()
 
 onMounted(() => {
+  checkForWeekMenuStored()
   getWeekMenuRandom()
 })
+
+async function checkForWeekMenuStored () {
+  await recipeStore.checkForWeekMenu()
+  if (recipeStore.getHasWeekMenu()) {
+    await router.push('/specificMenu')
+  }
+}
 
 async function getWeekMenuRandom () {
   const path = 'http://localhost:8080/week-menu/list-random'
@@ -66,8 +74,9 @@ async function getWeekMenuRandom () {
     })
 }
 
-function goToMenu (menuIds: number[]) {
+function goToMenu (menuIds: number[], type: string) {
   recipeStore.setRecipeIds(menuIds)
+  recipeStore.setType(type)
   router.push('/specificMenu')
 }
 </script>
