@@ -61,12 +61,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useUtilityStore } from '../stores/UtilityStore'
 import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
 
-const utilityStore = useUtilityStore()
 const userStore = useUserStore()
 const route = useRoute()
 
@@ -335,8 +333,6 @@ async function removeFromFridge () {
       })
   }
 }
-
-utilityStore.setTransparentStatus(false)
 
 </script>
 <style scoped>
