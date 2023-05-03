@@ -56,15 +56,18 @@ import { SubUser } from '../components/types'
 import { onMounted, ref } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
+import { useUtilityStore } from '../stores/UtilityStore'
 import router from '../router/index'
 
 const userStore = useUserStore()
+const utilityStore = useUtilityStore()
 const subUsers = ref<SubUser[]>([])
 const selectedIndex = ref<number | null>(null)
 const pinCodes = ref<Array<Array<string>>>([])
 const updateMessage = ref('')
 
 onMounted(() => {
+  utilityStore.hideItems()
   getSubUsers()
 })
 
@@ -77,7 +80,7 @@ async function getSubUsers () {
         pinCodes.value = subUsers.value.map(() => Array(4).fill(''))
       }
     }).catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
     })
@@ -87,6 +90,7 @@ function selectAccount (subuser: SubUser, index: number) {
   resetUpdate()
   if (subuser.role === 'CHILD') {
     userStore.subUserLogin(subuser)
+    utilityStore.showItems()
     router.push('/fridge')
     return
   }
@@ -125,6 +129,7 @@ async function validateAndLogin (subuser: SubUser, index: number) {
   if (isPinCorrect) {
     userStore.subUserLogin(subuser)
     router.push('/fridge')
+    utilityStore.showItems()
   } else {
     selectAccount(subuser, index)
     updateMessage.value = 'Feil PIN-kode'
@@ -177,7 +182,7 @@ async function setSubUserPasscode (subuser: SubUser) {
         updateMessage.value = `PIN kode satt: ${subuser.passcode}`
       }
     }).catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       } else {
         updateMessage.value = 'Kunne ikke sette PIN-kode.'

@@ -38,7 +38,7 @@ async function getNumberOfFridgeItems () {
         numberOfExpiredItems.value = response.data.expired
       }
     }).catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
     })

@@ -66,9 +66,11 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
+import { useRecipeStore } from '../stores/RecipeStore'
 import api from '../utils/httputils'
 import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem, Unit } from '../components/types'
 
+const recipeStore = useRecipeStore()
 const userStore = useUserStore()
 const route = useRoute()
 
@@ -154,11 +156,10 @@ async function fetchRecipe () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      console.log(error.response.data.message)
     })
 }
 
@@ -174,11 +175,10 @@ async function fetchRecipeItems () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      console.log(error)
     })
 }
 
@@ -193,11 +193,10 @@ async function fetchShoppingList () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      console.log(error)
     })
 }
 
@@ -210,8 +209,8 @@ async function fetchFridgeItems () {
         console.log(response.data)
 
         // Aggregate the quantities of items with the same ID
-        const aggregatedFridgeItems = response.data.reduce((acc: any[], item: { item: { id: any }; quantity: any }) => {
-          const existingItemIndex = acc.findIndex((accItem: { item: { id: any } }) => accItem.item.id === item.item.id)
+        const aggregatedFridgeItems: FridgeItemCardInterface[] = response.data.reduce((acc: FridgeItemCardInterface[], item: FridgeItemCardInterface) => {
+          const existingItemIndex = acc.findIndex((accItem: FridgeItemCardInterface) => accItem.item.id === item.item.id)
 
           if (existingItemIndex !== -1) {
             acc[existingItemIndex].quantity += item.quantity
@@ -225,15 +224,14 @@ async function fetchFridgeItems () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      console.log(error)
     })
 }
 
-function toggleSelectedItem (ingredient: { id: number; quantity: number; item: { id: number; category: string; image: string; name: string; price: number; shortDesc: string; weightPerUnit: number; unit: Unit; baseAmount: number }; selected: boolean }) {
+function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
   const adjustedIngredient = adjustedRecipeItems.value.find(
     item => item.item.id === ingredient.item.id
   )
@@ -331,11 +329,10 @@ async function addAllToShoppingList () {
         }
       })
       .catch((error) => {
-        if (error.response.status === 400) {
-          console.log('error')
-        } else if (error.response.status === 600) {
+        if (error.response.status === 401) {
           userStore.logout()
         }
+        console.log(error)
       })
   }
 }
@@ -359,12 +356,16 @@ async function removeFromFridge () {
         }
       })
       .catch((error) => {
-        if (error.response.status === 400) {
-          console.log('error')
-        } else if (error.response.status === 600) {
+        if (error.response.status === 401) {
           userStore.logout()
         }
+        console.log(error)
       })
+  }
+
+  if (recipeStore.getHasWeekMenu() && recipe.value && recipeStore.getRecipeIds().includes(recipe.value.id)) {
+    console.log('eaten ' + recipe.value.id)
+    recipeStore.getRecipeIdsCompleted().push(recipe.value.id)
   }
 }
 

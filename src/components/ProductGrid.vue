@@ -71,7 +71,7 @@ async function fetchProducts () {
       products.value = response.data
     }
   } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
       userStore.logout()
     }
   }

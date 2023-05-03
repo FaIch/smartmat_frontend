@@ -1,54 +1,37 @@
 <template>
-    <div class="container">
-        <h1>User Information</h1>
+    <div class="formBody">
         <form @submit.prevent="submitForm">
             <fieldset class="row">
+              <h1>Innloggings Detaljer</h1>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Your email address" readonly disabled>
-                </div>
-                <div class="form-group">
-                    <label for="mobileNumber">Mobile Number</label>
-                    <div class="checkmarkPosition">
-                        <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Your mobile number">
-                        <img v-if="phoneNumberUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
-                </div>
-            </fieldset>
-            <fieldset class="row">
-                <div class="form-group">
-                    <label for="oldPassword">Old Password</label>
-                    <div class="checkmarkPosition">
-                        <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Your old password">
-                        <img v-if="passwordUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
+                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Email adresse" readonly disabled>
+                    <label for="oldPassword">Gammelt Passord</label>
+                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Gammelt passord">
                     <div v-if="wrongOldPassword" class="error-message">
                         Incorrect old password
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">New Password</label>
-                    <div class="checkmarkPosition">
-                        <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Your new password">
-                        <img v-if="passwordUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
+                    <label for="newPassword">Nytt Passord</label>
+                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Nytt passord">
                 </div>
             </fieldset>
             <fieldset class="row">
+              <h1>Personlige detaljer</h1>
                 <div class="form-group">
-                    <label for="address">Address</label>
-                    <div class="checkmarkPosition">
-                        <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Your address">
-                        <img v-if="addressUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="postalCode">Postal Code</label>
-                    <input id="postalCode" type="text" name="postalCode" autocomplete="postal-code" v-model="postalCode" placeholder="Your postal code">
+                    <label for="mobileNumber">Telefon Nummer</label>
+                    <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Telefon nummer">
+                    <label for="address">Adresse</label>
+                    <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
+                    <label for="numberOfHouseholdMembers">Antall I Husholdning</label>
+                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall i husholdning">
                 </div>
             </fieldset>
+            <div v-if="changesMade" id="response-wrapper">
+              <h3 >Endringer lagret! </h3>
+              <i class="material-symbols-outlined">task_alt</i>
+            </div>
             <div class="submit-button">
-                <button id="submit-button" type="submit">Save Changes</button>
+                <button id="submit-button" type="submit">Lagre Endringer</button>
             </div>
         </form>
     </div>
@@ -60,52 +43,43 @@ import { useUserStore } from '../stores/UserStore'
 import api from '../utils/httputils'
 import { SHA256 } from 'crypto-js'
 
-// Use the user store
 const userStore = useUserStore()
 
-// Define refs for form fields
 const email = ref(userStore.email)
 const phoneNumber = ref('')
 const oldPassword = ref('')
 const newPassword = ref('')
 const address = ref('')
-const postalCode = ref('')
-const phoneNumberUpdated = ref(false)
-const addressUpdated = ref(false)
-const passwordUpdated = ref(false)
 const wrongOldPassword = ref(false)
+const numberOfHouseholdMembers = ref('')
+const changesMade = ref(false)
 
-// Fetch user data on component creation
 onMounted(async () => {
   if (userStore.loggedIn) {
-    await fetchUserData()
+    await api.get('http://localhost:8080/user/details')
+      .then((response) => {
+        phoneNumber.value = response.data.phoneNumber
+        address.value = response.data.address
+        numberOfHouseholdMembers.value = response.data.numberOfHouseholdMembers
+        console.log(response)
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          userStore.logout()
+        }
+        console.error(error)
+      })
   }
 })
 
-async function fetchUserData () {
-  try {
-    const response = await api.get('/user/details')
-    phoneNumber.value = response.data.mobileNumber
-    address.value = response.data.address
-    postalCode.value = response.data.postalCode
-    console.log(response)
-  } catch (error) {
-    console.error('Error', error)
-  }
-}
-
 const submitForm = async () => {
-  phoneNumberUpdated.value = false
-  addressUpdated.value = false
-  passwordUpdated.value = false
+  changesMade.value = false
 
-  // Make sure the user is logged in
   if (!userStore.loggedIn) {
     console.error('You are not logged in')
     return
   }
 
-  // Update the phone number
   if (phoneNumber.value) {
     const phoneNumberRegex = /^\d{8}$/
     if (!phoneNumberRegex.test(phoneNumber.value)) {
@@ -114,13 +88,12 @@ const submitForm = async () => {
     }
     try {
       await api.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
-      phoneNumberUpdated.value = true
+      changesMade.value = true
     } catch (error) {
       console.error('Error updating phone number', error)
     }
   }
 
-  // Update the address
   if (address.value) {
     const addressRegex = /^[a-zA-Z\s]+\d+/
     if (!addressRegex.test(address.value)) {
@@ -129,13 +102,12 @@ const submitForm = async () => {
     }
     try {
       await api.put('/user/edit/address?address=' + address.value, null)
-      addressUpdated.value = true
+      changesMade.value = true
     } catch (error) {
       console.error('Error updating address', error)
     }
   }
 
-  // Update the password
   if (oldPassword.value && newPassword.value) {
     const hashedOldPassword = SHA256(oldPassword.value)
     const hashedNewPassword = SHA256(newPassword.value)
@@ -145,7 +117,7 @@ const submitForm = async () => {
       if (response.data.error) {
         throw new Error(response.data.error)
       }
-      passwordUpdated.value = true
+      changesMade.value = true
     } catch (error: any) {
       if (error.response && error.response.data === 'Incorrect password') {
         // Handle the incorrect old password exception here
@@ -158,36 +130,33 @@ const submitForm = async () => {
   }
 
   // Update the postal code
-  if (postalCode.value) {
+  if (numberOfHouseholdMembers.value) {
     try {
       await api.put(
-        '/user/edit/postalCode?postalCode=' + postalCode.value, null)
+        '/user/edit/postalCode?postalCode=' + numberOfHouseholdMembers.value, null)
     } catch (error) {
       console.error('Error updating postal code', error)
     }
   }
 }
 
-// Expose the submitForm function
 defineExpose({
   submitForm,
-  phoneNumberUpdated,
-  addressUpdated,
-  passwordUpdated
+  changesMade
 })
 </script>
 
 <style scoped>
 
-.container {
+.formBody {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    padding-top: 90px;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    margin: 0 auto;
+    height: 100%;
     font-family: Arial, sans-serif;
-    padding-top: 150px;
     background-image: url("../assets/startpagebackground3.png");
     background-size: cover;
     background-position: center;
@@ -196,46 +165,69 @@ defineExpose({
 
 .row {
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    border: none;
-    margin-left: 40px;
-    margin-right: 40px;
+    align-items: center;
+    justify-content: center;
     flex: 1;
-    margin-bottom: 20px;
+}
+
+#response-wrapper {
+  justify-self: center;
+  align-self: center;
+  align-content: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+}
+.material-symbols-outlined {
+  color: white;
+  font-size: 30px;
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 600,
+  'GRAD' 0,
+  'opsz' 248
 }
 
 h1 {
     text-align: center;
+    padding-top: 20px;
     margin-bottom: 20px;
     color: white;
     font-size: 2em;
     font-weight: bold;
 }
 
-.form-group {
-    margin-bottom: 15px;
+h3 {
+    color: white;
+    font-size: 1,5em;
 }
 
 label {
     color: white;
     display: block;
     margin-bottom: 5px;
+    display: inline-block;
+    align-self: left;
+    justify-self: left;
 }
 
 input {
-    width: 100%;
+    width: 70%;
     padding: 10px;
+    margin: 10px 0 10px 0;
     border: 1px solid #ccc;
+    background-color: #e9f1fe;
     border-radius: 4px;
+    align-self: center;
+    justify-self: center;
 }
 
 .submit-button {
@@ -249,8 +241,8 @@ input {
 }
 
 #submit-button {
-    color: #fff;
-    background: #25A13A;
+    color: black;
+    background: #eaf214;
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
@@ -291,12 +283,6 @@ input:disabled {
     .row {
         flex-direction: column;
     }
-
-    .form-group {
-        margin-left: 20px;
-        margin-right: 20px;
-    }
-
     .submit-button {
         width: 100%;
     }
@@ -305,11 +291,6 @@ input:disabled {
 @media only screen and (max-width: 480px) {
     h1 {
         font-size: 1.5em;
-    }
-
-    .form-group {
-        margin-left: 10px;
-        margin-right: 10px;
     }
 
     .submit-button {

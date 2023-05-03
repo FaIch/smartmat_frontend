@@ -10,7 +10,7 @@
     <button class="button" v-if="!recipeStore.getHasWeekMenu()" @click="saveMenu" :class="{'dark-green': isButtonClicked}">Lagre Ukesmeny</button>
     <button class="button" v-else @click="removeMenu">Fjern Ukesmeny</button>
     <div class="recipe-row">
-      <RecipeCardComp v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
+      <RecipeCardCompWeekMenu v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
     </div>
   </div>
 </template>
@@ -23,7 +23,7 @@ import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
 import { RecipeCardInterface, WeekMenuData } from '../components/types'
-import RecipeCardComp from '../components/RecipeCardComp.vue'
+import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 import router from '../router'
 const userStore = useUserStore()
 const recipeStore = useRecipeStore()
@@ -34,6 +34,7 @@ const type = recipeStore.getType()
 const isButtonClicked = ref(false)
 
 onMounted(() => {
+  console.log(recipeStore.getRecipeIdsCompleted())
   getRecipesWeekMenu(recipeIds)
   getWeekMenuData(recipeIds)
 })
@@ -105,6 +106,7 @@ async function removeMenu () {
         recipeStore.setType('')
         recipeStore.setRecipeIds([])
         recipeStore.setWeekMenu([])
+        recipeStore.getRecipeIdsCompleted([])
         await router.push('/weekMenu')
       }
     })
@@ -138,22 +140,30 @@ async function removeMenu () {
   opacity: 0;
 }
 
-.recipes {
-  margin-left: 40vh;
-  margin-top: 10px;
-  width: 80%;
-}
-
-.recipe-title {
-  text-align: left;
-}
-
 .recipe-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  empty-cells: hide;
-  gap: 20px;
-  margin: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media screen and (max-width: 768px) {
+  .recipe-row {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  border-radius: 100px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  z-index: 0;
+  margin-left: 10px;
 }
 
 a {
@@ -162,65 +172,8 @@ a {
   color: inherit;
 }
 
-.recipe-card {
-  display: grid;
-  grid-template-areas:
-    "recipe-image"
-    "recipe-details";
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  min-width: 250px;
-  min-height: 300px;
-}
-
-.recipe-image {
-  width: 100%;
-  max-height: 300px;
-}
-
-.recipe-details {
-  display: grid;
-  grid-template-areas:
-    "recipe-title"
-    "recipe-comment"
-    "recipe-time recipe-button";
-  background-color: #fff;
-}
-
-.recipe-title {
-  margin-top: 0;
-  margin-bottom: 2px;
-  font-size: 24px;
-  font-weight: bold;
-  color: black;
-}
-
-.recipe-comment, .recipe-items-fridge {
-  margin-top: 0;
-}
-
 .recipe-items-fridge p {
   margin-bottom: 0;
   color: black;
-}
-
-.recipe-button {
-  background-color: #1A7028;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 10px;
-  transition: background-color 0.2s ease-in-out;
-  margin-top: 0;
-  margin-bottom: 10px;
-  margin-left: 10px;
-  margin-right: 10px;
-  padding: 6px
-}
-
-.recipe-button:hover {
-  background-color: #25A13A;
 }
 </style>

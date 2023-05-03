@@ -1,39 +1,51 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FridgeItemCardComp from '../../../src/components/FridgeItemCardComp.vue'
+import { createApp } from 'vue'
+import VueTippy from 'vue-tippy'
+import 'tippy.js/dist/tippy.css'
+
+let wrapper
+let product
+
+beforeEach(() => {
+  product = {
+    item: {
+      name: 'Test',
+      unit: '300g',
+      image: 'https://example.com/image.png'
+    },
+    expirationDate: '2030-05-01',
+    quantity: 500
+  }
+  const app = createApp(FridgeItemCardComp)
+  app.use(
+    VueTippy,
+    {
+      directive: 'tippy',
+      component: 'tippy',
+      componentSingleton: 'tippy-singleton',
+      defaultProps: {
+        placement: 'auto-end',
+        allowHTML: true
+      }
+    }
+  )
+  wrapper = mount(FridgeItemCardComp, {
+    global: {
+      plugins: [app]
+    },
+    props: { product }
+  })
+})
 
 describe('FridgeItemCardComp', () => {
   it('Renders the product name in the title', () => {
-    const product = {
-      item: {
-        name: 'Test',
-        unit: '300g',
-        image: 'https://example.com/image.png'
-      },
-      expirationDate: '2023-05-01',
-      quantity: 500
-    }
-    const wrapper = mount(FridgeItemCardComp, {
-      props: { product }
-    })
     const title = wrapper.find('.card-title')
     expect(title.text()).toBe('Test')
   })
 
   it('enables the inputs when the edit button is clicked', async () => {
-    const product = {
-      item: {
-        name: 'Test',
-        unit: '300',
-        image: 'https://example.com/image.png'
-      },
-      expirationDate: '2023-05-01',
-      quantity: 500
-    }
-    const wrapper = mount(FridgeItemCardComp, {
-      props: { product }
-    })
-
     const editButton = wrapper.find('#edit-button')
     await editButton.trigger('click')
 
@@ -45,19 +57,6 @@ describe('FridgeItemCardComp', () => {
   })
 
   it('disables inputs after the save button is clicked', async () => {
-    const product = {
-      item: {
-        name: 'Test',
-        unit: '300',
-        image: 'https://example.com/image.png'
-      },
-      expirationDate: '2023-05-01',
-      quantity: 500
-    }
-    const wrapper = mount(FridgeItemCardComp, {
-      props: { product }
-    })
-
     const editButton = wrapper.find('#edit-button')
     await editButton.trigger('click')
     const expirationDateInput = wrapper.find('#expiration-date')
@@ -75,19 +74,6 @@ describe('FridgeItemCardComp', () => {
   })
 
   it('registers the product as selected when the checkbox is selected', async () => {
-    const product = {
-      item: {
-        name: 'Test',
-        unit: '300',
-        image: 'https://example.com/image.png'
-      },
-      expirationDate: '2023-05-01',
-      quantity: 500
-    }
-    const wrapper = mount(FridgeItemCardComp, {
-      props: { product }
-    })
-
     const checkBox = wrapper.find('#fridge-item-checkbox')
     await checkBox.trigger('change')
     expect(checkBox.attributes('false')).toBeFalsy()

@@ -32,7 +32,7 @@ export interface ShoppingListItemCardInterface {
 }
 
 export interface ShoppingListItem {
-  id: bigint;
+  id: number;
   quantity: number;
 }
 
@@ -89,10 +89,10 @@ export interface menuItem {
 }
 
 export interface RecipeIngredientInterface {
-    id: number;
-    quantity: number;
-    item: ItemInterface;
-    selected: boolean;
+  id: number;
+  quantity: number;
+  item: ItemInterface;
+  selected: boolean;
 }
 
 export interface User {
@@ -113,7 +113,7 @@ export enum Role {
 }
 
 export interface SubUser {
-  id: bigint;
+  id: number;
   email: string;
   nickname: string;
   role: Role;

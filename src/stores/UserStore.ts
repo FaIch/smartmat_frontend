@@ -9,6 +9,7 @@ import api from '../utils/httputils'
 export const useUserStore = defineStore('userStore', () => {
   const email = ref('')
   const loggedIn = ref(false)
+  const subUserLoggedIn = ref(false)
   const role = ref('')
   const subUser = ref<SubUser>()
   const refreshTokenTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -36,7 +37,7 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   onMounted(() => {
-    if (loggedIn.value) {
+    if (subUserLoggedIn.value) {
       startRefreshTimer()
     }
   })
@@ -52,12 +53,16 @@ export const useUserStore = defineStore('userStore', () => {
   async function login (userEmail: string) {
     email.value = userEmail
     loggedIn.value = true
-
     startRefreshTimer()
   }
 
   function subUserLogin (subUserParam: SubUser) {
     subUser.value = subUserParam
+    subUserLoggedIn.value = true
+  }
+
+  function noSubUserLogin () {
+    subUserLoggedIn.value = true
   }
 
   async function logout () {
@@ -65,6 +70,7 @@ export const useUserStore = defineStore('userStore', () => {
     role.value = ''
     loggedIn.value = false
     subUser.value = undefined
+    subUserLoggedIn.value = false
     stopRefreshTimer()
     router.push('/login')
   }
@@ -76,10 +82,22 @@ export const useUserStore = defineStore('userStore', () => {
     refreshToken,
     login,
     logout,
-    subUserLogin
+    subUserLogin,
+    noSubUserLogin,
+    subUserLoggedIn
   }
 },
 {
   // Pinia store options
   persist: true
 })
+
+export async function checkIsSubUserLoggedIn () {
+  const userStore = useUserStore()
+  return userStore.subUserLoggedIn
+}
+
+export async function checkIsUserLoggedIn () {
+  const userStore = useUserStore()
+  return userStore.loggedIn
+}

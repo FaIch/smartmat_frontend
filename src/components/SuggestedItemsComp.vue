@@ -67,7 +67,7 @@ async function loadProducts () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
       updateMessage.value = error.response.data.message
@@ -96,7 +96,7 @@ async function sendToShoppingList () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
       updateMessage.value = error.response.data.message

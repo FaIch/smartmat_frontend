@@ -13,7 +13,13 @@
       {{ updateMessage }}
     </div>
     <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
-      <FridgeItemCard :product="product" @update="onUpdate" @selection-changed="onSelectionChanged"/>
+      <FridgeItemCard
+        :product="product"
+        @update="onUpdate"
+        @selection-changed="onSelectionChanged"
+        @item-eaten="markSingleItemAsEaten"
+        @item-thrown="markSingleItemAsWaste"
+      />
     </div>
     <div class="buttons">
       <button
@@ -86,11 +92,10 @@ async function getItemsInFridge () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      updateMessage.value = error.response.data.message
     })
 }
 
@@ -124,11 +129,10 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      updateMessage.value = error.response.data.message
     })
 }
 
@@ -175,15 +179,8 @@ const normalizeDate = (date: Date) => {
   return new Date(date.setHours(0, 0, 0, 0))
 }
 
-async function markAsEaten () {
-  await axiosMarkAsEaten()
-  emit('handle-decrement', props.fridge, selectedProducts.value.length)
-  selectedProducts.value = []
-}
-
-async function axiosMarkAsEaten () {
-  const selectedIds = selectedProducts.value.map((item) => item.id)
-  const goNextAxios = ref<boolean>(false)
+async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) {
+  const selectedIds = productsParam.map((item) => item.id)
 
   const pathRemove = '/fridge/remove'
   const request = selectedIds
@@ -193,7 +190,6 @@ async function axiosMarkAsEaten () {
       if (response.status === 200) {
         updateMessage.value = 'Varer spist'
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-        goNextAxios.value = true
 
         setTimeout(() => {
           updateMessage.value = ''
@@ -201,35 +197,33 @@ async function axiosMarkAsEaten () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
-      } else if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
       }
+      updateMessage.value = error.response.data.message
     })
 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-  return goNextAxios
 }
 
-async function markAsWaste () {
-  const selectedProductsCopy = [...selectedProducts.value]
-  const goNextAxios = await axiosMarkAsEaten()
-
-  if (!goNextAxios.value) {
-    return false
-  }
-  const totalWeight = selectedProductsCopy.reduce(
+function turnItemsToWaste (productsParam: FridgeItemCardInterface[]) {
+  const totalWeight = productsParam.reduce(
     (sum, item) => sum + item.item.weightPerUnit * item.quantity,
     0
   )
+  return totalWeight
+}
+
+async function addItemsToWaste (totalWaste: number) {
   const wasteRequest = {
-    weight: totalWeight,
+    weight: totalWaste,
     entryDate: new Date().toISOString().split('T')[0]
   }
 
   const pathAddWaste = '/waste/add?weight=' + totalWeight
   await api.post(pathAddWaste, wasteRequest)
+  const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWaste
+  await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'
@@ -238,13 +232,39 @@ async function markAsWaste () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data.message
-      }
+      updateMessage.value = error.response.data.message
     })
+}
+
+async function markAsEaten () {
+  await removeItemsFromFridge(selectedProducts.value)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
+}
+
+async function markAsWaste () {
+  await removeItemsFromFridge(selectedProducts.value)
+  const totalWaste = turnItemsToWaste(selectedProducts.value)
+  await addItemsToWaste(totalWaste)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
+}
+
+async function markSingleItemAsEaten (productParam: FridgeItemCardInterface) {
+  const list = [productParam]
+  await removeItemsFromFridge(list)
+  emit('handle-decrement', props.fridge, list.length)
+}
+
+async function markSingleItemAsWaste (productParam: FridgeItemCardInterface) {
+  const list = [productParam]
+  await removeItemsFromFridge(list)
+  const totalWaste = turnItemsToWaste(list)
+  await addItemsToWaste(totalWaste)
+  emit('handle-decrement', props.fridge, list.length)
 }
 </script>
 

@@ -62,7 +62,7 @@ async function getRecipes () {
     }
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
-      if (error.response && error.response.status === 600) {
+      if (error.response && error.response.status === 401) {
         userStore.logout()
       } else {
         if (error.message && error.message === 'Network Error') {

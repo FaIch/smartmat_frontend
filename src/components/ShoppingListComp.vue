@@ -109,7 +109,7 @@ async function loadProducts () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
       updateMessage.value = error.response.data.message
@@ -140,7 +140,7 @@ async function removeAll () {
       updateMessage.value = 'Varer fjernet fra liste'
     }
   } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
       userStore.logout()
     }
   }
@@ -161,7 +161,7 @@ async function sendToFridge () {
       updateMessage.value = 'Varer sendt til ditt kjøleskap'
     }
   } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
       userStore.logout()
     }
   }
@@ -178,7 +178,7 @@ async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
 
   await api.put(path, requestArray)
     .catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
       updateMessage.value = error.response.data
