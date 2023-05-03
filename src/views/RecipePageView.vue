@@ -7,7 +7,7 @@
       </div>
       <div class="recipe-stats">
         <div class="portion-stats">
-          <h2 for="portions" class="recipe-title">Number of portions:</h2>
+          <h2 for="portions" class="recipe-title">Porsjoner</h2>
           <img src="../assets/icons/portion.svg" class="icon"/>
           <div class="edit-quantity-div">
               <img
@@ -24,18 +24,19 @@
           </div>
         </div>
         <div class="estimated-time-stats">
-          <h2 class="recipe-title">Estimated time</h2>
+          <h2 class="recipe-title">Beregned tid</h2>
           <img src="../assets/icons/clock.svg" class="icon"/>
-          <p>{{ recipe.estimatedTime }}</p>
+          <div class="portion-number">{{ recipe.estimatedTime }}</div>
         </div>
-
       </div>
     </div>
     <div class="recipe-steps">
       <div class="ingredients">
         <h2 class="recipe-title">Ingredients</h2>
-        <button @click="addAllToShoppingList">Add All to Shopping List</button>
-        <button @click="removeFromFridge">I've cooked this recipe</button>
+        <div class="buttons">
+          <button @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button @click="removeFromFridge">Jeg har laget denne oppskriften</button>
+        </div>
         <table>
           <thead>
             <tr>
@@ -446,16 +447,6 @@ async function removeFromFridge () {
   margin-top: 100px;
   border: 2px;
   flex-direction: column;
-  background-color: lightblue;
-}
-
-.recipe-info {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  background-color: lightgreen;
 }
 
 .title {
@@ -469,15 +460,15 @@ async function removeFromFridge () {
   height: 150px;
   margin: 10px;
   font-size: 30px;
-  text-align: center;
   line-height: 50px;
 }
 
 .ingredients{
   display: flex;
   flex-direction: column;
-  margin: 0px;
-  background-color: lightyellow;
+  margin-left: auto;
+  margin-right: auto;
+  width: min(100%, 800px);
 }
 
 .edit-quantity-div {
@@ -485,20 +476,23 @@ async function removeFromFridge () {
   flex-direction: row;
   justify-content: center;
   margin: 0px;
-  background-color: lightpink;
 }
 
 .instructions{
-  background-color: red;
-  width: 40%;
+  margin: auto;
+  margin-top: 30px;
 }
 
 .image-container {
   display: flex;
+  align-self: center;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: rgb(9, 134, 175);
+  margin-left: auto;
+  margin-right: auto;
+  flex-grow: 9999;
+  max-width: min(90%, 500px);
 }
 
 .recipe-image {
@@ -507,25 +501,37 @@ async function removeFromFridge () {
   width: 90%;
   height: 90%;
   aspect-ratio: 1/1;
+  border: black;
+  border-style: solid;
 }
 
 .recipe-steps {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 20px;
-  background-color: magenta;
 }
 
 .recipe-stats {
-  display: grid;
-  grid-template: auto / auto auto auto;
-  margin-left: 20px;
-  margin-right: 20px;
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 0px;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10%;
+}
+
+.recipe-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
   margin-bottom: 20px;
-  background-color: lightpink;
+
 }
 
 .portion-stats {
@@ -533,15 +539,35 @@ async function removeFromFridge () {
   flex-direction: column;
   margin-left: 20px;
   margin-right: 20px;
-  margin-bottom: 20px;
-  background-color: lightpink;
-
+  justify-content: center;
+  align-items: center;
 }
 
+.estimated-time-stats {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  margin-right: 20px;
+  justify-content: center;
+  align-items: center;
+}
 .portion-number {
   font-size: 34px;
   margin-right: 20px;
   margin-left: 20px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  justify-content: space-evenly;
+}
+
+button {
+  width: 40%;
 }
 
 table {
