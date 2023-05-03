@@ -14,7 +14,14 @@
         </div>
       </div>
       <div v-if="products.length > 0" class="buttons">
-        <button class="shopping-list-button add-button" @click="sendToShoppingList"  v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Legg til i handleliste</button>
+        <button
+          class="shopping-list-button add-button"
+          @click="sendToShoppingList"
+          v-bind:disabled="!isAnyChecked || userStore.role === Role.CHILD"
+          v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD }"
+        >
+          Legg til i handleliste
+        </button>
       </div>
       <div v-else class="no-items">
         <h2>Ingen flere foreslåtte varer.</h2>
@@ -26,7 +33,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import axios from 'axios'
-import { ItemInterface } from '../components/types'
+import { ItemInterface, Role } from '../components/types'
 import SuggestedItemCardComp from '../components/SuggestedItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
 

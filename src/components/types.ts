@@ -31,6 +31,12 @@ export interface ShoppingListItemCardInterface {
   quantity: number;
 }
 
+export interface WishlistItemCardInterface {
+  id: number;
+  item: ItemInterface;
+  quantity: number;
+}
+
 export interface ShoppingListItem {
   id: number;
   quantity: number;

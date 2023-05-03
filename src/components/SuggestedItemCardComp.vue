@@ -1,5 +1,5 @@
 <template>
-  <div :class="cardClass" @click="toggleCheckbox">
+  <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox">
     <div class="card-image">
       <img :src=props.product.image class="card-img-top" alt="...">
     </div>
@@ -27,8 +27,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ItemInterface, Unit } from './types'
+import { ItemInterface, Unit, Role } from './types'
+import { useUserStore } from '../stores/UserStore'
 
+const userStore = useUserStore()
 const emit = defineEmits(['update-quantity', 'checked'])
 const props = defineProps({
   product: {
@@ -56,6 +58,10 @@ const cardClass = computed(() => ({
   card: true,
   'card-checked': selected.value
 }))
+
+const disableInteractions = computed(() => {
+  return userStore.role === Role.CHILD
+})
 
 const titleFontSize = computed(() => {
   const length = props.product.name.length
@@ -199,5 +205,10 @@ function toggleCheckbox (event: MouseEvent) {
 
 .section-one-bot {
   display: flex;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.7;
 }
 </style>

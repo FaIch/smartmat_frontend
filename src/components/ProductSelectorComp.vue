@@ -2,8 +2,9 @@
   <div class="product-selector-view">
     <h2>Selected ({{ numberSelected }})</h2>
     <div class="button-container">
-      <button class="selector-button" v-if="!props.buttonType" @click="addToFridge">Legg til i kjøleskap</button>
-      <button class="selector-button" v-else @click="addToShoppingList" data-cy="addShopping">{{ addToShoppingListButtonText }}</button>
+      <button class="selector-button" v-if="props.buttonType === 'fridge'" @click="addToFridge">Legg til i kjøleskap</button>
+      <button class="selector-button" v-if="props.buttonType === 'shopping'" @click="addToShoppingList" data-cy="addShopping">Legg til i handleliste</button>
+      <button class="selector-button" v-if="props.buttonType === 'wishlist'" @click="addToWishlist">Legg til i ønskeliste</button>
     </div>
     <ProductGrid :searchQuery="searchQuery" @update-selected-products="updateSelectedProducts"/>
   </div>
@@ -13,8 +14,8 @@
 import axios, { AxiosError } from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import ProductGrid from './ProductGrid.vue'
-import { ref, computed } from 'vue'
-import { ItemInterface, ShoppingListItemCardInterface } from './types'
+import { ref } from 'vue'
+import { FridgeItemCardInterface, ItemInterface, ShoppingListItemCardInterface, WishlistItemCardInterface } from './types'
 
 const userStore = useUserStore()
 const searchQuery = ref('')
@@ -23,21 +24,18 @@ const numberSelected = ref(0)
 const emit = defineEmits(['refresh-page'])
 const props = defineProps({
   buttonType: {
-    type: Boolean,
+    type: String,
     required: true
   },
   shoppingListItems: {
-    type: Array as () => ShoppingListItemCardInterface[],
-    default: () => []
+    type: Array as () => ShoppingListItemCardInterface[]
   },
-  wishList: {
-    type: Boolean,
-    required: true
+  fridgeItems: {
+    type: Array as () => FridgeItemCardInterface[]
+  },
+  wishlistItems: {
+    type: Array as () => WishlistItemCardInterface[]
   }
-})
-
-const addToShoppingListButtonText = computed(() => {
-  return props.wishList ? 'Legg til i ønskeliste' : 'Legg til i handleliste'
 })
 
 const addToFridge = async () => {
@@ -81,49 +79,25 @@ const addToShoppingList = async () => {
     withCredentials: true
   }
 
-  const updateShoppingList = []
-  const addShoppingList = []
-  const updateWishlist = []
-  const addWishlist = []
+  const updateList = []
+  const addList = []
   for (const product of selectedProductsInParent.value) {
-    const existingItem = props.shoppingListItems.find(item => item.item.id === product.id)
-    // TODO: FIX
-    const a = 2
-    if (existingItem && a === 2) {
-      console.log('test1')
-      updateWishlist.push({
+    const existingItem = props.shoppingListItems?.find(item => item.item.id === product.id)
+    if (existingItem) {
+      updateList.push({
         itemId: existingItem.id,
         quantity: existingItem.quantity + 1
-      })
-    } else if (existingItem) {
-      console.log('test2')
-      updateShoppingList.push({
-        itemId: existingItem.id,
-        quantity: existingItem.quantity + 1
-      })
-    } else if (props.wishList) {
-      console.log('test3')
-      addShoppingList.push({
-        itemId: product.id,
-        quantity: 1
       })
     } else {
-      console.log('test4')
-      addWishlist.push({
+      addList.push({
         itemId: product.id,
         quantity: 1
       })
     }
   }
-  if (addShoppingList.length > 0 || addWishlist.length > 0) {
+  if (addList.length > 0) {
     try {
-      const path =
-        props.wishList
-          ? 'http://localhost:8080/shopping-list/add/wished'
-          : 'http://localhost:8080/shopping-list/add'
-      const data = props.wishList ? addWishlist : addShoppingList
-      console.log('addTo', path, data)
-      await axios.post(path, data, config)
+      await axios.post('http://localhost:8080/shopping-list/add', addList, config)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.status === 401) {
         userStore.logout()
@@ -131,11 +105,56 @@ const addToShoppingList = async () => {
     }
   }
 
-  if (updateShoppingList.length > 0 || updateWishlist.length > 0) {
+  if (updateList.length > 0) {
     try {
-      const data = props.wishList ? addWishlist : addShoppingList
-      console.log('updateItem', data)
-      await axios.put('http://localhost:8080/shopping-list/update', data, config)
+      await axios.put('http://localhost:8080/shopping-list/update', updateList, config)
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response && error.response.status === 401) {
+        userStore.logout()
+      }
+    }
+  }
+  selectedProductsInParent.value = []
+  emit('refresh-page')
+}
+
+async function addToWishlist () {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+
+  const updateList = []
+  const addList = []
+  for (const product of selectedProductsInParent.value) {
+    const existingItem = props.wishlistItems?.find(item => item.item.id === product.id)
+    if (existingItem) {
+      updateList.push({
+        itemId: existingItem.id,
+        quantity: existingItem.quantity + 1
+      })
+    } else {
+      addList.push({
+        itemId: product.id,
+        quantity: 1
+      })
+    }
+  }
+  if (addList.length > 0) {
+    try {
+      await axios.post('http://localhost:8080/wished/add', addList, config)
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response && error.response.status === 401) {
+        userStore.logout()
+      }
+    }
+  }
+
+  if (updateList.length > 0) {
+    try {
+      await axios.put('http://localhost:8080/shopping-list/update', updateList, config)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.status === 401) {
         userStore.logout()

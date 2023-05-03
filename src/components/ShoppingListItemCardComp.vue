@@ -1,5 +1,5 @@
 <template>
-  <div :class="cardClass" @click="toggleCheckbox">
+  <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox">
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -12,9 +12,7 @@
             <div class="edit-quantity-div">
               <img
                 src="../assets/icons/remove.svg"
-                @mousedown="startDecrement"
-                @mouseup="stopDecrement"
-                @mouseleave="stopDecrement"
+                @click="decrement"
               />
               <input class="input-field"
                 v-model.number="quantity"
@@ -24,9 +22,7 @@
               />
               <img
                 src="../assets/icons/add.svg"
-                @mousedown="startIncrement"
-                @mouseup="stopIncrement"
-                @mouseleave="stopIncrement"
+                @click="increment"
               />
             </div>
           </div>
@@ -49,54 +45,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
-import { ShoppingListItemCardInterface, Unit } from './types'
-
+import { ref, computed } from 'vue'
+import { ShoppingListItemCardInterface, Unit, Role } from './types'
+import { useUserStore } from '../stores/UserStore'
 const emit = defineEmits(['update-quantity', 'checked'])
 const props = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
+  },
+  onWishlist: {
+    type: Boolean,
+    required: true
   }
 })
-
+const userStore = useUserStore()
 const quantity = ref(props.product.quantity)
 const selected = ref(false)
 const quantityInput = ref<HTMLInputElement | null>(null)
-
-let intervalId: ReturnType<typeof setInterval> | null = null
-
-function startDecrement (): void {
-  intervalId = setInterval(() => {
-    decrement()
-  }, 70)
-}
-
-function startIncrement (): void {
-  intervalId = setInterval(() => {
-    increment()
-  }, 70)
-}
-
-function stopDecrement (): void {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-function stopIncrement (): void {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-onUnmounted(() => {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-  }
-})
 
 const unitType = computed(() => {
   switch (props.product.item.unit) {
@@ -130,6 +96,10 @@ const cardClass = computed(() => ({
   card: true,
   'card-checked': selected.value
 }))
+
+const disableInteractions = computed(() => {
+  return userStore.role === Role.CHILD && !props.onWishlist
+})
 
 function onCheckboxChange () {
   emit('checked', {
@@ -314,5 +284,10 @@ function toggleCheckbox (event: MouseEvent) {
 
 .section-one-bot {
   display: flex;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.7;
 }
 </style>

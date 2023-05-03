@@ -1,5 +1,5 @@
 <template>
-  <div :class="cardClass" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
+  <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
     <div
       v-tippy="'Kast i søpla'"
       class="trash-icon-container"
@@ -67,13 +67,14 @@
 <script setup lang="ts">
 
 import { ref, watch, computed } from 'vue'
-import { FridgeItemCardInterface, Unit } from './types'
-
+import { FridgeItemCardInterface, Role, Unit } from './types'
+import { useUserStore } from '../stores/UserStore'
 const edit = ref(true)
 const emit = defineEmits(['update', 'selection-changed', 'item-eaten', 'item-thrown'])
 const disableCardPointer = ref(false)
 const disableCheckboxToggle = ref(false)
 const disableHover = ref(false)
+const userStore = useUserStore()
 const confirmThrow = ref(false)
 const confirmEat = ref(false)
 const props = defineProps({
@@ -81,6 +82,10 @@ const props = defineProps({
     type: Object as () => FridgeItemCardInterface,
     required: true
   }
+})
+
+const disableInteractions = computed(() => {
+  return userStore.role === Role.CHILD
 })
 
 const titleFontSize = computed(() => {
@@ -534,6 +539,10 @@ function cancelAction () {
 
 .confirm-no-button {
   background-color: rgb(179, 6, 6);
+}
+.disabled {
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 </style>

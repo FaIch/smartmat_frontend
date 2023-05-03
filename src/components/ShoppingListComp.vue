@@ -5,11 +5,11 @@
       <div class="shopping-list-container">
         <div class="search-div">
           <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
-          <button class="products-button" @click="toggleProductSelector" data-cy="allProducts">Se alle produkter</button>
+          <button v-if="userStore.role === Role.PARENT" class="products-button" @click="toggleProductSelector" data-cy="allProducts">Se alle produkter</button>
           <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
           <div v-if="showProductSelector" class="product-selector-popup">
             <button class="close-button" @click="toggleProductSelector">x</button>
-            <ProductSelectorView :wish-list="false" :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
+            <ProductSelectorView :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
           </div>
         </div>
         <div class="update-message">
@@ -17,6 +17,7 @@
         </div>
         <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
           <ShoppingListItemCardComp
+            :on-wishlist="false"
             :product="product"
             @update-quantity="updateProductQuantity"
             @checked="updateCheckedStatus"
@@ -24,8 +25,22 @@
         </div>
       </div>
       <div v-if="products.length > 0" class="buttons">
-        <button class="shopping-list-button remove-button" @click="removeAll" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Fjern valgte</button>
-        <button class="shopping-list-button add-button" @click="sendToFridge" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Legg til i kjøleskap</button>
+        <button
+          class="shopping-list-button remove-button"
+          @click="removeAll"
+          v-bind:disabled="!isAnyChecked || userStore.role === Role.CHILD"
+          v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD}"
+        >
+          Fjern valgte
+        </button>
+        <button
+          class="shopping-list-button add-button"
+          @click="sendToFridge"
+          v-bind:disabled="!isAnyChecked || userStore.role === Role.CHILD"
+          v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD}"
+        >
+          Legg til i kjøleskap
+        </button>
       </div>
       <div v-else class="no-items">
         <h2>Ingen varer i handleliste</h2>
@@ -38,7 +53,7 @@
 import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref, computed } from 'vue'
 import axios, { AxiosError } from 'axios'
-import { ShoppingListItemCardInterface } from '../components/types'
+import { ShoppingListItemCardInterface, Role } from '../components/types'
 import ProductSelectorView from '../components/ProductSelectorComp.vue'
 import ShoppingListItemCardComp from './ShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
@@ -51,8 +66,19 @@ const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateMessage = ref('')
 const userStore = useUserStore()
 const showProductSelector = ref(false)
-const buttonType = ref(true)
+const buttonType = ref('shopping')
 const emit = defineEmits(['refresh-page'])
+let messageTimeout: ReturnType<typeof setTimeout> | null = null
+
+function showUpdateMessage (newMessage: string) {
+  if (messageTimeout) {
+    clearTimeout(messageTimeout)
+  }
+  updateMessage.value = newMessage
+  messageTimeout = setTimeout(() => {
+    updateMessage.value = ''
+  }, 5000)
+}
 
 onMounted(() => {
   loadProducts()
@@ -144,7 +170,7 @@ async function removeAll () {
       await loadProducts()
       emit('refresh-page')
       removeCheckedProducts()
-      updateMessage.value = 'Varer fjernet fra liste'
+      showUpdateMessage('Varer fjernet fra liste')
     }
   } catch (error: unknown) {
     if (error instanceof AxiosError && error.response && error.response.status === 401) {
@@ -171,7 +197,7 @@ async function sendToFridge () {
     const response = await axios.post(path, checkedProductsData, config)
     if (response.status === 200) {
       await removeAll()
-      updateMessage.value = 'Varer sendt til ditt kjøleskap'
+      showUpdateMessage('Varer sendt til ditt kjøleskap')
     }
   } catch (error: unknown) {
     if (error instanceof AxiosError && error.response && error.response.status === 401) {
@@ -203,9 +229,6 @@ async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
       }
       updateMessage.value = error.response.data
     })
-  setTimeout(() => {
-    updateMessage.value = ''
-  }, 5000)
 }
 
 function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {

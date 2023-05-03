@@ -52,7 +52,7 @@ async function getNumberOfShoppingListItems () {
       if (response.status === 200) {
         numberOfShoppingListItems.value = response.data.shoppingListItemsNumber
         numberOfSuggestions.value = response.data.suggestedItemsNumber
-        numberOfWishListItems.value = response.data.wishlistItemsNumber
+        numberOfWishListItems.value = response.data.wishedItemsNumber
       }
     }).catch((error) => {
       if (error.response.status === 401) {
