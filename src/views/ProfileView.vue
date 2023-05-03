@@ -5,41 +5,33 @@
               <h1>Innloggings Detaljer</h1>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Your email address" readonly disabled>
+                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Email adresse" readonly disabled>
                     <label for="oldPassword">Gammelt Passord</label>
-                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Your old password">
-                    <div class="checkmarkPosition">
-                        <img v-if="passwordUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
+                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Gammelt passord">
                     <div v-if="wrongOldPassword" class="error-message">
                         Incorrect old password
                     </div>
                     <label for="newPassword">Nytt Passord</label>
-                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Your new password">
-                    <div class="checkmarkPosition">
-                        <img v-if="passwordUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
+                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Nytt passord">
                 </div>
             </fieldset>
             <fieldset class="row">
               <h1>Personlige detaljer</h1>
                 <div class="form-group">
                     <label for="mobileNumber">Telefon Nummer</label>
-                    <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Your mobile number">
-                    <div class="checkmarkPosition">
-                        <img v-if="phoneNumberUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
+                    <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Telefon nummer">
                     <label for="address">Adresse</label>
-                    <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Your address">
-                    <div class="checkmarkPosition">
-                        <img v-if="addressUpdated" class="success-message" src="../assets/Checkmark.png">
-                    </div>
+                    <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
                     <label for="numberOfHouseholdMembers">Antall I Husholdning</label>
-                    <input id="numberOfHouseholdMembers" type="text" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Your postal code">
+                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall i husholdning">
                 </div>
             </fieldset>
+            <div v-if="changesMade" id="response-wrapper">
+              <h3 >Endringer lagret! </h3>
+              <i class="material-symbols-outlined">task_alt</i>
+            </div>
             <div class="submit-button">
-                <button id="submit-button" type="submit">Save Changes</button>
+                <button id="submit-button" type="submit">Lagre Endringer</button>
             </div>
         </form>
     </div>
@@ -51,20 +43,16 @@ import { useUserStore } from '../stores/UserStore'
 import axios from 'axios'
 import { SHA256 } from 'crypto-js'
 
-// Use the user store
 const userStore = useUserStore()
 
-// Define refs for form fields
 const email = ref(userStore.email)
 const phoneNumber = ref('')
 const oldPassword = ref('')
 const newPassword = ref('')
 const address = ref('')
-const numberOfHouseholdMembers = ref('')
-const phoneNumberUpdated = ref(false)
-const addressUpdated = ref(false)
-const passwordUpdated = ref(false)
 const wrongOldPassword = ref(false)
+const numberOfHouseholdMembers = ref('')
+const changesMade = ref(false)
 const config = {
   headers: {
     'Content-type': 'application/json'
@@ -72,7 +60,6 @@ const config = {
   withCredentials: true
 }
 
-// Fetch user data on component creation
 onMounted(async () => {
   if (userStore.loggedIn) {
     await axios.get('http://localhost:8080/user/details', config)
@@ -92,17 +79,13 @@ onMounted(async () => {
 })
 
 const submitForm = async () => {
-  phoneNumberUpdated.value = false
-  addressUpdated.value = false
-  passwordUpdated.value = false
+  changesMade.value = false
 
-  // Make sure the user is logged in
   if (!userStore.loggedIn) {
     console.error('You are not logged in')
     return
   }
 
-  // Update the phone number
   if (phoneNumber.value) {
     const phoneNumberRegex = /^\d{8}$/
     if (!phoneNumberRegex.test(phoneNumber.value)) {
@@ -113,13 +96,12 @@ const submitForm = async () => {
       await axios.put('http://localhost:8080/user/edit/phone?phoneNumber=' + phoneNumber.value, null,
         config
       )
-      phoneNumberUpdated.value = true
+      changesMade.value = true
     } catch (error) {
       console.error('Error updating phone number', error)
     }
   }
 
-  // Update the address
   if (address.value) {
     const addressRegex = /^[a-zA-Z\s]+\d+/
     if (!addressRegex.test(address.value)) {
@@ -131,13 +113,12 @@ const submitForm = async () => {
         'http://localhost:8080/user/edit/address?address=' + address.value, null,
         config
       )
-      addressUpdated.value = true
+      changesMade.value = true
     } catch (error) {
       console.error('Error updating address', error)
     }
   }
 
-  // Update the password
   if (oldPassword.value && newPassword.value) {
     const hashedOldPassword = SHA256(oldPassword.value)
     const hashedNewPassword = SHA256(newPassword.value)
@@ -149,8 +130,8 @@ const submitForm = async () => {
       if (response.data.error) {
         throw new Error(response.data.error)
       }
-      passwordUpdated.value = true
-    } catch (error) {
+      changesMade.value = true
+    } catch (error: any) {
       if (error.response && error.response.data === 'Incorrect password') {
         // Handle the incorrect old password exception here
         console.error('Error: Incorrect old password')
@@ -174,12 +155,9 @@ const submitForm = async () => {
   }
 }
 
-// Expose the submitForm function
 defineExpose({
   submitForm,
-  phoneNumberUpdated,
-  addressUpdated,
-  passwordUpdated
+  changesMade
 })
 </script>
 
@@ -189,12 +167,10 @@ defineExpose({
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    height: 100%;
-    margin-top: 30px;
     padding-top: 90px;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
     font-family: Arial, sans-serif;
     background-image: url("../assets/startpagebackground3.png");
     background-size: cover;
@@ -216,6 +192,25 @@ defineExpose({
     flex: 1;
 }
 
+#response-wrapper {
+  justify-self: center;
+  align-self: center;
+  align-content: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+}
+.material-symbols-outlined {
+  color: white;
+  font-size: 30px;
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 600,
+  'GRAD' 0,
+  'opsz' 248
+}
+
 h1 {
     text-align: center;
     padding-top: 20px;
@@ -223,6 +218,11 @@ h1 {
     color: white;
     font-size: 2em;
     font-weight: bold;
+}
+
+h3 {
+    color: white;
+    font-size: 1,5em;
 }
 
 label {
@@ -256,8 +256,8 @@ input {
 }
 
 #submit-button {
-    color: #fff;
-    background: #25A13A;
+    color: black;
+    background: #eaf214;
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
@@ -298,12 +298,6 @@ input:disabled {
     .row {
         flex-direction: column;
     }
-
-    .form-group {
-        margin-left: 20px;
-        margin-right: 20px;
-    }
-
     .submit-button {
         width: 100%;
     }
@@ -312,11 +306,6 @@ input:disabled {
 @media only screen and (max-width: 480px) {
     h1 {
         font-size: 1.5em;
-    }
-
-    .form-group {
-        margin-left: 10px;
-        margin-right: 10px;
     }
 
     .submit-button {
