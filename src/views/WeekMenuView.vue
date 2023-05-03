@@ -1,11 +1,13 @@
 <template>
   <div class="container">
-    <h1 class="title">Ukes menyer!</h1>
-    <p>Nedenfor har du to ulikes ukesmenyer du kan velge mellom<br>
-      den ene er anbefalt basert på varene du har i kjøleskapet ditt og varer som snart går ut på dato<br>
-      den andre består av helt tilfeldige retter som kan gi inspirasjonn</p>
+    <h1 class="title">Uke menyer</h1>
+    <p>Nedenfor har du to ulike ukesmenyer du kan velge mellom<br><br>
+      Den første består av anbefalte retter som inneholder de varene du har mest av i  kjøleskapet,<br>
+      og som snarest går ut på dato. Denne menyen vil hjelpe deg redusere matsvinn<br><br>
+      Den andre består av helt tilfeldige retter som kan gi inspirasjon</p>
     <div class="week-menus">
-    <WeekMenuCardComp :week-menu="randomMenu" data-cy="randomMenu" @click="goToMenu(recipeItemsIdList,'Tilfeldig')"/>
+      <WeekMenuCardComp :week-menu="recommendedMenu" @click="goToMenu(recipeItemsIdListRecommended,'Anbefalte Oppskrifter')"/>
+    <WeekMenuCardComp :week-menu="randomMenu" @click="goToMenu(recipeItemsIdListRandom,'Inspirerende Oppskrifter')"/>
     </div>
   </div>
 </template>
@@ -24,12 +26,15 @@ const WeekMenuCardComp = defineAsyncComponent(
 const userStore = useUserStore()
 const recipeStore = useRecipeStore()
 const recipes = ref<RecipeInterface[]>([])
-const recipeItemsIdList: number[] = []
+const recipeItemsIdListRandom: number[] = []
+const recipeItemsIdListRecommended: number[] = []
 const randomMenu = ref<WeekMenuCardInterface>()
+const recommendedMenu = ref<WeekMenuCardInterface>()
 
 onMounted(() => {
   checkForWeekMenuStored()
   getWeekMenuRandom()
+  getWeekMenuRecommended()
 })
 
 async function checkForWeekMenuStored () {
@@ -57,10 +62,45 @@ async function getWeekMenuRandom () {
           if (counter === 0) {
             randomMenu.value = {
               firstRecipeImage: recipe.image,
-              type: 'Random'
+              type: 'Inspirerende Oppskrifter'
             }
           }
-          recipeItemsIdList.push(recipe.id)
+          recipeItemsIdListRandom.push(recipe.id)
+          counter++
+        })
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
+}
+
+async function getWeekMenuRecommended () {
+  const path = 'http://localhost:8080/week-menu/list-recommended'
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+  await axios.get(path, config)
+    .then(async (response) => {
+      if (response.status === 200) {
+        recipes.value = response.data
+
+        let counter = 0
+        recipes.value.forEach((recipe) => {
+          if (counter === 0) {
+            recommendedMenu.value = {
+              firstRecipeImage: recipe.image,
+              type: 'Anbefalte Oppskrifter'
+            }
+          }
+          recipeItemsIdListRecommended.push(recipe.id)
           counter++
         })
       }
@@ -75,6 +115,7 @@ async function getWeekMenuRandom () {
 }
 
 function goToMenu (menuIds: number[], type: string) {
+  console.log('ids ' + menuIds)
   recipeStore.setRecipeIds(menuIds)
   recipeStore.setType(type)
   router.push('/specificMenu')
@@ -94,8 +135,20 @@ function goToMenu (menuIds: number[], type: string) {
   padding: 20px;
 }
 
+h1 {
+  font-size: 40px;
+  margin: 5px 0 0;
+  font-weight: normal;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+p {
+  margin-top: -18%;
+}
 .week-menus {
-  margin-left: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-top: -40%;
 }
 
 </style>
