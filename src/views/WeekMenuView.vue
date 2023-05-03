@@ -28,8 +28,15 @@ const recipeStore = useRecipeStore()
 const recipes = ref<RecipeInterface[]>([])
 const recipeItemsIdListRandom: number[] = []
 const recipeItemsIdListRecommended: number[] = []
-const randomMenu = ref<WeekMenuCardInterface>()
-const recommendedMenu = ref<WeekMenuCardInterface>()
+const randomMenu = ref<WeekMenuCardInterface>({
+  firstRecipeImage: '',
+  type: 'Inspirerende Oppskrifter'
+})
+
+const recommendedMenu = ref<WeekMenuCardInterface>({
+  firstRecipeImage: '',
+  type: 'Anbefalte Oppskrifter'
+})
 
 onMounted(() => {
   checkForWeekMenuStored()

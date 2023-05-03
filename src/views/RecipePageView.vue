@@ -254,7 +254,7 @@ async function fetchFridgeItems () {
     })
 }
 
-function toggleSelectedItem (ingredient) {
+function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
   const adjustedIngredient = adjustedRecipeItems.value.find(
     item => item.item.id === ingredient.item.id
   )
@@ -398,9 +398,9 @@ async function removeFromFridge () {
       })
   }
 
-  if (recipeStore.getHasWeekMenu() && recipeStore.getRecipeIds().includes(recipe.value?.id)) {
-    console.log('eaten ' + recipe.value?.id)
-    recipeStore.getRecipeIdsCompleted().push(recipe.value?.id)
+  if (recipeStore.getHasWeekMenu() && recipe.value && recipeStore.getRecipeIds().includes(recipe.value.id)) {
+    console.log('eaten ' + recipe.value.id)
+    recipeStore.getRecipeIdsCompleted().push(recipe.value.id)
   }
 }
 
