@@ -7,8 +7,8 @@
     <p>Mangler: {{weekMenuData.totalAmountOfMissingItems}}</p>
     <p>Antall datovarer:  {{weekMenuData.totalAmountOfItemsToExpire}}</p>
     <br>
-    <button class="recipe-button" v-if="!recipeStore.getHasWeekMenu()" @click="saveMenu" :class="{'dark-green': isButtonClicked}">Lagre Ukesmeny</button>
-    <button class="recipe-button" v-else @click="removeMenu">Fjern Ukesmeny</button>
+    <button class="button" v-if="!recipeStore.getHasWeekMenu()" @click="saveMenu" :class="{'dark-green': isButtonClicked}">Lagre Ukesmeny</button>
+    <button class="button" v-else @click="removeMenu">Fjern Ukesmeny</button>
     <div class="recipe-row">
       <RecipeCardCompWeekMenu v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
     </div>
@@ -177,6 +177,19 @@ async function removeMenu () {
   }
 }
 
+.button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 200px;
+  border-radius: 100px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  z-index: 0;
+  margin-left: 10px;
+}
+
 a {
   display: block;
   text-decoration: none;
@@ -186,23 +199,5 @@ a {
 .recipe-items-fridge p {
   margin-bottom: 0;
   color: black;
-}
-
-.recipe-button {
-  background-color: #1A7028;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 10px;
-  transition: background-color 0.2s ease-in-out;
-  margin-top: 0;
-  margin-bottom: 10px;
-  margin-left: 10px;
-  margin-right: 10px;
-  padding: 6px
-}
-
-.recipe-button:hover {
-  background-color: #25A13A;
 }
 </style>
