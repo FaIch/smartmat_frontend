@@ -129,13 +129,12 @@ const submitForm = async () => {
     }
   }
 
-  // Update the postal code
   if (numberOfHouseholdMembers.value) {
     try {
       await api.put(
-        '/user/edit/postalCode?postalCode=' + numberOfHouseholdMembers.value, null)
+        '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
     } catch (error) {
-      console.error('Error updating postal code', error)
+      console.error('Error updating household members', error)
     }
   }
 }
