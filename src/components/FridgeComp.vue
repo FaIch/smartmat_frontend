@@ -220,10 +220,8 @@ async function addItemsToWaste (totalWaste: number) {
     entryDate: new Date().toISOString().split('T')[0]
   }
 
-  const pathAddWaste = '/waste/add?weight=' + totalWeight
+  const pathAddWaste = '/waste/add?weight=' + totalWaste
   await api.post(pathAddWaste, wasteRequest)
-  const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWaste
-  await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'

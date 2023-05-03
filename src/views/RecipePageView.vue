@@ -68,7 +68,7 @@ import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
 import api from '../utils/httputils'
-import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem, Unit } from '../components/types'
+import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
 
 const recipeStore = useRecipeStore()
 const userStore = useUserStore()

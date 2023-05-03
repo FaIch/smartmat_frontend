@@ -81,14 +81,8 @@ async function getWeekMenuRandom () {
 }
 
 async function getWeekMenuRecommended () {
-  const path = 'http://localhost:8080/week-menu/list-recommended'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = '/week-menu/list-recommended'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         recipes.value = response.data
