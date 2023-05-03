@@ -13,7 +13,7 @@
       {{ updateMessage }}
     </div>
     <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
-      <TempFridgeItemCard
+      <FridgeItemCard
         :product="product"
         @update="onUpdate"
         @selection-changed="onSelectionChanged"
@@ -53,7 +53,7 @@ import { onMounted, ref, computed } from 'vue'
 import SearchBar from './SearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
-import TempFridgeItemCard from './TempFridgeItemCardComp.vue'
+import FridgeItemCard from './FridgeItemCardComp.vue'
 import ProductSelector from './ProductSelectorComp.vue'
 import axios from 'axios'
 
