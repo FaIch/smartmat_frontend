@@ -49,7 +49,7 @@ import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCard from './FridgeItemCardComp.vue'
 import ProductSelector from './ProductSelectorComp.vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 
 const props = defineProps({
   fridge: {
@@ -68,12 +68,6 @@ const searchQuery = ref('')
 const showProductSelector = ref(false)
 const buttonType = ref(false)
 const isAnyProductSelected = computed(() => selectedProducts.value.length > 0)
-const config = {
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  withCredentials: true
-}
 
 onMounted(() => {
   getItemsInFridge()
@@ -82,16 +76,10 @@ onMounted(() => {
 async function getItemsInFridge () {
   const path =
     props.fridge
-      ? 'http://localhost:8080/fridge/get'
-      : 'http://localhost:8080/fridge/get/expired'
+      ? '/fridge/get'
+      : '/fridge/get/expired'
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
@@ -107,9 +95,9 @@ async function getItemsInFridge () {
 }
 
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
-  const path = 'http://localhost:8080/fridge/edit/' + updatedProduct.id
+  const path = '/fridge/edit/' + updatedProduct.id
 
-  await axios.put(path, updatedProduct, config)
+  await api.put(path, updatedProduct)
     .then(async (response) => {
       if (response.status === 200) {
         const index = products.value.findIndex(
@@ -197,10 +185,10 @@ async function axiosMarkAsEaten () {
   const selectedIds = selectedProducts.value.map((item) => item.id)
   const goNextAxios = ref<boolean>(false)
 
-  const pathRemove = 'http://localhost:8080/fridge/remove'
+  const pathRemove = '/fridge/remove'
   const request = selectedIds
 
-  await axios.delete(pathRemove, { data: request, headers: config.headers, withCredentials: config.withCredentials })
+  await api.delete(pathRemove, { data: request })
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer spist'
@@ -240,8 +228,8 @@ async function markAsWaste () {
     entryDate: new Date().toISOString().split('T')[0]
   }
 
-  const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
-  await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
+  const pathAddWaste = '/waste/add?weight=' + totalWeight
+  await api.post(pathAddWaste, wasteRequest)
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = 'Varer kastet'

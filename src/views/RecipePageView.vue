@@ -66,8 +66,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
-import axios from 'axios'
-import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
+import api from '../utils/httputils'
+import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem, Unit } from '../components/types'
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -143,14 +143,8 @@ onMounted(() => {
 })
 
 async function fetchRecipe () {
-  const path = `http://localhost:8080/recipe/${recipeId.value}`
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = `/recipe/${recipeId.value}`
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('success')
@@ -169,14 +163,9 @@ async function fetchRecipe () {
 }
 
 async function fetchRecipeItems () {
-  const path = `http://localhost:8080/recipe/recipe-items/${recipeId.value}`
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = `/recipe/recipe-items/${recipeId.value}`
+
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('success')
@@ -194,14 +183,8 @@ async function fetchRecipeItems () {
 }
 
 async function fetchShoppingList () {
-  const path = 'http://localhost:8080/shopping-list/get'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = '/shopping-list/get'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('Shopping list:')
@@ -219,22 +202,16 @@ async function fetchShoppingList () {
 }
 
 async function fetchFridgeItems () {
-  const path = 'http://localhost:8080/fridge/get'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = '/fridge/get'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('Fridge')
         console.log(response.data)
 
         // Aggregate the quantities of items with the same ID
-        const aggregatedFridgeItems = response.data.reduce((acc, item) => {
-          const existingItemIndex = acc.findIndex(accItem => accItem.item.id === item.item.id)
+        const aggregatedFridgeItems = response.data.reduce((acc: any[], item: { item: { id: any }; quantity: any }) => {
+          const existingItemIndex = acc.findIndex((accItem: { item: { id: any } }) => accItem.item.id === item.item.id)
 
           if (existingItemIndex !== -1) {
             acc[existingItemIndex].quantity += item.quantity
@@ -256,7 +233,7 @@ async function fetchFridgeItems () {
     })
 }
 
-function toggleSelectedItem (ingredient) {
+function toggleSelectedItem (ingredient: { id: number; quantity: number; item: { id: number; category: string; image: string; name: string; price: number; shortDesc: string; weightPerUnit: number; unit: Unit; baseAmount: number }; selected: boolean }) {
   const adjustedIngredient = adjustedRecipeItems.value.find(
     item => item.item.id === ingredient.item.id
   )
@@ -333,14 +310,8 @@ async function addAllToShoppingList () {
 
   console.log(checkedProductsData)
   if (checkedProductsData.length) {
-    const path = 'http://localhost:8080/shopping-list/add'
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    }
-    await axios.post(path, checkedProductsData, config)
+    const path = '/shopping-list/add'
+    await api.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
           console.log('All selected items added to the shopping list')
@@ -377,15 +348,9 @@ async function removeFromFridge () {
   }))
 
   if (itemsData.length) {
-    const path = 'http://localhost:8080/fridge/remove/byRecipe'
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    }
+    const path = '/fridge/remove/byRecipe'
 
-    await axios.post(path, itemsData, config)
+    await api.post(path, itemsData)
       .then(async (response) => {
         if (response.status === 200) {
           console.log('All items removed from the fridge')

@@ -17,9 +17,10 @@
 import SearchBarComp from '../components/SearchBarComp.vue'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import { ref, onMounted } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
+import api from '../utils/httputils'
 
 const userStore = useUserStore()
 const searchPlaceholder = ref('Søk etter oppskrifter...')
@@ -33,16 +34,10 @@ const updateMessage = ref('')
 const filteredRecipes = ref<RecipeCardInterface[]>([])
 
 async function getRecipes () {
-  const path = 'http://localhost:8080/recipe/list/sorted'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/recipe/list/sorted'
 
   try {
-    const response = await axios.get(path, config)
+    const response = await api.get(path)
 
     if (response.status === 200) {
       recipes.value = response.data

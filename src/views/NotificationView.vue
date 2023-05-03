@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
+import api from '../utils/httputils'
 import { onMounted, ref } from 'vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
@@ -19,16 +19,9 @@ const products = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
 
 async function getItems () {
-  const path = 'http://localhost:8080/fridge/get/notification'
+  const path = '/fridge/get/notification'
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data

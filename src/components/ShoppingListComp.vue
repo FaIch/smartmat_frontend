@@ -37,11 +37,12 @@
 <script setup lang="ts">
 import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref, computed } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import { ShoppingListItemCardInterface } from '../components/types'
 import ProductSelectorView from '../components/ProductSelectorComp.vue'
 import ShoppingListItemCardComp from './ShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
+import api from '../utils/httputils'
 
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
@@ -94,19 +95,13 @@ function refreshShoppingList () {
 }
 
 async function loadProducts () {
-  const path = 'http://localhost:8080/shopping-list/get'
-  const config = {
-    headers: {
-      'Content-type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/shopping-list/get'
 
   isLoading.value = true
   if (path == null) {
     return
   }
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
@@ -128,18 +123,16 @@ async function removeAll () {
   const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
 
   const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    'Content-Type': 'application/json',
     withCredentials: true,
     params: {
       shoppingListItemIds: checkedProductsData.value.join(',')
     }
   }
 
-  const path = 'http://localhost:8080/shopping-list/remove'
+  const path = '/shopping-list/remove'
   try {
-    const response = await axios.delete(path, config)
+    const response = await api.delete(path, config)
     if (response.status === 200) {
       await loadProducts()
       emit('refresh-page')
@@ -159,16 +152,10 @@ async function sendToFridge () {
     quantity: product.quantity * product.item.baseAmount,
     expirationDate: '2023-05-20'
   }))
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
 
-  const path = 'http://localhost:8080/fridge/add'
+  const path = '/fridge/add'
   try {
-    const response = await axios.post(path, checkedProductsData, config)
+    const response = await api.post(path, checkedProductsData)
     if (response.status === 200) {
       await removeAll()
       updateMessage.value = 'Varer sendt til ditt kjøleskap'
@@ -181,13 +168,7 @@ async function sendToFridge () {
 }
 
 async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
-  const path = 'http://localhost:8080/shopping-list/update'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/shopping-list/update'
 
   const requestBody = {
     itemId: updatedProduct.id,
@@ -195,7 +176,7 @@ async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
   }
   const requestArray = [requestBody]
 
-  await axios.put(path, requestArray, config)
+  await api.put(path, requestArray)
     .catch((error) => {
       if (error.response.status === 600) {
         userStore.logout()

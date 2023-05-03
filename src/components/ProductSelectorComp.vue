@@ -10,11 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import ProductGrid from './ProductGrid.vue'
 import { ref } from 'vue'
 import { ItemInterface, ShoppingListItemCardInterface } from './types'
+import api from '../utils/httputils'
 
 const userStore = useUserStore()
 const searchQuery = ref('')
@@ -39,16 +40,9 @@ const addToFridge = async () => {
     expirationDate: '2023-05-20'
   }))
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-
-  const path = 'http://localhost:8080/fridge/add'
+  const path = '/fridge/add'
   try {
-    const response = await axios.post(path, checkedProductsData, config)
+    const response = await api.post(path, checkedProductsData)
     if (response.status === 200) {
       selectedProductsInParent.value = []
     }
@@ -66,13 +60,6 @@ function updateSelectedProducts (updatedList: ItemInterface[]) {
 }
 
 const addToShoppingList = async () => {
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-
   const updateList = []
   const addList = []
 
@@ -92,7 +79,7 @@ const addToShoppingList = async () => {
   }
   if (addList.length > 0) {
     try {
-      await axios.post('http://localhost:8080/shopping-list/add', addList, config)
+      await api.post('/shopping-list/add', addList)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.status === 600) {
         userStore.logout()
@@ -102,7 +89,7 @@ const addToShoppingList = async () => {
 
   if (updateList.length > 0) {
     try {
-      await axios.put('http://localhost:8080/shopping-list/update', updateList, config)
+      await api.put('/shopping-list/update', updateList)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.status === 600) {
         userStore.logout()

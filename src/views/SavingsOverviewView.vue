@@ -30,7 +30,7 @@
 <script setup lang="ts">
 
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 
 // Calculating percentage for each time period based on the average value for money lost
 const averageMoneyLostYear = 5322.0 // kr per year
@@ -51,17 +51,8 @@ const foodWaste = ref<number>(0)
 const moneyLost = ref<number>(0)
 const co2Emissions = ref<number>(0)
 
-const config = {
-  headers: {
-    'Content-type': 'application/json'
-  },
-  withCredentials: true
-}
-
 const showAllTime = () => {
-  axios.get('http://localhost:8080/waste/total/all-time',
-    config
-  )
+  api.get('/waste/total/all-time')
     .then((response) => {
       const data = response.data
       foodWaste.value = data[0] / 1000
@@ -72,9 +63,7 @@ const showAllTime = () => {
 }
 
 const showLastYear = () => {
-  axios.get('http://localhost:8080/waste/total/last-year',
-    config
-  )
+  api.get('/waste/total/last-year')
     .then((response) => {
       const data = response.data
       foodWaste.value = data[0] / 1000
@@ -85,9 +74,7 @@ const showLastYear = () => {
 }
 
 const showLastMonth = () => {
-  axios.get('http://localhost:8080/waste/total/last-month',
-    config
-  )
+  api.get('/waste/total/last-month')
     .then((response) => {
       const data = response.data
       foodWaste.value = data[0] / 1000
@@ -98,9 +85,7 @@ const showLastMonth = () => {
 }
 
 const showLastWeek = () => {
-  axios.get('http://localhost:8080/waste/total/last-week',
-    config
-  )
+  api.get('/waste/total/last-week')
     .then((response) => {
       const data = response.data
       foodWaste.value = data[0] / 1000

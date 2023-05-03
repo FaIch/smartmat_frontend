@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" v-if="weekMenuData">
     <h1 class="title">Din {{type}} ukemeny </h1>
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
@@ -19,7 +19,7 @@
 // TODO: hvorfor forsvinner på refresh?!
 
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
 import { RecipeCardInterface, WeekMenuData } from '../components/types'
@@ -28,7 +28,7 @@ import router from '../router'
 const userStore = useUserStore()
 const recipeStore = useRecipeStore()
 const recipes = ref<RecipeCardInterface[]>([])
-const weekMenuData = ref<WeekMenuData[]>([])
+const weekMenuData = ref<WeekMenuData>()
 const recipeIds: number[] = recipeStore.getRecipeIds()
 const type = recipeStore.getType()
 const isButtonClicked = ref(false)
@@ -39,14 +39,8 @@ onMounted(() => {
 })
 
 async function getRecipesWeekMenu (intList: number[]): Promise<void> {
-  const path = 'http://localhost:8080/week-menu/get-recipes-by-id'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.post(path, intList, config)
+  const path = '/week-menu/get-recipes-by-id'
+  await api.post(path, intList)
     .then(async (response) => {
       if (response.status === 200) {
         recipes.value = response.data
@@ -62,14 +56,8 @@ async function getRecipesWeekMenu (intList: number[]): Promise<void> {
 }
 
 async function getWeekMenuData (intList: number[]): Promise<void> {
-  const path = 'http://localhost:8080/week-menu/get-data-week-menu'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.post(path, intList, config)
+  const path = '/week-menu/get-data-week-menu'
+  await api.post(path, intList)
     .then(async (response) => {
       if (response.status === 200) {
         weekMenuData.value = response.data
@@ -91,14 +79,8 @@ async function saveMenu () {
     message: type
   }
 
-  const path = 'http://localhost:8080/week-menu/save'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.post(path, weekMenuRequest, config)
+  const path = '/week-menu/save'
+  await api.post(path, weekMenuRequest)
     .then(async (response) => {
       if (response.status === 200) {
         console.log(response.data)
@@ -115,14 +97,8 @@ async function saveMenu () {
 }
 
 async function removeMenu () {
-  const path = 'http://localhost:8080/week-menu/remove'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = '/week-menu/remove'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         recipeStore.setHasWeekMenu(false)

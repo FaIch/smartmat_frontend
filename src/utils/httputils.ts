@@ -1,6 +1,9 @@
 import axios, { AxiosError } from 'axios'
 
 const api = axios.create({
+  headers: {
+    'Content-Type': 'application/json'
+  },
   baseURL: 'http://localhost:8080',
   withCredentials: true // This will allow cookies to be sent with requests
 })
@@ -50,3 +53,5 @@ export const getFridgeItemsByUserId = async (): Promise<any> => {
     throw error
   }
 }
+
+export default api
