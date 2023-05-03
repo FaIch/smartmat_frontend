@@ -1,6 +1,7 @@
 <template>
   <div :class="cardClass" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
     <div
+      v-tippy="'Kast i søpla'"
       class="trash-icon-container"
       :class="{ 'disable-hover': disableHover }"
       @click.stop="deleteCard"
@@ -9,6 +10,7 @@
       <img src="../assets/icons/white-trash.svg" alt="Trash Icon Hover" class="trash-icon trash-icon-hover" />
     </div>
     <div
+      v-tippy="'Marker som spist'"
       class="eaten-icon-container"
       :class="{ 'disable-hover': disableHover }"
       @click.stop="itemEaten"
@@ -48,65 +50,7 @@
           :disabled="!edit"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
-      </div>
-    </div>
-    <div v-if="popup" class="popup">
-      <div class="edits">
-        <div class="popup-expiration-date-div">
-          <p class="card-text">Utløpsdato:</p>
-          <input type="date" class="input-field" id="expiration-date" v-model="expirationDate" ref="expirationDateInput" />
-        </div>
-        <div class="popup-quantity-div">
-          <p class="card-text">{{ unitType }}</p>
-          <input
-            class="input-field"
-            v-model.number="quantity"
-            id="quantity"
-            ref="quantityInput"
-            @input="onQuantityChange"/>
-        </div>
-        <div class="outer-new-quantity-div">
-          <div v-if="quantityChanged" class="popup-new-quantity-div">
-            <p v-if="unitsReduced > 0">{{ unitsReduced }} {{ unit }}</p>
-            <p v-if="unitsReduced > 0">fjernet.</p>
-            <p v-if="unitsReduced < 0">{{ -unitsReduced }} {{ unit }}</p>
-            <p v-if="unitsReduced < 0">lagt til.</p>
-            <div class="buttons-div">
-              <div class="checkboxes-div">
-                <label v-if="checkboxDisabled">
-                  <input
-                    type="radio"
-                    class="fridge-checkbox"
-                    name="fridge-item-action"
-                    v-model="action"
-                    value="eaten"
-                  />
-                  Spist?
-                </label>
-                <label v-if="checkboxDisabled">
-                  <input
-                    type="radio"
-                    class="fridge-checkbox"
-                    name="fridge-item-action"
-                    v-model="action"
-                    value="thrown"
-                  />
-                  Kastet?
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="popup-save-button">
-          <button
-            id="save-button"
-            class="btn btn-dark"
-            @click.stop="activateSave"
-            :disabled="saveButtonDisabled"
-          >
-            Lagre
-          </button>
-        </div>
+        <button v-if="!edit" id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
       </div>
     </div>
     <div v-if="confirmEat || confirmThrow" class="confirm-popup">
@@ -126,16 +70,12 @@ import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface, Unit } from './types'
 
 const edit = ref(true)
-const emit = defineEmits(['update', 'selection-changed', 'item-eaten', 'item-thrown', 'item-partially-thrown'])
-const popup = ref(false)
+const emit = defineEmits(['update', 'selection-changed', 'item-eaten', 'item-thrown'])
+const disableCardPointer = ref(false)
+const disableCheckboxToggle = ref(false)
+const disableHover = ref(false)
 const confirmThrow = ref(false)
 const confirmEat = ref(false)
-const unitsReduced = ref(0)
-const quantityChanged = ref(false)
-const disableHover = ref(false)
-const disableCheckboxToggle = ref(false)
-const disableCardPointer = ref(false)
-const saveButtonDisabled = ref(false)
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
@@ -154,7 +94,7 @@ const titleFontSize = computed(() => {
   } else if (length <= 25) {
     return '1.1rem'
   } else {
-    return '1rem'
+    return '1rem' // Smallest font size
   }
 })
 
@@ -171,23 +111,6 @@ const unitType = computed(() => {
   }
 })
 
-const unit = computed(() => {
-  switch (props.product.item.unit) {
-    case Unit.GRAMS:
-      return 'g'
-    case Unit.MILLILITER:
-      return 'mL'
-    case Unit.ITEM:
-      return 'stk'
-    default:
-      return ''
-  }
-})
-
-const checkboxDisabled = computed(() => {
-  return (quantity.value < props.product.quantity) && quantityChanged
-})
-
 const cardClass = computed(() => ({
   card: true,
   'card-checked': selected.value
@@ -198,7 +121,6 @@ const quantity = ref(props.product.quantity)
 const selected = ref(false)
 const expirationDateInput = ref<HTMLInputElement | null>(null)
 const quantityInput = ref<HTMLInputElement | null>(null)
-const action = ref('')
 
 const activateEdit = () => {
   if (!expirationDateInput.value || !quantityInput.value) {
@@ -208,11 +130,10 @@ const activateEdit = () => {
   quantityInput.value.disabled = false
   expirationDateInput.value.focus()
   edit.value = false
-  popup.value = true
 }
 
 const validateQuantity = (quantity: number) => {
-  return quantity > 0 && quantity < 30000
+  return quantity > 0
 }
 
 const activateSave = () => {
@@ -220,9 +141,7 @@ const activateSave = () => {
     return
   }
   const isQuantityValid = validateQuantity(quantity.value)
-  console.log('Quantity', props.product.quantity)
-  console.log('Base amount', props.product.item.baseAmount)
-  console.log('Weight per unit', props.product.item.weightPerUnit)
+
   if (!isQuantityValid) {
     expirationDate.value = props.product.expirationDate
     quantity.value = props.product.quantity
@@ -234,30 +153,18 @@ const activateSave = () => {
   quantityInput.value.disabled = true
   edit.value = true
 
+  // Check if the values have been changed
   if (
     expirationDate.value !== props.product.expirationDate ||
     quantity.value !== props.product.quantity
   ) {
-    if (quantity.value < props.product.quantity) {
-      if (action.value === 'thrown') {
-        console.log(unitsReduced.value)
-        emit('item-partially-thrown', {
-          ...props.product,
-          expirationDate: expirationDate.value,
-          quantity: quantity.value
-        },
-        unitsReduced.value)
-        unitsReduced.value = 0
-      }
-    } else {
-      emit('update', {
-        ...props.product,
-        expirationDate: expirationDate.value,
-        quantity: quantity.value
-      })
-    }
+    // Emit the update event with the updated item data
+    emit('update', {
+      ...props.product,
+      expirationDate: expirationDate.value,
+      quantity: quantity.value
+    })
   }
-  popup.value = false
 }
 
 function onCheckboxChange () {
@@ -276,24 +183,6 @@ watch(
     }
   },
   { deep: true }
-)
-
-watch(
-  () => quantity.value,
-  (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-      saveButtonDisabled.value = !action.value
-    }
-  }
-)
-
-watch(
-  () => action.value,
-  (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-      saveButtonDisabled.value = !newValue
-    }
-  }
 )
 
 function toggleCheckbox (event: MouseEvent) {
@@ -323,17 +212,6 @@ function enableToggleCheckbox () {
   disableCardPointer.value = false
 }
 
-function onQuantityChange () {
-  quantityChanged.value = quantity.value !== props.product.quantity
-  if (quantityChanged.value) {
-    unitsReduced.value = props.product.quantity - quantity.value
-    saveButtonDisabled.value = !action.value
-  } else {
-    unitsReduced.value = 0
-    saveButtonDisabled.value = false
-  }
-}
-
 function deleteCard () {
   confirmThrow.value = true
   disableHover.value = true
@@ -347,15 +225,6 @@ function itemEaten () {
 }
 
 function confirmAction () {
-  console.log('Action confirmed')
-  confirmThrow.value = false
-  confirmEat.value = false
-  disableHover.value = false
-  enableToggleCheckbox()
-}
-
-function cancelAction () {
-  console.log('Action canceled')
   if (confirmThrow.value) {
     emit('item-thrown', props.product)
   } else if (confirmEat.value) {
@@ -366,6 +235,14 @@ function cancelAction () {
   disableHover.value = false
   enableToggleCheckbox()
 }
+
+function cancelAction () {
+  confirmThrow.value = false
+  confirmEat.value = false
+  disableHover.value = false
+  enableToggleCheckbox()
+}
+
 </script>
 
 <style scoped>
@@ -436,7 +313,6 @@ function cancelAction () {
   position: relative;
   padding-left: 10%;
 }
-
 .card-checked {
   background-color: rgba(35, 173, 58, 0.6);
 }
@@ -514,90 +390,6 @@ function cancelAction () {
 #edit-button:hover {
   transform: scale(1.1);
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
-}
-
-.popup {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #949594;
-  z-index: 2;
-}
-
-.confirm-popup {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.95);
-  z-index: 10;
-}
-
-.popup-expiration-date-div{
-  margin-left: 10px;
-}
-
-.popup-save-button {
-  margin-right: 10px;
-}
-
-.outer-new-quantity-div {
-  width: 20%;
-}
-
-.popup-expiration-date-div,
-.popup-quantity-div,
-.popup-new-quantity-div,
-.outer-new-quantity-div,
-.popup-save-button {
-  align-self: center;
-}
-
-.popup-quantity-div {
-  width: 25%;
-}
-.popup-new-quantity-div {
-  width: 100%;
-}
-.popup-new-quantity-div p {
-  text-align: center;
-}
-
-.popup-expiration-date-div p,
-.popup-quantity-div p,
-.popup-new-quantity-div p {
-  color: black;
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0;
-  padding: 0;
-}
-
-.checkboxes-div {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  width: 100%;
-  margin-top: 10px;
-  font-size: 19px;
-  font-weight: 600;
-  color: black;
-}
-
-.fridge-checkbox {
-  margin-right: 5px;
-  scale: 1.4;
 }
 
 .trash-icon-container {
@@ -686,6 +478,20 @@ function cancelAction () {
   display: none;
 }
 
+.confirm-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 10;
+}
+
 .confirm-div {
   color: white;
   font-size: 20px;
@@ -729,4 +535,5 @@ function cancelAction () {
 .confirm-no-button {
   background-color: rgb(179, 6, 6);
 }
+
 </style>

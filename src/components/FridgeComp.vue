@@ -13,13 +13,12 @@
       {{ updateMessage }}
     </div>
     <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
-      <FridgeItemCard
+      <TempFridgeItemCard
         :product="product"
         @update="onUpdate"
         @selection-changed="onSelectionChanged"
-        @item-eaten="singleItemEaten"
-        @item-thrown="singleItemThrown"
-        @item-partially-thrown="singleItemPartialThrown"
+        @item-eaten="markSingleItemAsEaten"
+        @item-thrown="markSingleItemAsWaste"
       />
     </div>
     <div class="buttons">
@@ -54,7 +53,7 @@ import { onMounted, ref, computed } from 'vue'
 import SearchBar from './SearchBarComp.vue'
 import { FridgeItemCardInterface } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
-import FridgeItemCard from './FridgeItemCardComp.vue'
+import TempFridgeItemCard from './TempFridgeItemCardComp.vue'
 import ProductSelector from './ProductSelectorComp.vue'
 import axios from 'axios'
 
@@ -192,20 +191,6 @@ const normalizeDate = (date: Date) => {
   return new Date(date.setHours(0, 0, 0, 0))
 }
 
-async function markAsEaten () {
-  await removeItemsFromFridge(selectedProducts.value)
-  emit('handle-decrement', props.fridge, selectedProducts.value.length)
-  selectedProducts.value = []
-}
-
-async function markAsWaste () {
-  const selectedProductsCopy = [...selectedProducts.value]
-  await removeItemsFromFridge(selectedProducts.value)
-  emit('handle-decrement', props.fridge, selectedProducts.value.length)
-  const weightToBeThrown = turnItemsToWaste(selectedProductsCopy)
-  await addItemsToWaste(weightToBeThrown)
-}
-
 async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) {
   const selectedIds = productsParam.map((item) => item.id)
 
@@ -233,12 +218,21 @@ async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) 
   products.value = products.value.filter((product) => !selectedIds.includes(product.id))
 }
 
-async function addItemsToWaste (totalWeight: number) {
+function turnItemsToWaste (productsParam: FridgeItemCardInterface[]) {
+  const totalWeight = productsParam.reduce(
+    (sum, item) => sum + item.item.weightPerUnit * item.quantity,
+    0
+  )
+  return totalWeight
+}
+
+async function addItemsToWaste (totalWaste: number) {
   const wasteRequest = {
-    weight: totalWeight,
+    weight: totalWaste,
     entryDate: new Date().toISOString().split('T')[0]
   }
-  const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWeight
+
+  const pathAddWaste = 'http://localhost:8080/waste/add?weight=' + totalWaste
   await axios.post(pathAddWaste, wasteRequest, { headers: config.headers, withCredentials: config.withCredentials })
     .then(async (response) => {
       if (response.status === 200) {
@@ -255,34 +249,32 @@ async function addItemsToWaste (totalWeight: number) {
     })
 }
 
-function turnItemsToWaste (productsParam: FridgeItemCardInterface[]) {
-  const totalWeight = productsParam.reduce(
-    (sum, item) => sum + item.item.weightPerUnit * item.quantity,
-    0
-  )
-  return totalWeight
+async function markAsEaten () {
+  await removeItemsFromFridge(selectedProducts.value)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
 }
 
-async function singleItemEaten (productParam: FridgeItemCardInterface) {
+async function markAsWaste () {
+  await removeItemsFromFridge(selectedProducts.value)
+  const totalWaste = turnItemsToWaste(selectedProducts.value)
+  await addItemsToWaste(totalWaste)
+  emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  selectedProducts.value = []
+}
+
+async function markSingleItemAsEaten (productParam: FridgeItemCardInterface) {
   const list = [productParam]
-  removeItemsFromFridge(list)
-  emit('handle-decrement', props.fridge, 1)
+  await removeItemsFromFridge(list)
+  emit('handle-decrement', props.fridge, list.length)
 }
 
-async function singleItemThrown (productParam: FridgeItemCardInterface) {
+async function markSingleItemAsWaste (productParam: FridgeItemCardInterface) {
   const list = [productParam]
-  removeItemsFromFridge(list)
-  const weightToBeThrown = turnItemsToWaste(list)
-  addItemsToWaste(weightToBeThrown)
-  emit('handle-decrement', props.fridge, 1)
-  return true
-}
-
-async function singleItemPartialThrown (productParam: FridgeItemCardInterface, unitsReduced: number) {
-  console.log('units reduced', unitsReduced)
-  console.log('weight per unit', productParam.item.weightPerUnit)
-  addItemsToWaste(unitsReduced * productParam.item.weightPerUnit)
-  onUpdate(productParam)
+  await removeItemsFromFridge(list)
+  const totalWaste = turnItemsToWaste(list)
+  await addItemsToWaste(totalWaste)
+  emit('handle-decrement', props.fridge, list.length)
 }
 </script>
 
