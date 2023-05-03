@@ -16,12 +16,14 @@
     </div>
     <ShoppingListComp v-if="activeTab === 1" @refresh-page="refreshPage"/>
     <SuggestedItemsComp v-if="activeTab === 2" @refresh-page="refreshPage"/>
+    <WishListComp v-if="activeTab === 3" @refresh-page="refreshPage"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import ShoppingListComp from '../components/ShoppingListComp.vue'
 import SuggestedItemsComp from '../components/SuggestedItemsComp.vue'
+import WishListComp from '../components/WishListComp.vue'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
@@ -50,6 +52,7 @@ async function getNumberOfShoppingListItems () {
       if (response.status === 200) {
         numberOfShoppingListItems.value = response.data.shoppingListItemsNumber
         numberOfSuggestions.value = response.data.suggestedItemsNumber
+        numberOfWishListItems.value = response.data.wishlistItemsNumber
       }
     }).catch((error) => {
       if (error.response.status === 401) {

@@ -3,7 +3,7 @@
     <h2>Selected ({{ numberSelected }})</h2>
     <div class="button-container">
       <button class="selector-button" v-if="!props.buttonType" @click="addToFridge">Legg til i kjøleskap</button>
-      <button class="selector-button" v-else @click="addToShoppingList" data-cy="addShopping">Legg til i handleliste</button>
+      <button class="selector-button" v-else @click="addToShoppingList" data-cy="addShopping">{{ addToShoppingListButtonText }}</button>
     </div>
     <ProductGrid :searchQuery="searchQuery" @update-selected-products="updateSelectedProducts"/>
   </div>
@@ -13,7 +13,7 @@
 import axios, { AxiosError } from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import ProductGrid from './ProductGrid.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ItemInterface, ShoppingListItemCardInterface } from './types'
 
 const userStore = useUserStore()
@@ -29,7 +29,15 @@ const props = defineProps({
   shoppingListItems: {
     type: Array as () => ShoppingListItemCardInterface[],
     default: () => []
+  },
+  wishList: {
+    type: Boolean,
+    required: true
   }
+})
+
+const addToShoppingListButtonText = computed(() => {
+  return props.wishList ? 'Legg til i ønskeliste' : 'Legg til i handleliste'
 })
 
 const addToFridge = async () => {
@@ -73,26 +81,49 @@ const addToShoppingList = async () => {
     withCredentials: true
   }
 
-  const updateList = []
-  const addList = []
-
+  const updateShoppingList = []
+  const addShoppingList = []
+  const updateWishlist = []
+  const addWishlist = []
   for (const product of selectedProductsInParent.value) {
     const existingItem = props.shoppingListItems.find(item => item.item.id === product.id)
-    if (existingItem) {
-      updateList.push({
+    // TODO: FIX
+    const a = 2
+    if (existingItem && a === 2) {
+      console.log('test1')
+      updateWishlist.push({
         itemId: existingItem.id,
         quantity: existingItem.quantity + 1
       })
+    } else if (existingItem) {
+      console.log('test2')
+      updateShoppingList.push({
+        itemId: existingItem.id,
+        quantity: existingItem.quantity + 1
+      })
+    } else if (props.wishList) {
+      console.log('test3')
+      addShoppingList.push({
+        itemId: product.id,
+        quantity: 1
+      })
     } else {
-      addList.push({
+      console.log('test4')
+      addWishlist.push({
         itemId: product.id,
         quantity: 1
       })
     }
   }
-  if (addList.length > 0) {
+  if (addShoppingList.length > 0 || addWishlist.length > 0) {
     try {
-      await axios.post('http://localhost:8080/shopping-list/add', addList, config)
+      const path =
+        props.wishList
+          ? 'http://localhost:8080/shopping-list/add/wished'
+          : 'http://localhost:8080/shopping-list/add'
+      const data = props.wishList ? addWishlist : addShoppingList
+      console.log('addTo', path, data)
+      await axios.post(path, data, config)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.status === 401) {
         userStore.logout()
@@ -100,9 +131,11 @@ const addToShoppingList = async () => {
     }
   }
 
-  if (updateList.length > 0) {
+  if (updateShoppingList.length > 0 || updateWishlist.length > 0) {
     try {
-      await axios.put('http://localhost:8080/shopping-list/update', updateList, config)
+      const data = props.wishList ? addWishlist : addShoppingList
+      console.log('updateItem', data)
+      await axios.put('http://localhost:8080/shopping-list/update', data, config)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.status === 401) {
         userStore.logout()

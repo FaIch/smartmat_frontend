@@ -3,15 +3,6 @@
     <div class="loading" v-if="isLoading">Laster...</div>
     <div v-else>
       <div class="shopping-list-container">
-        <div class="search-div">
-          <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
-          <button class="products-button" @click="toggleProductSelector" data-cy="allProducts">Se alle produkter</button>
-          <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
-          <div v-if="showProductSelector" class="product-selector-popup">
-            <button class="close-button" @click="toggleProductSelector">x</button>
-            <ProductSelectorView :wish-list="false" :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
-          </div>
-        </div>
         <div class="update-message">
           {{ updateMessage }}
         </div>
@@ -25,33 +16,27 @@
       </div>
       <div v-if="products.length > 0" class="buttons">
         <button class="shopping-list-button remove-button" @click="removeAll" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Fjern valgte</button>
-        <button class="shopping-list-button add-button" @click="sendToFridge" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Legg til i kjøleskap</button>
+        <button class="shopping-list-button add-button" v-bind:disabled="!isAnyChecked" v-bind:class="{ 'disabled-button': !isAnyChecked }">Legg til i handleliste</button>
       </div>
       <div v-else class="no-items">
-        <h2>Ingen varer i handleliste</h2>
+        <h2>Ingen varer i ønskeliste.</h2>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref, computed } from 'vue'
 import axios, { AxiosError } from 'axios'
 import { ShoppingListItemCardInterface } from '../components/types'
-import ProductSelectorView from '../components/ProductSelectorComp.vue'
 import ShoppingListItemCardComp from './ShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
-
 const products = ref<ShoppingListItemCardInterface[]>([])
 const isLoading = ref(true)
 const searchQuery = ref('')
-const searchPlaceholder = ref('Søk i handlelisten...')
 const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateMessage = ref('')
 const userStore = useUserStore()
-const showProductSelector = ref(false)
-const buttonType = ref(true)
 const emit = defineEmits(['refresh-page'])
 
 onMounted(() => {
@@ -69,17 +54,6 @@ const isAnyChecked = computed(() => {
 const updateCheckedStatus = ({ product, selected }: { product: ShoppingListItemCardInterface, selected: boolean }) => {
   checkedProducts.value[product.id] = selected
 }
-function searchProducts (query: string) {
-  searchQuery.value = query
-}
-
-const toggleProductSelector = () => {
-  showProductSelector.value = !showProductSelector.value
-}
-const handleSelect = () => {
-  showProductSelector.value = false
-}
-
 const filteredProducts = computed(() => {
   if (!searchQuery.value) return products.value
   return products.value.filter((product) =>
@@ -87,14 +61,9 @@ const filteredProducts = computed(() => {
   )
 })
 
-function refreshShoppingList () {
-  emit('refresh-page')
-  loadProducts()
-  toggleProductSelector()
-}
-
 async function loadProducts () {
-  const path = 'http://localhost:8080/shopping-list/get'
+  // TODO: Fix correct path
+  const path = 'http://localhost:8080/shopping-list/get/wished'
   const config = {
     headers: {
       'Content-type': 'application/json'
@@ -136,7 +105,7 @@ async function removeAll () {
       shoppingListItemIds: checkedProductsData.value.join(',')
     }
   }
-
+  // TODO: Fix correct path
   const path = 'http://localhost:8080/shopping-list/remove'
   try {
     const response = await axios.delete(path, config)
@@ -153,36 +122,10 @@ async function removeAll () {
   }
 }
 
-async function sendToFridge () {
-  const checkedProductsData = getCheckedProducts().map((product) => ({
-    itemId: product.item.id,
-    quantity: product.quantity * product.item.baseAmount,
-    expirationDate: '2023-05-20'
-  }))
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-
-  const path = 'http://localhost:8080/fridge/add'
-  try {
-    const response = await axios.post(path, checkedProductsData, config)
-    if (response.status === 200) {
-      await removeAll()
-      updateMessage.value = 'Varer sendt til ditt kjøleskap'
-    }
-  } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 401) {
-      userStore.logout()
-    }
-  }
-}
-
 async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
   console.log('test')
-  const path = 'http://localhost:8080/shopping-list/update'
+  // TODO: Fix correct path
+  const path = 'http://localhost:8080/shopping-list/wished/update'
   const config = {
     headers: {
       'Content-Type': 'application/json'

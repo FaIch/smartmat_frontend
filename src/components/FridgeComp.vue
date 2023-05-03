@@ -6,7 +6,7 @@
       <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
       <div v-if="showProductSelector" class="product-selector-popup">
         <button class="close-button" @click="toggleProductSelector">x</button>
-        <ProductSelector :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
+        <ProductSelector :wish-list="false" :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
       </div>
     </div>
     <div class="update-message">

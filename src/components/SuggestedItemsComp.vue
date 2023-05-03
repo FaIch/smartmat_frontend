@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="loading" v-if="isLoading">Loading...</div>
+    <div class="loading" v-if="isLoading">Laster...</div>
     <div v-else>
       <div class="shopping-list-container">
         <div class="update-message">
