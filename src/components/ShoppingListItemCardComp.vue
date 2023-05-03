@@ -1,5 +1,14 @@
 <template>
-  <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox">
+  <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
+    <div
+      v-tippy="'Kast i søpla'"
+      class="trash-icon-container"
+      :class="{ 'disable-hover': disableHover }"
+      @click.stop="deleteCard"
+    >
+      <img src="../assets/icons/trash.svg" alt="Trash Icon" class="trash-icon" />
+      <img src="../assets/icons/white-trash.svg" alt="Trash Icon Hover" class="trash-icon trash-icon-hover" />
+    </div>
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -45,10 +54,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ShoppingListItemCardInterface, Unit, Role } from './types'
 import { useUserStore } from '../stores/UserStore'
-const emit = defineEmits(['update-quantity', 'checked'])
+
+const emit = defineEmits(['update-quantity', 'checked', 'remove-wishlist', 'remove-shopping-list'])
 const props = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
@@ -63,6 +73,8 @@ const userStore = useUserStore()
 const quantity = ref(props.product.quantity)
 const selected = ref(false)
 const quantityInput = ref<HTMLInputElement | null>(null)
+const disableCardPointer = ref(false)
+const disableHover = ref(false)
 
 const unitType = computed(() => {
   switch (props.product.item.unit) {
@@ -116,6 +128,10 @@ function decrement () {
 }
 
 function increment () {
+  if (quantity.value >= 50) {
+    alert('Maks verdi nådd (100)')
+    return
+  }
   quantity.value++
   emit('update-quantity', { ...props.product, quantity: quantity.value })
 }
@@ -130,6 +146,20 @@ function toggleCheckbox (event: MouseEvent) {
   }
 }
 
+function deleteCard () {
+  if (props.onWishlist) {
+    emit('remove-wishlist', props.product)
+  } else {
+    emit('remove-shopping-list', props.product)
+  }
+}
+
+watch(
+  () => props.product.quantity,
+  (newQuantity) => {
+    quantity.value = newQuantity
+  }
+)
 </script>
 
 <style scoped>
@@ -225,6 +255,7 @@ function toggleCheckbox (event: MouseEvent) {
   width: 35%;
   max-height: 150px; /* Increase max-height value */
   margin: auto;
+  margin-left: 50px;
   padding: 0.5em;
   border-radius: 0.7em;
   overflow: hidden;
@@ -289,5 +320,47 @@ function toggleCheckbox (event: MouseEvent) {
 .disabled {
   pointer-events: none;
   opacity: 0.7;
+}
+
+.trash-icon-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.trash-icon-container:hover {
+  background-color: red;
+  transform: translateX(10px);
+  width: 12%;
+  height: 100%;
+  margin-left: -10px;
+  top: 0;
+}
+
+.trash-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.trash-icon-hover {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon-hover {
+  display: block;
 }
 </style>

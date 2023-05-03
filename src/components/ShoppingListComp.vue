@@ -21,6 +21,7 @@
             :product="product"
             @update-quantity="updateProductQuantity"
             @checked="updateCheckedStatus"
+            @remove-shopping-list="removeItem(product.id)"
           />
         </div>
       </div>
@@ -128,10 +129,6 @@ async function loadProducts () {
     withCredentials: true
   }
 
-  isLoading.value = true
-  if (path == null) {
-    return
-  }
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -143,11 +140,8 @@ async function loadProducts () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      updateMessage.value = error.response.data.message
+      showUpdateMessage(error.response.data.message)
     })
-  setTimeout(() => {
-    updateMessage.value = ''
-  }, 5000)
 }
 
 async function removeAll () {
@@ -171,6 +165,8 @@ async function removeAll () {
       emit('refresh-page')
       removeCheckedProducts()
       showUpdateMessage('Varer fjernet fra liste')
+      await new Promise(resolve => setTimeout(resolve, 0))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   } catch (error: unknown) {
     if (error instanceof AxiosError && error.response && error.response.status === 401) {
@@ -207,7 +203,6 @@ async function sendToFridge () {
 }
 
 async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
-  console.log('test')
   const path = 'http://localhost:8080/shopping-list/update'
   const config = {
     headers: {
@@ -246,6 +241,33 @@ function removeCheckedProducts () {
   products.value = products.value.filter((product) => !checkedProducts.value[product.id])
   checkedProducts.value = {}
 }
+
+async function removeItem (itemId: number) {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true,
+    params: {
+      shoppingListItemIds: itemId
+    }
+  }
+
+  const path = 'http://localhost:8080/shopping-list/remove'
+  try {
+    const response = await axios.delete(path, config)
+    if (response.status === 200) {
+      await loadProducts()
+      emit('refresh-page')
+      showUpdateMessage('Vare fjernet fra liste')
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
+      userStore.logout()
+    }
+  }
+}
+
 </script>
 
 <style scoped>

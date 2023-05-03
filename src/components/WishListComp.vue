@@ -21,6 +21,7 @@
             :product="product"
             @update-quantity="updateProductQuantity"
             @checked="updateCheckedStatus"
+            @remove-wishlist="removeItem(product.id)"
           />
         </div>
       </div>
@@ -36,6 +37,7 @@
           class="shopping-list-button add-button"
           v-bind:disabled="!isAnyChecked || userStore.role === Role.CHILD"
           v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD }"
+          @click="addToShoppingCart"
         >
           Legg til i handleliste
         </button>
@@ -65,6 +67,7 @@ const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateMessage = ref('')
 const userStore = useUserStore()
 const emit = defineEmits(['refresh-page'])
+let messageTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
   loadProducts()
@@ -100,7 +103,6 @@ const filteredProducts = computed(() => {
 })
 
 async function loadProducts () {
-  // TODO: Fix correct path
   const path = 'http://localhost:8080/wished/get'
   const config = {
     headers: {
@@ -109,10 +111,6 @@ async function loadProducts () {
     withCredentials: true
   }
 
-  isLoading.value = true
-  if (path == null) {
-    return
-  }
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -124,16 +122,12 @@ async function loadProducts () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      updateMessage.value = error.response.data.message
+      showUpdateMessage(error.response.data.message)
     })
-  setTimeout(() => {
-    updateMessage.value = ''
-  }, 5000)
 }
 
 async function removeAll () {
   const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
-  console.log(checkedProductsData.value.at(0))
   const config = {
     headers: {
       'Content-Type': 'application/json'
@@ -151,7 +145,9 @@ async function removeAll () {
       await loadProducts()
       emit('refresh-page')
       removeCheckedProducts()
-      updateMessage.value = 'Varer fjernet fra liste'
+      showUpdateMessage('Varer fjernet fra liste')
+      await new Promise(resolve => setTimeout(resolve, 0))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   } catch (error: unknown) {
     if (error instanceof AxiosError && error.response && error.response.status === 401) {
@@ -161,7 +157,6 @@ async function removeAll () {
 }
 
 async function updateItem (updatedProduct: WishlistItemCardInterface) {
-  // TODO: Fix correct path
   const path = 'http://localhost:8080/wished/update'
   const config = {
     headers: {
@@ -174,21 +169,13 @@ async function updateItem (updatedProduct: WishlistItemCardInterface) {
     itemId: updatedProduct.id,
     quantity: updatedProduct.quantity
   }
-  const wishedItemRequest = [requestBody]
-  console.log(updatedProduct.id)
-  console.log(updatedProduct.quantity)
-  console.log('wishedItemRequest', wishedItemRequest)
   await axios.put(path, [requestBody], config)
     .catch((error) => {
-      console.log(error)
       if (error.response.status === 401) {
         userStore.logout()
       }
-      updateMessage.value = error.response.data
+      showUpdateMessage(error.response.data.message)
     })
-  setTimeout(() => {
-    updateMessage.value = ''
-  }, 5000)
 }
 
 function updateProductQuantity (updatedProduct: WishlistItemCardInterface) {
@@ -212,6 +199,70 @@ function refreshWishlist () {
   loadProducts()
   toggleProductSelector()
 }
+
+async function addToShoppingCart () {
+  const checkedProductsData = getCheckedProducts().map((product) => ({
+    itemId: product.item.id,
+    quantity: product.quantity
+  }))
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true
+  }
+
+  const path = 'http://localhost:8080/shopping-list/add'
+  try {
+    const response = await axios.post(path, checkedProductsData, config)
+    if (response.status === 200) {
+      await removeAll()
+      showUpdateMessage('Varer sendt til ditt kjøleskap')
+      await new Promise(resolve => setTimeout(resolve, 0))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
+      userStore.logout()
+    }
+  }
+}
+function showUpdateMessage (newMessage: string) {
+  if (messageTimeout) {
+    clearTimeout(messageTimeout)
+  }
+  updateMessage.value = newMessage
+  messageTimeout = setTimeout(() => {
+    updateMessage.value = ''
+  }, 5000)
+}
+
+async function removeItem (itemId: number) {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    withCredentials: true,
+    params: {
+      wishedItemIds: itemId
+    }
+  }
+
+  const path = 'http://localhost:8080/wished/remove'
+  try {
+    const response = await axios.delete(path, config)
+    if (response.status === 200) {
+      await loadProducts()
+      emit('refresh-page')
+      showUpdateMessage('Vare fjernet fra liste')
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
+      userStore.logout()
+    }
+  }
+}
+
 </script>
 
 <style scoped>

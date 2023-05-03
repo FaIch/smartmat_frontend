@@ -104,12 +104,6 @@ async function getItemsInFridge () {
       ? 'http://localhost:8080/fridge/get'
       : 'http://localhost:8080/fridge/get/expired'
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
   await axios.get(path, config)
     .then(async (response) => {
       if (response.status === 200) {
@@ -258,6 +252,7 @@ async function addItemsToWaste (totalWaste: number) {
 async function markAsEaten () {
   await removeItemsFromFridge(selectedProducts.value)
   emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  await new Promise(resolve => setTimeout(resolve, 0))
   window.scrollTo({ top: 0, behavior: 'smooth' })
   selectedProducts.value = []
 }
@@ -267,6 +262,7 @@ async function markAsWaste () {
   const totalWaste = turnItemsToWaste(selectedProducts.value)
   await addItemsToWaste(totalWaste)
   emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  await new Promise(resolve => setTimeout(resolve, 0))
   window.scrollTo({ top: 0, behavior: 'smooth' })
   selectedProducts.value = []
 }

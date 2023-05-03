@@ -3,6 +3,9 @@
     <div class="loading" v-if="isLoading">Laster...</div>
     <div v-else>
       <div class="shopping-list-container">
+        <div class="search-div">
+          <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
+        </div>
         <div class="update-message">
           {{ updateMessage }}
         </div>
@@ -36,12 +39,16 @@ import axios from 'axios'
 import { ItemInterface, Role } from '../components/types'
 import SuggestedItemCardComp from '../components/SuggestedItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
+import SearchBarComp from './SearchBarComp.vue'
 
 const products = ref<ItemInterface[]>([])
 const isLoading = ref(true)
 const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateMessage = ref('')
 const userStore = useUserStore()
+const searchPlaceholder = ref('Søk i foreslåtte varer...')
+const searchQuery = ref('')
+let messageTimeout: ReturnType<typeof setTimeout> | null = null
 const emit = defineEmits(['refresh-page'])
 onMounted(() => {
   loadProducts()
@@ -51,12 +58,26 @@ const getCheckedProducts = () => {
   return products.value.filter((product) => checkedProducts.value[product.id])
 }
 
+function searchProducts (query: string) {
+  searchQuery.value = query
+}
+
 const isAnyChecked = computed(() => {
   return Object.values(checkedProducts.value).some(status => status === true)
 })
 
 const updateCheckedStatus = ({ product, selected }: { product: ItemInterface, selected: boolean }) => {
   checkedProducts.value[product.id] = selected
+}
+
+function showUpdateMessage (newMessage: string) {
+  if (messageTimeout) {
+    clearTimeout(messageTimeout)
+  }
+  updateMessage.value = newMessage
+  messageTimeout = setTimeout(() => {
+    updateMessage.value = ''
+  }, 5000)
 }
 
 async function loadProducts () {
@@ -83,11 +104,8 @@ async function loadProducts () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      updateMessage.value = error.response.data.message
+      showUpdateMessage(error.response.data.message)
     })
-  setTimeout(() => {
-    updateMessage.value = ''
-  }, 5000)
 }
 
 async function sendToShoppingList () {
@@ -109,7 +127,7 @@ async function sendToShoppingList () {
   await axios.post(path, shoppingListItems, config)
     .then((response) => {
       if (response.status === 200) {
-        updateMessage.value = 'Shopping list items added'
+        showUpdateMessage('Shopping list items added')
         removeCheckedProducts()
         emit('refresh-page')
       }
@@ -118,8 +136,10 @@ async function sendToShoppingList () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      updateMessage.value = error.response.data.message
+      showUpdateMessage(error.response.data.message)
     })
+  await new Promise(resolve => setTimeout(resolve, 0))
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function removeCheckedProducts () {
@@ -213,6 +233,29 @@ function removeCheckedProducts () {
 
 .no-items {
   margin-top: 160px;
+}
+
+.search-div {
+  margin-top: 10px;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
+}
+
+#search-bar {
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  color: black;
+  max-width: 1000px;
+  width: 70%;
+  z-index: 3;
+  margin-right: 0;
+  scale: 0.8;
 }
 
 </style>
