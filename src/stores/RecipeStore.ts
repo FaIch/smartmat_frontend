@@ -5,6 +5,7 @@ import { WeekMenu } from '../components/types'
 
 export const useRecipeStore = defineStore('recipeStore', () => {
   const recipeIds = ref<number[]>([])
+  const recipeIdsCompleted = ref<number[]>([])
   const type = ref('')
   const hasWeekMenu = ref<boolean>(false)
   const weekMenu = ref<WeekMenu[]>([])
@@ -15,6 +16,14 @@ export const useRecipeStore = defineStore('recipeStore', () => {
 
   function getRecipeIds () {
     return recipeIds.value
+  }
+
+  function setRecipeIdsCompleted (ids: number[]) {
+    recipeIdsCompleted.value = ids
+  }
+
+  function getRecipeIdsCompleted () {
+    return recipeIdsCompleted.value
   }
 
   function getType () {
@@ -72,6 +81,8 @@ export const useRecipeStore = defineStore('recipeStore', () => {
   return {
     setRecipeIds,
     getRecipeIds,
+    setRecipeIdsCompleted,
+    getRecipeIdsCompleted,
     checkForWeekMenu,
     getType,
     setType,

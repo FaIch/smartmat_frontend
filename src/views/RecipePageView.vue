@@ -3,6 +3,10 @@
     <h1 class="title">{{ recipe.name }}</h1>
     <img class="recipe-image" :src="recipe.image" alt="">
     <h2 class="recipe-title">Ingredients</h2>
+    <div>
+    <label for="portions">Number of portions:</label>
+    <input type="number" id="portions" v-model.number="portions" min="1">
+  </div>
   <button @click="addAllToShoppingList">Add All to Shopping List</button>
   <button @click="removeFromFridge">I've cooked this recipe</button>
   <table>
@@ -21,7 +25,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(ingredient, index) in recipeItems" :key="index">
+      <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
         <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
         <td>{{ ingredient.item.name }}</td>
         <td>
@@ -62,9 +66,11 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
+import { useRecipeStore } from '../stores/RecipeStore'
 import axios from 'axios'
 import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
 
+const recipeStore = useRecipeStore()
 const userStore = useUserStore()
 const route = useRoute()
 
@@ -80,6 +86,18 @@ const selectedItems = ref<ShoppingListItem[]>([])
 
 const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<br>'))
 const selectAllChecked = ref(false)
+const portions = ref(4)
+
+// Create a computed property to adjust the ingredient quantities
+const adjustedRecipeItems = computed(() => {
+  return recipeItems.value.map((ingredient) => {
+    const adjustedQuantity = Math.ceil((ingredient.quantity * (portions.value / 4)))
+    return {
+      ...ingredient,
+      quantity: adjustedQuantity
+    }
+  })
+})
 
 watch(
   () => selectAllChecked.value,
@@ -95,7 +113,7 @@ watch(
 
 function toggleSelectAll () {
   if (selectAllChecked.value) {
-    recipeItems.value.forEach((ingredient) => {
+    adjustedRecipeItems.value.forEach(ingredient => {
       if (
         !ingredientAvailable(ingredient) &&
         !inShoppingList(ingredient) &&
@@ -106,7 +124,7 @@ function toggleSelectAll () {
       }
     })
   } else {
-    recipeItems.value.forEach((ingredient) => {
+    adjustedRecipeItems.value.forEach(ingredient => {
       if (
         !ingredientAvailable(ingredient) &&
         !inShoppingList(ingredient) &&
@@ -236,24 +254,62 @@ async function fetchFridgeItems () {
     })
 }
 
-function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
-  const index = selectedItems.value.findIndex(
-    (item) => BigInt(item.id) === BigInt(ingredient.item.id)
+function toggleSelectedItem (ingredient) {
+  const adjustedIngredient = adjustedRecipeItems.value.find(
+    item => item.item.id === ingredient.item.id
   )
+
+  if (!adjustedIngredient) return
+
+  const index = selectedItems.value.findIndex(
+    item => item.id === adjustedIngredient.item.id
+  )
+
+  const fridgeItem = fridgeItems.value.find(
+    item => item.item.id === adjustedIngredient.item.id
+  )
+
+  const shoppingListItem = shoppingList.value.find(
+    listItem => listItem.item.id === adjustedIngredient.item.id
+  )
+
+  let requiredQuantity =
+    fridgeItem && fridgeItem.quantity < adjustedIngredient.quantity
+      ? Math.ceil(
+        (adjustedIngredient.quantity - fridgeItem.quantity) /
+            adjustedIngredient.item.baseAmount
+      )
+      : Math.ceil(
+        adjustedIngredient.quantity / adjustedIngredient.item.baseAmount
+      )
+
+  requiredQuantity = shoppingListItem
+    ? requiredQuantity - shoppingListItem.quantity
+    : requiredQuantity
+
   if (index === -1) {
     selectedItems.value.push({
-      id: BigInt(ingredient.item.id),
-      quantity: Math.ceil(ingredient.quantity / ingredient.item.baseAmount)
+      id: adjustedIngredient.item.id,
+      quantity: requiredQuantity
     })
   } else {
-    selectedItems.value.splice(index, 1)
+    selectedItems.value[index].quantity = requiredQuantity
   }
 }
 
 function ingredientAvailable (ingredient: RecipeIngredientInterface): boolean {
-  const fridgeItem = fridgeItems.value.find(item => item.item.id === ingredient.item.id)
+  const adjustedIngredient = adjustedRecipeItems.value.find(
+    (item) => item.item.id === ingredient.item.id
+  )
+
+  if (!adjustedIngredient) return false
+
+  const fridgeItem = fridgeItems.value.find(
+    (item) => item.item.id === adjustedIngredient.item.id
+  )
+
   if (fridgeItem) {
-    return fridgeItem.quantity >= ingredient.quantity
+    return fridgeItem.quantity >= adjustedIngredient.quantity
   }
   return false
 }
@@ -311,7 +367,7 @@ async function addAllToShoppingList () {
 }
 
 async function removeFromFridge () {
-  const fridgeItemsToRemove = recipeItems.value.filter(ingredient => ingredientAvailable(ingredient))
+  const fridgeItemsToRemove = adjustedRecipeItems.value.filter(ingredient => ingredientAvailable(ingredient))
   const itemsData = fridgeItemsToRemove.map(item => ({
     itemId: item.item.id,
     quantity: (item.quantity)
@@ -340,6 +396,11 @@ async function removeFromFridge () {
         }
         console.log(error)
       })
+  }
+
+  if (recipeStore.getHasWeekMenu() && recipeStore.getRecipeIds().includes(recipe.value?.id)) {
+    console.log('eaten ' + recipe.value?.id)
+    recipeStore.getRecipeIdsCompleted().push(recipe.value?.id)
   }
 }
 
