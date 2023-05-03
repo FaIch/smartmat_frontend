@@ -66,9 +66,11 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
+import { useRecipeStore } from '../stores/RecipeStore'
 import axios from 'axios'
 import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
 
+const recipeStore = useRecipeStore()
 const userStore = useUserStore()
 const route = useRoute()
 
@@ -400,6 +402,11 @@ async function removeFromFridge () {
           userStore.logout()
         }
       })
+  }
+
+  if (recipeStore.getHasWeekMenu() && recipeStore.getRecipeIds().includes(recipe.value?.id)) {
+    console.log('eaten ' + recipe.value?.id)
+    recipeStore.getRecipeIdsCompleted().push(recipe.value?.id)
   }
 }
 
