@@ -1,5 +1,23 @@
 <template>
-  <div :class="cardClass" @click="toggleCheckbox">
+  <div :class="cardClass" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
+    <div
+      v-tippy="'Kast i søpla'"
+      class="trash-icon-container"
+      :class="{ 'disable-hover': disableHover }"
+      @click.stop="deleteCard"
+    >
+      <img src="../assets/icons/trash.svg" alt="Trash Icon" class="trash-icon" />
+      <img src="../assets/icons/white-trash.svg" alt="Trash Icon Hover" class="trash-icon trash-icon-hover" />
+    </div>
+    <div
+      v-tippy="'Marker som spist'"
+      class="eaten-icon-container"
+      :class="{ 'disable-hover': disableHover }"
+      @click.stop="itemEaten"
+    >
+      <img src="../assets/icons/utensils.svg" alt="Eaten Icon" class="eaten-icon" />
+      <img src="../assets/icons/white-utensils.svg" alt="Eaten Icon Hover" class="eaten-icon eaten-icon-hover" />
+    </div>
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -35,6 +53,14 @@
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
       </div>
     </div>
+    <div v-if="confirmEat || confirmThrow" class="confirm-popup">
+      <div class="confirm-div">
+        <p v-if="confirmThrow">Vil du markere '{{ product.item.name }}' som kastet?</p>
+        <p v-if="confirmEat">Vil du markere '{{ product.item.name }}' som spist?</p>
+        <button class="confirm-button confirm-yes-button" @click.stop="confirmAction">Ja</button>
+        <button class="confirm-button confirm-no-button" @click.stop="cancelAction">Nei</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,8 +70,12 @@ import { ref, watch, computed } from 'vue'
 import { FridgeItemCardInterface, Unit } from './types'
 
 const edit = ref(true)
-const emit = defineEmits(['update', 'selection-changed'])
-
+const emit = defineEmits(['update', 'selection-changed', 'item-eaten', 'item-thrown'])
+const disableCardPointer = ref(false)
+const disableCheckboxToggle = ref(false)
+const disableHover = ref(false)
+const confirmThrow = ref(false)
+const confirmEat = ref(false)
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
@@ -156,6 +186,9 @@ watch(
 )
 
 function toggleCheckbox (event: MouseEvent) {
+  if (disableCheckboxToggle.value) {
+    return
+  }
   const isExpirationDateInput = (event.target as HTMLElement).closest('#expiration-date')
   const isQuantityInput = (event.target as HTMLElement).closest('#quantity')
   const isEditButton = (event.target as HTMLElement).closest('#edit-button')
@@ -167,6 +200,47 @@ function toggleCheckbox (event: MouseEvent) {
       onCheckboxChange()
     }
   }
+}
+
+function disableToggleCheckbox () {
+  disableCheckboxToggle.value = true
+  disableCardPointer.value = true
+}
+
+function enableToggleCheckbox () {
+  disableCheckboxToggle.value = false
+  disableCardPointer.value = false
+}
+
+function deleteCard () {
+  confirmThrow.value = true
+  disableHover.value = true
+  disableToggleCheckbox()
+}
+
+function itemEaten () {
+  confirmEat.value = true
+  disableHover.value = true
+  disableToggleCheckbox()
+}
+
+function confirmAction () {
+  if (confirmThrow.value) {
+    emit('item-thrown', props.product)
+  } else if (confirmEat.value) {
+    emit('item-eaten', props.product)
+  }
+  confirmThrow.value = false
+  confirmEat.value = false
+  disableHover.value = false
+  enableToggleCheckbox()
+}
+
+function cancelAction () {
+  confirmThrow.value = false
+  confirmEat.value = false
+  disableHover.value = false
+  enableToggleCheckbox()
 }
 
 </script>
@@ -217,16 +291,28 @@ function toggleCheckbox (event: MouseEvent) {
   text-align: center;
 }
 
+.card::before {
+  content: '';
+  position: absolute;
+  left: 10%;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  border-radius: 50% / 100%;
+  z-index: 0;
+}
+
 .card {
   width: 550px;
   flex-direction: row;
   background-color: rgba(35, 173, 58, 0.3);
-  height: 150px; /* Set a fixed height for the grid item */
+  height: 150px;
   border: 0;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
   cursor: pointer;
+  position: relative;
+  padding-left: 10%;
 }
-
 .card-checked {
   background-color: rgba(35, 173, 58, 0.6);
 }
@@ -304,6 +390,150 @@ function toggleCheckbox (event: MouseEvent) {
 #edit-button:hover {
   transform: scale(1.1);
   box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.trash-icon-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 50%;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.trash-icon-container:hover {
+  background-color: red;
+  transform: translateX(10px);
+  width: 12%;
+  height: 50%; /* Add this to make the trash icon grow to fit half of the height */
+  margin-left: -10px;
+  top: 0; /* Add this to center the trash icon vertically */
+}
+
+.trash-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.trash-icon-hover {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon-hover {
+  display: block;
+}
+
+.eaten-icon-container {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.eaten-icon-container:hover {
+  background-color: green;
+  transform: translateX(10px);
+  width: 12%;
+  margin-left: -10px;
+}
+
+.eaten-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.eaten-icon-hover {
+  display: none;
+}
+
+.eaten-icon-container:hover .eaten-icon {
+  display: none;
+}
+
+.eaten-icon-container:hover .eaten-icon-hover {
+  display: block;
+}
+
+.disable-hover .trash-icon-hover,
+.disable-hover .eaten-icon-hover {
+  display: none;
+}
+
+.confirm-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 10;
+}
+
+.confirm-div {
+  color: white;
+  font-size: 20px;
+}
+
+.confirm-button {
+  color: white;
+  height: 40px;
+  width: 100px;
+  margin-left: 20px;
+  margin-right: 20px;
+  border-radius: 100px;
+  border: none;
+  font-size: 20px;
+}
+
+.confirm-button:hover {
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.confirm-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
+
+.confirm-yes-button {
+  background-color: #1A7028;
+}
+
+.confirm-yes-button {
+  background-color: #25A13A;
+}
+
+.confirm-no-button {
+  background-color: rgb(147, 0, 0);
+}
+
+.confirm-no-button {
+  background-color: rgb(179, 6, 6);
 }
 
 </style>

@@ -161,11 +161,7 @@ async function submitSignup () {
         updateMessage.value = response.data
       }
     }).catch((error) => {
-      if (error.response.status === 400) {
-        updateMessage.value = error.response.data
-      } else if (error.response.status === 409) {
-        updateMessage.value = error.response.data
-      }
+      updateMessage.value = error.response.data
     })
   }
 }

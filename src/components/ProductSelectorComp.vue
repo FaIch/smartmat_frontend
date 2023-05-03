@@ -53,7 +53,7 @@ const addToFridge = async () => {
       selectedProductsInParent.value = []
     }
   } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 600) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
       userStore.logout()
     }
   }
@@ -94,7 +94,7 @@ const addToShoppingList = async () => {
     try {
       await axios.post('http://localhost:8080/shopping-list/add', addList, config)
     } catch (error: unknown) {
-      if (error instanceof AxiosError && error.response && error.response.status === 600) {
+      if (error instanceof AxiosError && error.response && error.response.status === 401) {
         userStore.logout()
       }
     }
@@ -104,7 +104,7 @@ const addToShoppingList = async () => {
     try {
       await axios.put('http://localhost:8080/shopping-list/update', updateList, config)
     } catch (error: unknown) {
-      if (error instanceof AxiosError && error.response && error.response.status === 600) {
+      if (error instanceof AxiosError && error.response && error.response.status === 401) {
         userStore.logout()
       }
     }

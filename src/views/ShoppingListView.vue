@@ -52,7 +52,7 @@ async function getNumberOfShoppingListItems () {
         numberOfSuggestions.value = response.data.suggestedItemsNumber
       }
     }).catch((error) => {
-      if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
     })

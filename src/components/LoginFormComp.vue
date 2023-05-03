@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '../stores/UserStore'
+import { useUtilityStore } from '../stores/UtilityStore'
 import router from '../router/index'
 import { ref } from 'vue'
 import axios from 'axios'
@@ -49,6 +50,7 @@ const password = ref('')
 const updateMessage = ref('')
 const emit = defineEmits(['switch-view'])
 const userStore = useUserStore()
+const utilityStore = useUtilityStore()
 
 const validateLogin = () => {
   const emailRegex = ref(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
@@ -106,6 +108,8 @@ async function submitLogin () {
             router.push('/subuser')
           } else {
             router.push('/fridge')
+            userStore.noSubUserLogin()
+            utilityStore.showItems()
           }
         }
       })
