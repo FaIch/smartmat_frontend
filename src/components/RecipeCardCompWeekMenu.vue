@@ -29,10 +29,8 @@
 import { RecipeCardInterface } from './types'
 import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRecipeStore } from '../stores/RecipeStore'
 
 const router = useRouter()
-const recipeStore = useRecipeStore()
 const goToRecipe = (id: number) => {
   router.push({ name: 'recipe', params: { id } })
 }
