@@ -3,15 +3,23 @@
     <div class="navbar-container">
       <div class="navbar-logo">
         <div @click.prevent="closeMenu" exact-active-class="active">
-          <h1
+          <div
             class="logo"
             @click.prevent="() => navigate('/')"
             :class="{ active: isActiveLink('/') }"
-          >SmartMat</h1>
+          />
         </div>
       </div>
 
       <div class="navbar-icons" v-if="showItems">
+        <div
+            v-if="!showHamburgerMenu"
+            class="icon-link"
+            @click.prevent="() => navigate('/savings')"
+            :class="{ active: isActiveLink('/savings') }"
+        >
+          <h1 data-cy="recipes">{{ savings }}</h1>
+        </div>
         <div
           v-if="!showHamburgerMenu"
           class="icon-link"
@@ -38,9 +46,9 @@
         <h1 data-cy="shoppingCart">{{ shoppingCart }}</h1>
         </div>
 
-                <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
-                <h1>{{ inventory }}</h1>
-                </router-link>
+        <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
+        <h1>{{ inventory }}</h1>
+        </router-link>
 
         <div
           v-if="!showHamburgerMenu && userStore.role === Role.PARENT"
@@ -66,6 +74,11 @@
           <button class="menu-button" @click="toggleMenu">
           </button>
             <ul class="sub-menu" v-if="isMenuVisible">
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/savings'); }" class="icon-link" :class="{ active: isActiveLink('/savings') }">
+                  Sparing
+                </a>
+              </li>
                 <li>
                     <a @click.prevent="() => { closeMenu(); navigate('/recipes'); }" class="icon-link" :class="{ active: isActiveLink('/recipes') }">
                         Oppskrifter
@@ -149,6 +162,14 @@ const updateScreenWidth = () => {
   screenWidth.value = window.innerWidth
 }
 
+const savings = computed(() => {
+  if (screenWidth.value > 850) {
+    return 'Sparing'
+  } else {
+    return ''
+  }
+})
+
 const recipes = computed(() => {
   if (screenWidth.value > 850) {
     return 'Oppskrifter'
@@ -175,7 +196,7 @@ const shoppingCart = computed(() => {
 
 const inventory = computed(() => {
   if (screenWidth.value > 850) {
-    return 'Mitt kjøleskap'
+    return 'Kjøleskap'
   } else {
     return ''
   }
@@ -183,7 +204,7 @@ const inventory = computed(() => {
 
 const profile = computed(() => {
   if (screenWidth.value > 850) {
-    return 'Min profil'
+    return 'Profil'
   } else {
     return ''
   }
@@ -278,7 +299,7 @@ a{
 
 .menu-button {
   display: block;
-  width: 50px;
+  width: 80px;
   height: 50px;
   background-repeat: no-repeat;
   background-position: center center;
@@ -315,12 +336,14 @@ a{
 }
 
 .logo {
-  font-size: 30px;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
+  margin-bottom: 10px;
   padding: 0;
-  padding-bottom: 17px;
   cursor: pointer;
+  width: 100px;
+  height: 40px;
+  background-image: url('../assets/logo/logoSmall.png');
+  background-position: center center;
+  background-size: cover;
 }
 
 .sub-menu li a {
@@ -345,6 +368,17 @@ a{
 
     .menu {
         display: none;
+    }
+
+    .logo {
+      margin-bottom: 10px;
+      padding: 0;
+      cursor: pointer;
+      width: 200px;
+      height: 40px;
+      background-image: url('../assets/logo/logoBig.png');
+      background-position: center center;
+      background-size: cover;
     }
 }
 
