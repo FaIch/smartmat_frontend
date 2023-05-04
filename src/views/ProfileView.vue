@@ -2,9 +2,9 @@
     <div class="formBody">
         <form @submit.prevent="submitForm">
             <fieldset class="row">
-              <h1>Innloggings Detaljer</h1>
+              <h1>Innloggingsdetaljer</h1>
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email">E-post Adresse</label>
                     <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Email adresse" readonly disabled>
                     <label for="oldPassword">Gammelt Passord</label>
                     <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Gammelt passord">
@@ -18,11 +18,11 @@
             <fieldset class="row">
               <h1>Personlige detaljer</h1>
                 <div class="form-group">
-                    <label for="mobileNumber">Telefon Nummer</label>
+                    <label for="mobileNumber">Mobilnummer</label>
                     <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Telefon nummer">
                     <label for="address">Adresse</label>
                     <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
-                    <label for="numberOfHouseholdMembers">Antall I Husholdning</label>
+                    <label for="numberOfHouseholdMembers">Antall Personer I Husholdningen</label>
                     <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall i husholdning">
                 </div>
             </fieldset>
