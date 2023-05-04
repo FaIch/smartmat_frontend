@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, onMounted } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
+import api from '../utils/httputils'
 import router from '../router/index'
 import { Role, SubUser } from '../components/types'
 
@@ -15,15 +16,9 @@ export const useUserStore = defineStore('userStore', () => {
 
   // Function for refreshing user token
   async function refreshToken () {
-    const path = 'http://localhost:8080/user/auth/refreshToken'
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    }
+    const path = '/user/auth/refreshToken'
     try {
-      await axios.post(path, null, config)
+      await api.post(path, null)
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 600) {
         logout()

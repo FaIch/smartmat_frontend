@@ -51,7 +51,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
+import api from '../utils/httputils'
 import { WishlistItemCardInterface, Role } from '../components/types'
 import ShoppingListItemCardComp from './ShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
@@ -103,15 +104,9 @@ const filteredProducts = computed(() => {
 })
 
 async function loadProducts () {
-  const path = 'http://localhost:8080/wished/get'
-  const config = {
-    headers: {
-      'Content-type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/wished/get'
 
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
@@ -129,18 +124,14 @@ async function loadProducts () {
 async function removeAll () {
   const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
   const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true,
     params: {
       wishedItemIds: checkedProductsData.value.join(',')
     }
   }
 
-  const path = 'http://localhost:8080/wished/remove'
+  const path = '/wished/remove'
   try {
-    const response = await axios.delete(path, config)
+    const response = await api.delete(path, config)
     if (response.status === 200) {
       await loadProducts()
       emit('refresh-page')
@@ -157,19 +148,13 @@ async function removeAll () {
 }
 
 async function updateItem (updatedProduct: WishlistItemCardInterface) {
-  const path = 'http://localhost:8080/wished/update'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/wished/update'
 
   const requestBody = {
     itemId: updatedProduct.id,
     quantity: updatedProduct.quantity
   }
-  await axios.put(path, [requestBody], config)
+  await api.put(path, [requestBody])
     .catch((error) => {
       if (error.response.status === 401) {
         userStore.logout()
@@ -205,16 +190,10 @@ async function addToShoppingCart () {
     itemId: product.item.id,
     quantity: product.quantity
   }))
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
 
-  const path = 'http://localhost:8080/shopping-list/add'
+  const path = '/shopping-list/add'
   try {
-    const response = await axios.post(path, checkedProductsData, config)
+    const response = await api.post(path, checkedProductsData)
     if (response.status === 200) {
       await removeAll()
       showUpdateMessage('Varer sendt til ditt kjøleskap')
@@ -239,18 +218,14 @@ function showUpdateMessage (newMessage: string) {
 
 async function removeItem (itemId: number) {
   const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true,
     params: {
       wishedItemIds: itemId
     }
   }
 
-  const path = 'http://localhost:8080/wished/remove'
+  const path = '/wished/remove'
   try {
-    const response = await axios.delete(path, config)
+    const response = await api.delete(path, config)
     if (response.status === 200) {
       await loadProducts()
       emit('refresh-page')

@@ -33,7 +33,8 @@
 import SearchBarComp from '../components/SearchBarComp.vue'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import { ref, onMounted } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
+import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
 
@@ -54,7 +55,7 @@ async function getRecipes () {
   const path = '/recipe/list/sorted'
   try {
     console.log(params)
-    const response = await axios.get(path, params)
+    const response = await api.get(path, params)
 
     if (response.status === 200) {
       recipes.value = response.data
@@ -81,7 +82,7 @@ async function filterRecipes (searchInput: string) {
 }
 
 async function fetchUserData () {
-  axios.get('/user/details').then((response) => {
+  api.get('/user/details').then((response) => {
     if (response.status === 200) {
       console.log(response.data.numberOfHouseholdMembers)
       quantity.value = response.data.numberOfHouseholdMembers

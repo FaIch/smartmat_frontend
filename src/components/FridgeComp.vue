@@ -55,7 +55,7 @@ import { FridgeItemCardInterface, Role } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCard from './FridgeItemCardComp.vue'
 import ProductSelector from './ProductSelectorComp.vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 
 const props = defineProps({
   fridge: {
@@ -87,13 +87,6 @@ function showUpdateMessage (newMessage: string) {
   }, 5000)
 }
 
-const config = {
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  withCredentials: true
-}
-
 onMounted(() => {
   getItemsInFridge()
 })
@@ -104,7 +97,7 @@ async function getItemsInFridge () {
       ? '/fridge/get'
       : '/fridge/get/expired'
 
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
@@ -121,7 +114,7 @@ async function getItemsInFridge () {
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
   const path = '/fridge/edit/' + updatedProduct.id
 
-  await axios.put(path, updatedProduct)
+  await api.put(path)
     .then(async (response) => {
       if (response.status === 200) {
         const index = products.value.findIndex(
@@ -201,7 +194,7 @@ async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) 
   const pathRemove = '/fridge/remove'
   const request = selectedIds
 
-  await axios.delete(pathRemove, { data: request })
+  await api.delete(pathRemove, { data: request })
     .then(async (response) => {
       if (response.status === 200) {
         showUpdateMessage('Varer spist')
@@ -232,8 +225,8 @@ async function addItemsToWaste (totalWaste: number) {
     entryDate: new Date().toISOString().split('T')[0]
   }
 
-  const pathAddWaste = '/waste/add?weight=' + totalWaste
-  await axios.post(pathAddWaste, wasteRequest)
+  const pathAddWaste = '/waste/add'
+  await api.post(pathAddWaste, wasteRequest)
     .then(async (response) => {
       if (response.status === 200) {
         showUpdateMessage('Varer kastet')
