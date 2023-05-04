@@ -5,8 +5,8 @@
         <div @click.prevent="closeMenu" exact-active-class="active">
           <div
             class="logo"
-            @click.prevent="() => navigate('/')"
-            :class="{ active: isActiveLink('/') }"
+            @click.prevent="() => navigate('/savings')"
+            :class="{ active: isActiveLink('/savings') }"
           />
         </div>
       </div>
