@@ -21,7 +21,7 @@ beforeEach(() => {
   })
 })
 
-describe('NavbarComp form', async () => {
+describe('NotificationCenterComp form', async () => {
   it('renders correctly', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
