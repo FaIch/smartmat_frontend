@@ -26,7 +26,7 @@ describe('FridgeItemCardTests', () => {
 
   const wrapper = mount(FridgeItemCardComp, {
     props: {
-      product: product
+      product
     },
     global: {
       plugins: [pinia]
