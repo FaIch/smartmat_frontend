@@ -308,10 +308,19 @@ async function setSubUserPasscode (subuser: SubUser) {
   outline: none;
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (min-width: 1000px) {
+  .profile-image-container {
+    scale: 1.3;
+    margin: 100px;
+  }
+}
+
+@media only screen and (max-width: 1000px) {
   .profile-image-container {
     margin: 0;
+    margin: 16px;
     padding: 0;
+    scale: 1;
   }
 }
 

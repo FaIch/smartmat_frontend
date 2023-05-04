@@ -322,11 +322,12 @@ async function markSingleItemAsWaste (productParam: FridgeItemCardInterface) {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1001;
-  background-color: white;
+  background-color: rgb(224, 224, 224);
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 20px;
-  width: 50%;
+  width: 80%;
+  max-width: 1500px;
   min-width: 300px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   max-height: 80%;
@@ -467,6 +468,11 @@ async function markSingleItemAsWaste (productParam: FridgeItemCardInterface) {
 @media only screen and (max-width: 360px) {
   #search-bar {
     width: 100%;
+  }
+  .product-selector-popup {
+    width: 270px;
+    max-width: 270px;
+    min-width: 270px;
   }
 }
 

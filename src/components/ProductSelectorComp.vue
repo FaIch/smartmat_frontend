@@ -1,6 +1,6 @@
 <template>
   <div class="product-selector-view">
-    <h2>Selected ({{ numberSelected }})</h2>
+    <h2>Valgte ({{ numberSelected }})</h2>
     <div class="button-container">
       <button class="selector-button" v-if="props.buttonType === 'fridge'" @click="addToFridge">Legg til i kjøleskap</button>
       <button class="selector-button" v-if="props.buttonType === 'shopping'" @click="addToShoppingList" data-cy="addShopping">Legg til i handleliste</button>
@@ -154,7 +154,7 @@ async function addToWishlist () {
   align-items: center;
   margin-top: 2vh;
   padding: 2rem;
-  background-color: white;
+  background-color: rgb(224, 224, 224);
 }
 
 h1 {
@@ -193,4 +193,4 @@ h2 {
   justify-content: center;
   align-items: center;
 }
-  </style>
+</style>

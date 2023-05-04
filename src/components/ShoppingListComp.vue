@@ -263,11 +263,12 @@ async function removeItem (itemId: number) {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1001;
-  background-color: white;
+  background-color: rgb(224, 224, 224);
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 20px;
-  width: 50%;
+  max-width: 1500px;
+  width: 80%;
   min-width: 300px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   height: 80%;
@@ -316,7 +317,7 @@ async function removeItem (itemId: number) {
 
 .item-cards {
   display: flex;
-  justify-content: center;
+  align-self: center;
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -371,6 +372,7 @@ async function removeItem (itemId: number) {
   margin-right: 20px;
   margin-bottom: 100px;
   border-radius: 100px;
+  align-self: center;
   border: none;
 }
 
@@ -416,4 +418,44 @@ async function removeItem (itemId: number) {
   transform: scale(1);
 }
 
+@media only screen and (max-width: 800px) {
+  .search-div {
+    flex-direction: column;
+    justify-content: center;
+  }
+  #search-bar {
+    width: 400px;
+  }
+  .products-button {
+    margin: 0;
+    margin-top: 10px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .shopping-list-button {
+    margin-top: 20px;
+    margin-bottom: 0px;
+  }
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 50px;
+  }
+  .item-cards {
+    width: 80%;
+    min-width: 280px;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  #search-bar {
+    width: 100%;
+  }
+  .product-selector-popup {
+    width: 270px;
+    max-width: 270px;
+    min-width: 270px;
+  }
+}
 </style>
