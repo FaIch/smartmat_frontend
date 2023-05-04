@@ -2,7 +2,7 @@
 
 exports[`ProductSelectorComp form > renders correctly 1`] = `
 "<div data-v-766cd0ad=\\"\\" class=\\"product-selector-view\\">
-  <h2 data-v-766cd0ad=\\"\\">Selected (0)</h2>
+  <h2 data-v-766cd0ad=\\"\\">Valgt (0)</h2>
   <div data-v-766cd0ad=\\"\\" class=\\"button-container\\">
     <!--v-if-->
     <!--v-if-->
