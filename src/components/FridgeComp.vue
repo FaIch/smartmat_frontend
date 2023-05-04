@@ -1,12 +1,12 @@
 <template>
   <div class="my-fridge">
-    <div class="search-div">
-      <SearchBar id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" v-if="props.fridge"/>
-      <button class="products-button" @click="toggleProductSelector">Se alle produkter</button>
+    <div v-if="props.fridge" class="search-div">
+      <SearchBar id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
+      <button v-if="userStore.role === 'PARENT'" class="products-button" @click="toggleProductSelector">Se alle produkter</button>
       <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
       <div v-if="showProductSelector" class="product-selector-popup">
         <button class="close-button" @click="toggleProductSelector">x</button>
-        <ProductSelector :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
+        <ProductSelector :fridge-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
       </div>
     </div>
     <div class="update-message">
@@ -26,8 +26,8 @@
         v-if="products.length > 0"
         class="fridge-button delete-button"
         @click="markAsWaste"
-        v-bind:disabled="!isAnyProductSelected"
-        v-bind:class="{ 'disabled-button': !isAnyProductSelected }"
+        v-bind:disabled="!isAnyProductSelected || userStore.role === Role.CHILD"
+        v-bind:class="{ 'disabled-button': !isAnyProductSelected || userStore.role === Role.CHILD }"
       >
       Jeg har kastet dette
       </button>
@@ -35,8 +35,8 @@
         v-if="products.length > 0"
         class="fridge-button add-button"
         @click="markAsEaten"
-        v-bind:disabled="!isAnyProductSelected"
-        v-bind:class="{ 'disabled-button': !isAnyProductSelected }"
+        v-bind:disabled="!isAnyProductSelected || userStore.role === Role.CHILD"
+        v-bind:class="{ 'disabled-button': !isAnyProductSelected || userStore.role === Role.CHILD }"
       >
       Jeg har spist dette
       </button>
@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import SearchBar from './SearchBarComp.vue'
-import { FridgeItemCardInterface } from '../components/types'
+import { FridgeItemCardInterface, Role } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCard from './FridgeItemCardComp.vue'
 import ProductSelector from './ProductSelectorComp.vue'
@@ -72,8 +72,20 @@ const updateMessage = ref('')
 const searchPlaceholder = ref('Søk i kjøleskapet...')
 const searchQuery = ref('')
 const showProductSelector = ref(false)
-const buttonType = ref(false)
+const buttonType = ref('fridge')
 const isAnyProductSelected = computed(() => selectedProducts.value.length > 0)
+
+let messageTimeout: ReturnType<typeof setTimeout> | null = null
+
+function showUpdateMessage (newMessage: string) {
+  if (messageTimeout) {
+    clearTimeout(messageTimeout)
+  }
+  updateMessage.value = newMessage
+  messageTimeout = setTimeout(() => {
+    updateMessage.value = ''
+  }, 5000)
+}
 
 onMounted(() => {
   getItemsInFridge()
@@ -100,9 +112,14 @@ async function getItemsInFridge () {
 }
 
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
-  const path = '/fridge/edit/' + updatedProduct.id
+  const path = '/fridge/edit'
+  const fridgeItemRequest = {
+    itemId: updatedProduct.id,
+    quantity: updatedProduct.quantity,
+    expirationDate: updatedProduct.expirationDate
+  }
 
-  await api.put(path, updatedProduct)
+  await api.put(path, fridgeItemRequest)
     .then(async (response) => {
       if (response.status === 200) {
         const index = products.value.findIndex(
@@ -114,18 +131,15 @@ async function onUpdate (updatedProduct: FridgeItemCardInterface) {
             products.value.splice(index, 1)
             const moved = props.fridge ? '"Utgåtte varer"' : '"Kjøleskap"'
             emit('handle-swap', props.fridge)
-            updateMessage.value = `Vare flyttet til ${moved}`
+            showUpdateMessage(`Vare flyttet til ${moved}`)
           }
         } else {
           if (index !== -1) {
             products.value[index] = updatedProduct
             products.value = [...products.value]
-            updateMessage.value = 'Vare redigert'
+            showUpdateMessage('Vare redigert')
           }
         }
-        setTimeout(() => {
-          updateMessage.value = ''
-        }, 5000)
       }
     })
     .catch((error) => {
@@ -188,12 +202,8 @@ async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) 
   await api.delete(pathRemove, { data: request })
     .then(async (response) => {
       if (response.status === 200) {
-        updateMessage.value = 'Varer spist'
+        showUpdateMessage('Varer spist')
         products.value = products.value.filter((product) => !selectedIds.includes(product.id))
-
-        setTimeout(() => {
-          updateMessage.value = ''
-        }, 5000)
       }
     })
     .catch((error) => {
@@ -220,11 +230,11 @@ async function addItemsToWaste (totalWaste: number) {
     entryDate: new Date().toISOString().split('T')[0]
   }
 
-  const pathAddWaste = '/waste/add?weight=' + totalWaste
+  const pathAddWaste = '/waste/add'
   await api.post(pathAddWaste, wasteRequest)
     .then(async (response) => {
       if (response.status === 200) {
-        updateMessage.value = 'Varer kastet'
+        showUpdateMessage('Varer kastet')
         emit('handle-decrement', props.fridge, selectedProducts.value.length)
         selectedProducts.value = []
       }
@@ -240,6 +250,8 @@ async function addItemsToWaste (totalWaste: number) {
 async function markAsEaten () {
   await removeItemsFromFridge(selectedProducts.value)
   emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  await new Promise(resolve => setTimeout(resolve, 0))
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   selectedProducts.value = []
 }
 
@@ -248,6 +260,8 @@ async function markAsWaste () {
   const totalWaste = turnItemsToWaste(selectedProducts.value)
   await addItemsToWaste(totalWaste)
   emit('handle-decrement', props.fridge, selectedProducts.value.length)
+  await new Promise(resolve => setTimeout(resolve, 0))
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   selectedProducts.value = []
 }
 

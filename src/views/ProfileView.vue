@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted, defineExpose } from 'vue'
 import { useUserStore } from '../stores/UserStore'
+import { AxiosError } from 'axios'
 import api from '../utils/httputils'
 import { SHA256 } from 'crypto-js'
 
@@ -56,7 +57,7 @@ const changesMade = ref(false)
 
 onMounted(async () => {
   if (userStore.loggedIn) {
-    await api.get('http://localhost:8080/user/details')
+    await api.get('/user/details')
       .then((response) => {
         phoneNumber.value = response.data.phoneNumber
         address.value = response.data.address
@@ -118,8 +119,8 @@ const submitForm = async () => {
         throw new Error(response.data.error)
       }
       changesMade.value = true
-    } catch (error: any) {
-      if (error.response && error.response.data === 'Incorrect password') {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response && error.response.data === 'Incorrect password') {
         // Handle the incorrect old password exception here
         console.error('Error: Incorrect old password')
         wrongOldPassword.value = true
@@ -129,13 +130,12 @@ const submitForm = async () => {
     }
   }
 
-  // Update the postal code
   if (numberOfHouseholdMembers.value) {
     try {
       await api.put(
-        '/user/edit/postalCode?postalCode=' + numberOfHouseholdMembers.value, null)
+        '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
     } catch (error) {
-      console.error('Error updating postal code', error)
+      console.error('Error updating household members', error)
     }
   }
 }

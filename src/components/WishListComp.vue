@@ -5,11 +5,11 @@
       <div class="shopping-list-container">
         <div class="search-div">
           <SearchBarComp id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
-          <button v-if="userStore.role === Role.PARENT" class="products-button" @click="toggleProductSelector" data-cy="allProducts">Se alle produkter</button>
+          <button v-if="userStore.role === Role.CHILD" class="products-button" @click="toggleProductSelector" data-cy="allProducts">Se alle produkter</button>
           <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
           <div v-if="showProductSelector" class="product-selector-popup">
             <button class="close-button" @click="toggleProductSelector">x</button>
-            <ProductSelectorView :shopping-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshShoppingList" />
+            <ProductSelector :wish-list-items="products" :button-type="buttonType" @select="handleSelect" @refresh-page="refreshWishlist" />
           </div>
         </div>
         <div class="update-message">
@@ -17,86 +17,63 @@
         </div>
         <div class="item-cards" v-for="product in filteredProducts" :key="product.id">
           <ShoppingListItemCardComp
-            :on-wishlist="false"
+            :on-wishlist="true"
             :product="product"
             @update-quantity="updateProductQuantity"
             @checked="updateCheckedStatus"
-            @remove-shopping-list="removeItem(product.id)"
+            @remove-wishlist="removeItem(product.id)"
           />
         </div>
       </div>
       <div v-if="products.length > 0" class="buttons">
         <button
           class="shopping-list-button remove-button"
-          @click="removeAll"
-          v-bind:disabled="!isAnyChecked || userStore.role === Role.CHILD"
-          v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD}"
+          @click="removeAll" v-bind:disabled="!isAnyChecked"
+          v-bind:class="{ 'disabled-button': !isAnyChecked }"
         >
           Fjern valgte
         </button>
         <button
           class="shopping-list-button add-button"
-          @click="sendToFridge"
           v-bind:disabled="!isAnyChecked || userStore.role === Role.CHILD"
-          v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD}"
+          v-bind:class="{ 'disabled-button': !isAnyChecked || userStore.role === Role.CHILD }"
+          @click="addToShoppingCart"
         >
-          Legg til i kjøleskap
+          Legg til i handleliste
         </button>
       </div>
       <div v-else class="no-items">
-        <h2>Ingen varer i handleliste</h2>
+        <h2>Ingen varer i ønskeliste.</h2>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import SearchBarComp from '../components/SearchBarComp.vue'
 import { onMounted, ref, computed } from 'vue'
 import { AxiosError } from 'axios'
-import { ShoppingListItemCardInterface, Role } from '../components/types'
-import ProductSelectorView from '../components/ProductSelectorComp.vue'
+import api from '../utils/httputils'
+import { WishlistItemCardInterface, Role } from '../components/types'
 import ShoppingListItemCardComp from './ShoppingListItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
-import api from '../utils/httputils'
-
-const products = ref<ShoppingListItemCardInterface[]>([])
+import SearchBarComp from './SearchBarComp.vue'
+import ProductSelector from './ProductSelectorComp.vue'
+const products = ref<WishlistItemCardInterface[]>([])
 const isLoading = ref(true)
+const buttonType = ref('wishlist')
 const searchQuery = ref('')
-const searchPlaceholder = ref('Søk i handlelisten...')
+const searchPlaceholder = ref('Søk i ønskelisten...')
+const showProductSelector = ref(false)
 const checkedProducts = ref<{ [key: number]: boolean }>({})
 const updateMessage = ref('')
 const userStore = useUserStore()
-const showProductSelector = ref(false)
-const buttonType = ref('shopping')
 const emit = defineEmits(['refresh-page'])
 let messageTimeout: ReturnType<typeof setTimeout> | null = null
-
-function showUpdateMessage (newMessage: string) {
-  if (messageTimeout) {
-    clearTimeout(messageTimeout)
-  }
-  updateMessage.value = newMessage
-  messageTimeout = setTimeout(() => {
-    updateMessage.value = ''
-  }, 5000)
-}
 
 onMounted(() => {
   loadProducts()
 })
 
-const getCheckedProducts = () => {
-  return products.value.filter((product) => checkedProducts.value[product.id])
-}
-
-const isAnyChecked = computed(() => {
-  return Object.values(checkedProducts.value).some(status => status === true)
-})
-
-const updateCheckedStatus = ({ product, selected }: { product: ShoppingListItemCardInterface, selected: boolean }) => {
-  checkedProducts.value[product.id] = selected
-}
 function searchProducts (query: string) {
   searchQuery.value = query
 }
@@ -108,6 +85,17 @@ const handleSelect = () => {
   showProductSelector.value = false
 }
 
+const getCheckedProducts = () => {
+  return products.value.filter((product) => checkedProducts.value[product.id])
+}
+
+const isAnyChecked = computed(() => {
+  return Object.values(checkedProducts.value).some(status => status === true)
+})
+
+const updateCheckedStatus = ({ product, selected }: { product: WishlistItemCardInterface, selected: boolean }) => {
+  checkedProducts.value[product.id] = selected
+}
 const filteredProducts = computed(() => {
   if (!searchQuery.value) return products.value
   return products.value.filter((product) =>
@@ -115,14 +103,8 @@ const filteredProducts = computed(() => {
   )
 })
 
-function refreshShoppingList () {
-  emit('refresh-page')
-  loadProducts()
-  toggleProductSelector()
-}
-
 async function loadProducts () {
-  const path = '/shopping-list/get'
+  const path = '/wished/get'
 
   await api.get(path)
     .then(async (response) => {
@@ -141,14 +123,13 @@ async function loadProducts () {
 
 async function removeAll () {
   const checkedProductsData = ref<Array<number>>(getCheckedProducts().map((product) => Number(product.id)))
-
   const config = {
     params: {
-      shoppingListItemIds: checkedProductsData.value.join(',')
+      wishedItemIds: checkedProductsData.value.join(',')
     }
   }
 
-  const path = '/shopping-list/remove'
+  const path = '/wished/remove'
   try {
     const response = await api.delete(path, config)
     if (response.status === 200) {
@@ -166,46 +147,23 @@ async function removeAll () {
   }
 }
 
-async function sendToFridge () {
-  const checkedProductsData = getCheckedProducts().map((product) => ({
-    itemId: product.item.id,
-    quantity: product.quantity * product.item.baseAmount,
-    expirationDate: '2023-05-20'
-  }))
-
-  const path = '/fridge/add'
-  try {
-    const response = await api.post(path, checkedProductsData)
-    if (response.status === 200) {
-      await removeAll()
-      showUpdateMessage('Varer sendt til ditt kjøleskap')
-    }
-  } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response && error.response.status === 401) {
-      userStore.logout()
-    }
-  }
-}
-
-async function updateItem (updatedProduct: ShoppingListItemCardInterface) {
-  const path = '/shopping-list/update'
+async function updateItem (updatedProduct: WishlistItemCardInterface) {
+  const path = '/wished/update'
 
   const requestBody = {
     itemId: updatedProduct.id,
     quantity: updatedProduct.quantity
   }
-  const requestArray = [requestBody]
-
-  await api.put(path, requestArray)
+  await api.put(path, [requestBody])
     .catch((error) => {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      updateMessage.value = error.response.data
+      showUpdateMessage(error.response.data.message)
     })
 }
 
-function updateProductQuantity (updatedProduct: ShoppingListItemCardInterface) {
+function updateProductQuantity (updatedProduct: WishlistItemCardInterface) {
   const productIndex = products.value.findIndex(
     (product) => product.id === updatedProduct.id
   )
@@ -221,14 +179,51 @@ function removeCheckedProducts () {
   checkedProducts.value = {}
 }
 
+function refreshWishlist () {
+  emit('refresh-page')
+  loadProducts()
+  toggleProductSelector()
+}
+
+async function addToShoppingCart () {
+  const checkedProductsData = getCheckedProducts().map((product) => ({
+    itemId: product.item.id,
+    quantity: product.quantity
+  }))
+
+  const path = '/shopping-list/add'
+  try {
+    const response = await api.post(path, checkedProductsData)
+    if (response.status === 200) {
+      await removeAll()
+      showUpdateMessage('Varer sendt til ditt kjøleskap')
+      await new Promise(resolve => setTimeout(resolve, 0))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response && error.response.status === 401) {
+      userStore.logout()
+    }
+  }
+}
+function showUpdateMessage (newMessage: string) {
+  if (messageTimeout) {
+    clearTimeout(messageTimeout)
+  }
+  updateMessage.value = newMessage
+  messageTimeout = setTimeout(() => {
+    updateMessage.value = ''
+  }, 5000)
+}
+
 async function removeItem (itemId: number) {
   const config = {
     params: {
-      shoppingListItemIds: itemId
+      wishedItemIds: itemId
     }
   }
 
-  const path = '/shopping-list/remove'
+  const path = '/wished/remove'
   try {
     const response = await api.delete(path, config)
     if (response.status === 200) {

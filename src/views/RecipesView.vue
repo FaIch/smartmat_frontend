@@ -4,24 +4,24 @@
       <h1>Middagsforslag</h1>
       <div class="selector">
         <img
-                src="../assets/icons/remove.svg"
-                @click="decrement"
-              />
-              <input class="input-field"
-                v-model.number="quantity"
-                id="quantity"
-                disabled
-                ref="quantityInput"
-              />
-              <img
-                src="../assets/icons/add.svg"
-                @click="increment"
-              />
+          src="../assets/icons/remove.svg"
+          @click="decrement"
+        />
+        <input class="input-field"
+          v-model.number="quantity"
+          id="quantity"
+          disabled
+          ref="quantityInput"
+        />
+        <img
+          src="../assets/icons/add.svg"
+          @click="increment"
+        />
       </div>
     </div>
     <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar" @search="filterRecipes"/>
     <div v-if="updateMessage.length === 0" class="recipes-grid">
-      <RecipeCardComp v-for="(recipe, index) in filteredRecipes" :key="index" :recipe="recipe"/>
+      <RecipeCardComp class="recipe-card" v-for="(recipe, index) in filteredRecipes" :key="index" :recipe="recipe"/>
     </div>
     <div v-if="updateMessage.length > 0" class="update-message">
       <h3> {{ updateMessage }}</h3>
@@ -34,9 +34,9 @@ import SearchBarComp from '../components/SearchBarComp.vue'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import { ref, onMounted } from 'vue'
 import { AxiosError } from 'axios'
+import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
-import api from '../utils/httputils'
 
 const userStore = useUserStore()
 const searchPlaceholder = ref('Søk etter oppskrifter...')
@@ -166,6 +166,9 @@ onMounted(() => {
 .recipes-grid {
   margin-top: 30px;
   margin-bottom: 50px;
+  min-width: 300px;
+  width: 80%;
+  max-width: 1500px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -175,5 +178,11 @@ onMounted(() => {
 
 .update-message {
   margin-top: 80px;
+}
+
+@media only screen and (max-width: 360px) {
+  .recipe-card {
+    scale: 0.8;
+  }
 }
 </style>

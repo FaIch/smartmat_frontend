@@ -1,5 +1,14 @@
 <template>
-  <div :class="cardClass" @click="toggleCheckbox">
+  <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
+    <div
+      v-tippy="'Kast i søpla'"
+      class="trash-icon-container"
+      :class="{ 'disable-hover': disableHover }"
+      @click.stop="deleteCard"
+    >
+      <img src="../assets/icons/trash.svg" alt="Trash Icon" class="trash-icon" />
+      <img src="../assets/icons/white-trash.svg" alt="Trash Icon Hover" class="trash-icon trash-icon-hover" />
+    </div>
     <div class="card-image">
       <img :src=props.product.item.image class="card-img-top" alt="...">
     </div>
@@ -12,9 +21,7 @@
             <div class="edit-quantity-div">
               <img
                 src="../assets/icons/remove.svg"
-                @mousedown="startDecrement"
-                @mouseup="stopDecrement"
-                @mouseleave="stopDecrement"
+                @click="decrement"
               />
               <input class="input-field"
                 v-model.number="quantity"
@@ -24,9 +31,7 @@
               />
               <img
                 src="../assets/icons/add.svg"
-                @mousedown="startIncrement"
-                @mouseup="stopIncrement"
-                @mouseleave="stopIncrement"
+                @click="increment"
               />
             </div>
           </div>
@@ -49,54 +54,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
-import { ShoppingListItemCardInterface, Unit } from './types'
+import { ref, computed, watch } from 'vue'
+import { ShoppingListItemCardInterface, Unit, Role } from './types'
+import { useUserStore } from '../stores/UserStore'
 
-const emit = defineEmits(['update-quantity', 'checked'])
+const emit = defineEmits(['update-quantity', 'checked', 'remove-wishlist', 'remove-shopping-list'])
 const props = defineProps({
   product: {
     type: Object as () => ShoppingListItemCardInterface,
     required: true
+  },
+  onWishlist: {
+    type: Boolean,
+    required: true
   }
 })
-
+const userStore = useUserStore()
 const quantity = ref(props.product.quantity)
 const selected = ref(false)
 const quantityInput = ref<HTMLInputElement | null>(null)
-
-let intervalId: ReturnType<typeof setInterval> | null = null
-
-function startDecrement (): void {
-  intervalId = setInterval(() => {
-    decrement()
-  }, 70)
-}
-
-function startIncrement (): void {
-  intervalId = setInterval(() => {
-    increment()
-  }, 70)
-}
-
-function stopDecrement (): void {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-function stopIncrement (): void {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
-}
-
-onUnmounted(() => {
-  if (intervalId !== null) {
-    clearInterval(intervalId)
-  }
-})
+const disableCardPointer = ref(false)
+const disableHover = ref(false)
 
 const unitType = computed(() => {
   switch (props.product.item.unit) {
@@ -131,6 +109,10 @@ const cardClass = computed(() => ({
   'card-checked': selected.value
 }))
 
+const disableInteractions = computed(() => {
+  return userStore.role === Role.CHILD && !props.onWishlist
+})
+
 function onCheckboxChange () {
   emit('checked', {
     product: props.product,
@@ -146,6 +128,10 @@ function decrement () {
 }
 
 function increment () {
+  if (quantity.value >= 50) {
+    alert('Maks verdi nådd (100)')
+    return
+  }
   quantity.value++
   emit('update-quantity', { ...props.product, quantity: quantity.value })
 }
@@ -160,6 +146,20 @@ function toggleCheckbox (event: MouseEvent) {
   }
 }
 
+function deleteCard () {
+  if (props.onWishlist) {
+    emit('remove-wishlist', props.product)
+  } else {
+    emit('remove-shopping-list', props.product)
+  }
+}
+
+watch(
+  () => props.product.quantity,
+  (newQuantity) => {
+    quantity.value = newQuantity
+  }
+)
 </script>
 
 <style scoped>
@@ -216,8 +216,7 @@ function toggleCheckbox (event: MouseEvent) {
 }
 
 .edit-quantity-div {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   align-items: center;
   width: 120px;
 }
@@ -255,6 +254,7 @@ function toggleCheckbox (event: MouseEvent) {
   width: 35%;
   max-height: 150px; /* Increase max-height value */
   margin: auto;
+  margin-left: 50px;
   padding: 0.5em;
   border-radius: 0.7em;
   overflow: hidden;
@@ -314,5 +314,52 @@ function toggleCheckbox (event: MouseEvent) {
 
 .section-one-bot {
   display: flex;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.trash-icon-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  bottom: 0;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.trash-icon-container:hover {
+  background-color: red;
+  transform: translateX(10px);
+  width: 12%;
+  height: 100%;
+  margin-left: -10px;
+  top: 0;
+}
+
+.trash-icon {
+  width: 50%;
+  height: 50%;
+}
+
+.trash-icon-hover {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon {
+  display: none;
+}
+
+.trash-icon-container:hover .trash-icon-hover {
+  display: block;
 }
 </style>

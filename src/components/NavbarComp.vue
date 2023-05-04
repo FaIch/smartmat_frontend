@@ -43,7 +43,7 @@
                 </router-link>
 
         <div
-          v-if="!showHamburgerMenu"
+          v-if="!showHamburgerMenu && userStore.role === Role.PARENT"
           class="icon-link"
           @click.prevent="() => navigate('/profile')"
           :class="{ active: isActiveLink('/profile') }"
@@ -110,6 +110,7 @@ import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import NotificationCenterComp from './NotificationCenterComp.vue'
 import router from '../router/index'
+import { Role } from './types'
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()

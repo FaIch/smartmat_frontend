@@ -1,16 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, onMounted } from 'vue'
 import { AxiosError } from 'axios'
-import router from '../router/index'
-import { SubUser } from '@/components/types'
 import api from '../utils/httputils'
+import router from '../router/index'
+import { Role, SubUser } from '../components/types'
 
 // Define user store using Pinia
 export const useUserStore = defineStore('userStore', () => {
   const email = ref('')
   const loggedIn = ref(false)
   const subUserLoggedIn = ref(false)
-  const role = ref('')
+  const role = ref<Role>()
   const subUser = ref<SubUser>()
   const refreshTokenTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
@@ -59,15 +59,17 @@ export const useUserStore = defineStore('userStore', () => {
   function subUserLogin (subUserParam: SubUser) {
     subUser.value = subUserParam
     subUserLoggedIn.value = true
+    role.value = subUser.value.role
   }
 
   function noSubUserLogin () {
     subUserLoggedIn.value = true
+    role.value = Role.PARENT
   }
 
   async function logout () {
     email.value = ''
-    role.value = ''
+    role.value = undefined
     loggedIn.value = false
     subUser.value = undefined
     subUserLoggedIn.value = false
@@ -100,4 +102,9 @@ export async function checkIsSubUserLoggedIn () {
 export async function checkIsUserLoggedIn () {
   const userStore = useUserStore()
   return userStore.loggedIn
+}
+
+export async function checkIfUserIsParent () {
+  const userStore = useUserStore()
+  return userStore.role === Role.PARENT
 }
