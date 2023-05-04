@@ -5,18 +5,18 @@
       <div>
         <h2>Matsvinn</h2>
         <p class="mainNumbers">{{ foodWaste }} kg</p>
-        <p class="averages">{{ averageFoodWaste }}</p>
       </div>
       <div>
         <h2>Penger tapt</h2>
         <p class="mainNumbers">{{ moneyLost }} kr</p>
-        <p class="averages">{{ averageMoneyLost }}</p>
       </div>
       <div>
         <h2>CO2-utslipp</h2>
         <p class="mainNumbers">{{ co2Emissions }} kg</p>
-        <p class="averages">{{ averageCO2Emissions }}</p>
       </div>
+    </div>
+    <div>
+      <p class="averages">{{ averageMoneyLost }}</p>
     </div>
     <div class="menu">
       <button :class="{'selector': true, 'selected': flag === 'weekly'}" @click="showLastWeek()">Siste Uke</button>
@@ -33,7 +33,8 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 // Calculating percentage for each time period based on the average value for money lost
-const averageMoneyLostYear = 5322.0 // kr per year
+// The same formula applies to foodWaste and CO2Emissions, because they're products of each other
+const averageMoneyLostYear = 5322.0 // money lost per person (in NOK) per year
 const averageMoneyLost = computed(() => {
   if (flag.value === 'yearly') {
     return `${(moneyLost.value * 100 / averageMoneyLostYear * numberOfHouseholdMembers.value)
