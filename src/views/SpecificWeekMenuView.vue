@@ -1,6 +1,6 @@
 <template>
-  <div class="container" v-if="weekMenuData">
-    <h1 class="title">Din {{type}} ukemeny </h1>
+  <div class="container" v-if="menu">
+    <h1 class="title">Din ukemeny </h1>
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
     <p>Ingredienser: {{weekMenuData.totalAmountOfItems}}</p>
@@ -10,7 +10,7 @@
     <button class="button" v-if="!recipeStore.getHasWeekMenu()" @click="saveMenu" :class="{'dark-green': isButtonClicked}">Lagre Ukesmeny</button>
     <button class="button" v-else @click="removeMenu">Fjern Ukesmeny</button>
     <div class="recipe-row">
-      <RecipeCardCompWeekMenu v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
+      <RecipeCardCompWeekMenu v-for="(recipe, index) in menu?.weekMenuRecipes" :key="index" :recipe="recipe"/>
     </div>
     <div class="required-ingredients">
       <li v-for="(ingredient, index) in recipeItems" :key="index">{{ ingredient.item.name + " " + ingredient.quantity + " " + ingredient.item.unit}} </li>
@@ -24,13 +24,13 @@
 import { onMounted, ref } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
-import { RecipeCardInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
+import { MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 import router from '../router'
 const userStore = useUserStore()
 
 const isButtonClicked = ref(false)
-const recipes = ref<RecipeCardInterface[]>([])
+const menu = ref<MenuInterface>()
 const recipeItems = ref<RecipeIngredientInterface[]>([])
 const shoppingList = ref<ShoppingListItemCardInterface[]>([])
 const fridgeItems = ref<FridgeItemCardInterface[]>([])
@@ -48,7 +48,26 @@ async function getWeekMenu () {
     .then(async (response) => {
       if (response.status === 200) {
         console.log(response.data)
-        // recipes.value = response.data
+        menu.value = response.data
+        getIngredientList()
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
+}
+
+async function getIngredientList () {
+  const path = '/week-menu/get-recipes-items'
+  await api.get(path)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        recipeItems.value = response.data
       }
     })
     .catch((error) => {
@@ -66,6 +85,7 @@ async function getShoppingList () {
     .then(async (response) => {
       if (response.status === 200) {
         shoppingList.value = response.data
+        console.log(response.data)
       }
     })
     .catch((error) => {
@@ -94,6 +114,7 @@ async function getFridgeItems () {
           return acc
         }, [])
         fridgeItems.value = aggregatedFridgeItems
+        console.log(fridgeItems.value)
       }
     })
     .catch((error) => {
@@ -126,30 +147,6 @@ async function saveMenu () {
     })
 }
 
-async function removeMenu () {
-  const path = '/week-menu/remove'
-  await api.get(path)
-    .then(async (response) => {
-      if (response.status === 200) {
-        recipeStore.setHasWeekMenu(false)
-        recipeStore.setType('')
-        recipeStore.setRecipeIds([])
-        recipeStore.setWeekMenu([])
-        recipeStore.getRecipeIdsCompleted()
-        await router.push('/weekMenu')
-      }
-    })
-    .catch((error) => {
-      if (error.response.status === 404) {
-        console.log('no week menu for user in db')
-      }
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
-        userStore.logout()
-      }
-    })
-}
 </script>
 
 <style scoped>

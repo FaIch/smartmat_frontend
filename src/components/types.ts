@@ -58,6 +58,17 @@ export interface RecipeInterface {
   image: string;
 }
 
+export interface WeekMenuRecipeInterface {
+  id: number;
+  recipe: RecipeInterface;
+  completed: boolean;
+}
+
+export interface MenuInterface {
+  id: number;
+  weekMenuRecipes: WeekMenuRecipeInterface[];
+}
+
 export interface RecipeCardInterface {
   recipe: RecipeInterface;
   amountInFridge: number;
@@ -73,25 +84,6 @@ export interface WeekMenuData {
     totalAmountOfItems:number;
     totalAmountOfMissingItems:number;
     totalAmountOfItemsToExpire:number;
-}
-
-export type WeekMenu= {
-  id:number;
-  recipe1:RecipeInterface;
-  recipe2: RecipeInterface;
-  recipe3: RecipeInterface;
-  recipe4:RecipeInterface;
-  recipe5:RecipeInterface;
-  type:string;
-
-}
-
-export interface menuItem {
-  recipe1:RecipeInterface;
-  recipe2: RecipeInterface;
-  recipe3: RecipeInterface;
-  recipe4:RecipeInterface;
-  recipe5:RecipeInterface;
 }
 
 export interface RecipeIngredientInterface {
