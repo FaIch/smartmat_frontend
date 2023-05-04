@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { WeekMenu } from '../components/types'
-import api from '../utils/httputils'
+import axios from 'axios'
 
 export const useRecipeStore = defineStore('recipeStore', () => {
   const recipeIds = ref<number[]>([])
@@ -49,7 +49,7 @@ export const useRecipeStore = defineStore('recipeStore', () => {
   // TODO: exception if week menu not in db but that should not be exception...
   async function checkForWeekMenu () {
     const path = '/week-menu/get'
-    await api.get(path)
+    await axios.get(path)
       .then(async (response) => {
         if (response.status === 200) {
           const weekMenuData = response.data

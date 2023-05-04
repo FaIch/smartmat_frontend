@@ -19,7 +19,7 @@
 // TODO: hvorfor forsvinner på refresh?!
 
 import { onMounted, ref } from 'vue'
-import api from '../utils/httputils'
+import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
 import { RecipeCardInterface, WeekMenuData } from '../components/types'
@@ -41,7 +41,7 @@ onMounted(() => {
 
 async function getRecipesWeekMenu (intList: number[]): Promise<void> {
   const path = '/week-menu/get-recipes-by-id'
-  await api.post(path, intList)
+  await axios.post(path, intList)
     .then(async (response) => {
       if (response.status === 200) {
         recipes.value = response.data
@@ -58,7 +58,7 @@ async function getRecipesWeekMenu (intList: number[]): Promise<void> {
 
 async function getWeekMenuData (intList: number[]): Promise<void> {
   const path = '/week-menu/get-data-week-menu'
-  await api.post(path, intList)
+  await axios.post(path, intList)
     .then(async (response) => {
       if (response.status === 200) {
         weekMenuData.value = response.data
@@ -81,7 +81,7 @@ async function saveMenu () {
   }
 
   const path = '/week-menu/save'
-  await api.post(path, weekMenuRequest)
+  await axios.post(path, weekMenuRequest)
     .then(async (response) => {
       if (response.status === 200) {
         console.log(response.data)
@@ -99,14 +99,14 @@ async function saveMenu () {
 
 async function removeMenu () {
   const path = '/week-menu/remove'
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         recipeStore.setHasWeekMenu(false)
         recipeStore.setType('')
         recipeStore.setRecipeIds([])
         recipeStore.setWeekMenu([])
-        recipeStore.getRecipeIdsCompleted([])
+        recipeStore.getRecipeIdsCompleted()
         await router.push('/weekMenu')
       }
     })

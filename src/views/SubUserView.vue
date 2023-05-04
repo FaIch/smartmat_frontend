@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { SubUser } from '../components/types'
 import { onMounted, ref } from 'vue'
-import api from '../utils/httputils'
+import axios from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import router from '../router/index'
@@ -73,7 +73,7 @@ onMounted(() => {
 
 async function getSubUsers () {
   const path = '/user/sub-user/get'
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         subUsers.value = response.data
@@ -176,7 +176,7 @@ async function setSubUserPasscode (subuser: SubUser) {
     role: subuser.role,
     passcode: subuser.passcode
   }
-  await api.put(path, subUserRequest)
+  await axios.put(path, subUserRequest)
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = `PIN kode satt: ${subuser.passcode}`

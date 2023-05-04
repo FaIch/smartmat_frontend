@@ -55,7 +55,7 @@ import { FridgeItemCardInterface, Role } from '../components/types'
 import { useUserStore } from '../stores/UserStore'
 import FridgeItemCard from './FridgeItemCardComp.vue'
 import ProductSelector from './ProductSelectorComp.vue'
-import api from '../utils/httputils'
+import axios from 'axios'
 
 const props = defineProps({
   fridge: {
@@ -121,7 +121,7 @@ async function getItemsInFridge () {
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
   const path = '/fridge/edit/' + updatedProduct.id
 
-  await api.put(path, updatedProduct)
+  await axios.put(path, updatedProduct)
     .then(async (response) => {
       if (response.status === 200) {
         const index = products.value.findIndex(
@@ -201,7 +201,7 @@ async function removeItemsFromFridge (productsParam: FridgeItemCardInterface[]) 
   const pathRemove = '/fridge/remove'
   const request = selectedIds
 
-  await api.delete(pathRemove, { data: request })
+  await axios.delete(pathRemove, { data: request })
     .then(async (response) => {
       if (response.status === 200) {
         showUpdateMessage('Varer spist')
@@ -233,7 +233,7 @@ async function addItemsToWaste (totalWaste: number) {
   }
 
   const pathAddWaste = '/waste/add?weight=' + totalWaste
-  await api.post(pathAddWaste, wasteRequest)
+  await axios.post(pathAddWaste, wasteRequest)
     .then(async (response) => {
       if (response.status === 200) {
         showUpdateMessage('Varer kastet')

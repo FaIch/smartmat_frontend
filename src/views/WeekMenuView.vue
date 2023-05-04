@@ -16,7 +16,7 @@
 import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
-import api from '../utils/httputils'
+import axios from 'axios'
 import { RecipeInterface, WeekMenuCardInterface } from '../components/types'
 import router from '../router'
 const WeekMenuCardComp = defineAsyncComponent(
@@ -53,7 +53,7 @@ async function checkForWeekMenuStored () {
 
 async function getWeekMenuRandom () {
   const path = '/week-menu/list-random'
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         recipes.value = response.data
@@ -82,7 +82,7 @@ async function getWeekMenuRandom () {
 
 async function getWeekMenuRecommended () {
   const path = '/week-menu/list-recommended'
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         recipes.value = response.data

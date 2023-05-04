@@ -67,7 +67,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
 import { useRecipeStore } from '../stores/RecipeStore'
-import api from '../utils/httputils'
+import axios from 'axios'
 import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
 
 const recipeStore = useRecipeStore()
@@ -146,7 +146,7 @@ onMounted(() => {
 
 async function fetchRecipe () {
   const path = `/recipe/${recipeId.value}`
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('success')
@@ -166,7 +166,7 @@ async function fetchRecipe () {
 async function fetchRecipeItems () {
   const path = `/recipe/recipe-items/${recipeId.value}`
 
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('success')
@@ -184,7 +184,7 @@ async function fetchRecipeItems () {
 
 async function fetchShoppingList () {
   const path = '/shopping-list/get'
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('Shopping list:')
@@ -202,7 +202,7 @@ async function fetchShoppingList () {
 
 async function fetchFridgeItems () {
   const path = '/fridge/get'
-  await api.get(path)
+  await axios.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         console.log('Fridge')
@@ -309,7 +309,7 @@ async function addAllToShoppingList () {
   console.log(checkedProductsData)
   if (checkedProductsData.length) {
     const path = '/shopping-list/add'
-    await api.post(path, checkedProductsData)
+    await axios.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
           console.log('All selected items added to the shopping list')
@@ -347,7 +347,7 @@ async function removeFromFridge () {
   if (itemsData.length) {
     const path = '/fridge/remove/byRecipe'
 
-    await api.post(path, itemsData)
+    await axios.post(path, itemsData)
       .then(async (response) => {
         if (response.status === 200) {
           console.log('All items removed from the fridge')
