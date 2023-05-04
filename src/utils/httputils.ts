@@ -8,12 +8,12 @@ const api = axios.create({
   withCredentials: true // This will allow cookies to be sent with requests
 })
 api.interceptors.request.use((request) => {
-  console.log('Request:', request)
+  // console.log('Request:', request)
   return request
 })
 
 api.interceptors.response.use((response) => {
-  console.log('Response:', response)
+  // console.log('Response:', response)
   return response
 }, (error) => {
   return Promise.reject(error)

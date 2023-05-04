@@ -12,6 +12,9 @@
     <div class="recipe-row">
       <RecipeCardCompWeekMenu v-for="(recipe, index) in recipes" :key="index" :recipe="recipe"/>
     </div>
+    <div class="required-ingredients">
+      <li v-for="(ingredient, index) in recipeItems" :key="index">{{ ingredient.item.name + " " + ingredient.quantity + " " + ingredient.item.unit}} </li>
+  </div>
   </div>
 </template>
 
@@ -21,30 +24,31 @@
 import { onMounted, ref } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
-import { useRecipeStore } from '../stores/RecipeStore'
-import { RecipeCardInterface, WeekMenuData } from '../components/types'
+import { RecipeCardInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 import router from '../router'
 const userStore = useUserStore()
-const recipeStore = useRecipeStore()
-const recipes = ref<RecipeCardInterface[]>([])
-const weekMenuData = ref<WeekMenuData>()
-const recipeIds: number[] = recipeStore.getRecipeIds()
-const type = recipeStore.getType()
+
 const isButtonClicked = ref(false)
+const recipes = ref<RecipeCardInterface[]>([])
+const recipeItems = ref<RecipeIngredientInterface[]>([])
+const shoppingList = ref<ShoppingListItemCardInterface[]>([])
+const fridgeItems = ref<FridgeItemCardInterface[]>([])
+// const selectedItems = ref<ShoppingListItem[]>([])
 
 onMounted(() => {
-  console.log(recipeStore.getRecipeIdsCompleted())
-  getRecipesWeekMenu(recipeIds)
-  getWeekMenuData(recipeIds)
+  getWeekMenu()
+  getShoppingList()
+  getFridgeItems()
 })
 
-async function getRecipesWeekMenu (intList: number[]): Promise<void> {
-  const path = '/week-menu/get-recipes-by-id'
-  await api.post(path, intList)
+async function getWeekMenu () {
+  const path = '/week-menu/get'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        recipes.value = response.data
+        console.log(response.data)
+        // recipes.value = response.data
       }
     })
     .catch((error) => {
@@ -56,28 +60,53 @@ async function getRecipesWeekMenu (intList: number[]): Promise<void> {
     })
 }
 
-async function getWeekMenuData (intList: number[]): Promise<void> {
-  const path = '/week-menu/get-data-week-menu'
-  await api.post(path, intList)
+async function getShoppingList () {
+  const path = '/shopping-list/get'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        weekMenuData.value = response.data
+        shoppingList.value = response.data
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
+      console.log(error)
+    })
+}
+
+async function getFridgeItems () {
+  const path = '/fridge/get'
+  await api.get(path)
+    .then(async (response) => {
+      if (response.status === 200) {
+        // Aggregate the quantities of items with the same ID
+        const aggregatedFridgeItems: FridgeItemCardInterface[] = response.data.reduce((acc: FridgeItemCardInterface[], item: FridgeItemCardInterface) => {
+          const existingItemIndex = acc.findIndex((accItem: FridgeItemCardInterface) => accItem.item.id === item.item.id)
+
+          if (existingItemIndex !== -1) {
+            acc[existingItemIndex].quantity += item.quantity
+          } else {
+            acc.push(item)
+          }
+
+          return acc
+        }, [])
+        fridgeItems.value = aggregatedFridgeItems
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 401) {
+        userStore.logout()
+      }
+      console.log(error)
     })
 }
 
 async function saveMenu () {
   isButtonClicked.value = true
   const weekMenuRequest = {
-    intList: recipeIds,
-    message: type
   }
 
   const path = '/week-menu/save'
@@ -97,30 +126,6 @@ async function saveMenu () {
     })
 }
 
-async function removeMenu () {
-  const path = '/week-menu/remove'
-  await api.get(path)
-    .then(async (response) => {
-      if (response.status === 200) {
-        recipeStore.setHasWeekMenu(false)
-        recipeStore.setType('')
-        recipeStore.setRecipeIds([])
-        recipeStore.setWeekMenu([])
-        recipeStore.getRecipeIdsCompleted([])
-        await router.push('/weekMenu')
-      }
-    })
-    .catch((error) => {
-      if (error.response.status === 404) {
-        console.log('no week menu for user in db')
-      }
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
-        userStore.logout()
-      }
-    })
-}
 </script>
 
 <style scoped>
