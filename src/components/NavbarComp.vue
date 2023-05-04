@@ -284,7 +284,7 @@ a{
   background-color: transparent;
   border: none;
   cursor: pointer;
-    background-image: url('../assets/icons/menu.png');
+  background-image: url('../assets/icons/menu-white.svg');
 }
 
 .sub-menu {

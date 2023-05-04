@@ -5,18 +5,18 @@
       <div>
         <h2>Matsvinn</h2>
         <p class="mainNumbers">{{ foodWaste }} kg</p>
-        <p class="averages">{{ averageFoodWaste }}</p>
       </div>
       <div>
         <h2>Penger tapt</h2>
         <p class="mainNumbers">{{ moneyLost }} kr</p>
-        <p class="averages">{{ averageMoneyLost }}</p>
       </div>
       <div>
         <h2>CO2-utslipp</h2>
         <p class="mainNumbers">{{ co2Emissions }} kg</p>
-        <p class="averages">{{ averageCO2Emissions }}</p>
       </div>
+    </div>
+    <div>
+      <p class="averages">{{ averageMoneyLost }}</p>
     </div>
     <div class="menu">
       <button :class="{'selector': true, 'selected': flag === 'weekly'}" @click="showLastWeek()">Siste Uke</button>
