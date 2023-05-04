@@ -43,4 +43,28 @@ describe('RecipeCardComp form', async () => {
     const missingIngredients = wrapper.find('.recipe-missing')
     expect(missingIngredients.text()).toBe('Du mangler 3 ingredienser')
   })
+
+  it('displays the amount of nearly expired ingredients', async () => {
+    const recipe = {
+      recipe: {
+        id: 1,
+        name: 'test',
+        estimatedTime: '30 min',
+        description: 'test',
+        numberOfItems: 5,
+        image: 'test.jpeg'
+      },
+      amountInFridge: 2,
+      amountNearlyExpired: 1
+    }
+
+    const wrapper = mount(RecipeCardComp, {
+      props: {
+        recipe
+      }
+    })
+
+    const nearlyExpired = wrapper.find('.recipe-warning')
+    expect(nearlyExpired.text()).toBe('1')
+  })
 })
