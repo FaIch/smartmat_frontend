@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ProductSelectorComp form > renders correctly 1`] = `
+"<div data-v-766cd0ad=\\"\\" class=\\"product-selector-view\\">
+  <h2 data-v-766cd0ad=\\"\\">Valgt (0)</h2>
+  <div data-v-766cd0ad=\\"\\" class=\\"button-container\\">
+    <!--v-if-->
+    <!--v-if-->
+    <!--v-if-->
+  </div>
+  <div data-v-fcb897c3=\\"\\" data-v-766cd0ad=\\"\\" class=\\"product-grid-container\\" searchquery=\\"\\">
+    <div data-v-fed43f29=\\"\\" data-v-fcb897c3=\\"\\" class=\\"search-form\\" id=\\"search-bar\\"><img data-v-fed43f29=\\"\\" id=\\"search-icon\\" src=\\"/src/assets/icons/search.svg\\"><input data-v-fed43f29=\\"\\" id=\\"search-input\\" type=\\"text\\" placeholder=\\"Søk etter varer...\\"></div>
+    <div data-v-fcb897c3=\\"\\" class=\\"grid-container\\"></div>
+    <div data-v-fcb897c3=\\"\\" class=\\"pagination\\"><button data-v-fcb897c3=\\"\\" class=\\"page-button\\" disabled=\\"\\">Previous</button><span data-v-fcb897c3=\\"\\">Side 1 of 0</span><button data-v-fcb897c3=\\"\\" class=\\"page-button\\">Next</button></div>
+  </div>
+</div>"
+`;

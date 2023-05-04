@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ProductGrid form > renders correctly 1`] = `
+"<div data-v-fcb897c3=\\"\\" class=\\"product-grid-container\\">
+  <div data-v-fed43f29=\\"\\" data-v-fcb897c3=\\"\\" class=\\"search-form\\" id=\\"search-bar\\"><img data-v-fed43f29=\\"\\" id=\\"search-icon\\" src=\\"/src/assets/icons/search.svg\\"><input data-v-fed43f29=\\"\\" id=\\"search-input\\" type=\\"text\\" placeholder=\\"Søk etter varer...\\"></div>
+  <div data-v-fcb897c3=\\"\\" class=\\"grid-container\\"></div>
+  <div data-v-fcb897c3=\\"\\" class=\\"pagination\\"><button data-v-fcb897c3=\\"\\" class=\\"page-button\\" disabled=\\"\\">Previous</button><span data-v-fcb897c3=\\"\\">Side 1 of 0</span><button data-v-fcb897c3=\\"\\" class=\\"page-button\\">Next</button></div>
+</div>"
+`;

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, beforeEach } from 'vitest'
-import NotificationCenterComp from '../../../src/components/NotificationCenterComp.vue'
+import ProductSelectorComp from '../../../src/components/ProductSelectorComp.vue'
 import { createPinia } from 'pinia'
 
 const pinia = createPinia()
@@ -10,7 +10,7 @@ const mockStore = {
 let wrapper
 
 beforeEach(() => {
-  wrapper = mount(NotificationCenterComp, {
+  wrapper = mount(ProductSelectorComp, {
     global: {
       plugins: [pinia],
       mocks: {
@@ -21,12 +21,13 @@ beforeEach(() => {
   })
 })
 
-describe('NotificationCenterComp form', async () => {
+describe('ProductSelectorComp form', async () => {
   it('renders correctly', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('hides notification view by default', async () => {
-    expect(wrapper.vm.showNotifications).toBe(false)
+  it('has 0 selected products by default', async () => {
+    const selectedProducts = wrapper.find('h2')
+    expect(selectedProducts.text()).toBe('Valgt (0)')
   })
 })

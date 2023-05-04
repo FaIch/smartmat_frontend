@@ -107,7 +107,7 @@ const titleFontSize = computed(() => {
   } else if (length <= 25) {
     return '1.1rem'
   } else {
-    return '1rem' // Smallest font size
+    return '1rem'
   }
 })
 

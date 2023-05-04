@@ -110,7 +110,7 @@ async function submitLogin () {
           if (response.data.childUser) {
             router.push('/subuser')
           } else {
-            router.push('/fridge')
+            router.push('/savings')
             userStore.noSubUserLogin()
             utilityStore.showItems()
           }
