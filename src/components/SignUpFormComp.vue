@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { SHA256 } from 'crypto-js'
-import axios from 'axios'
+import api from '../utils/httputils'
 
 const email = ref('')
 const password = ref('')
@@ -151,13 +151,7 @@ async function submitSignup () {
       numberOfHouseholdMembers: selectedHouseholdMembers.value
     }
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      requireCredentials: false
-    }
-    axios.post(path, data, config).then(response => {
+    api.post(path, data).then(response => {
       if (response.status === 200) {
         updateMessage.value = response.data
       }

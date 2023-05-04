@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import FridgeComp from '../components/FridgeComp.vue'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 
 const numberOfUnexpiredItems = ref()
@@ -31,7 +31,7 @@ onMounted(() => {
 async function getNumberOfFridgeItems () {
   const path = '/fridge/get/number'
 
-  await axios.get(path)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         numberOfUnexpiredItems.value = response.data.unexpired

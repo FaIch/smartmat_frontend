@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { ItemInterface, Role } from '../components/types'
 import SuggestedItemCardComp from '../components/SuggestedItemCardComp.vue'
 import { useUserStore } from '../stores/UserStore'
@@ -81,19 +81,13 @@ function showUpdateMessage (newMessage: string) {
 }
 
 async function loadProducts () {
-  const path = 'http://localhost:8080/shopping-list/get/suggestions'
-  const config = {
-    headers: {
-      'Content-type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/shopping-list/get/suggestions'
 
   isLoading.value = true
   if (path == null) {
     return
   }
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         products.value = response.data
@@ -109,13 +103,8 @@ async function loadProducts () {
 }
 
 async function sendToShoppingList () {
-  const path = 'http://localhost:8080/shopping-list/add'
-  const config = {
-    headers: {
-      'Content-type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/shopping-list/add'
+
   const checkedProductsArray = getCheckedProducts()
   const shoppingListItems = checkedProductsArray.map((product) => {
     return {
@@ -124,7 +113,7 @@ async function sendToShoppingList () {
     }
   })
 
-  await axios.post(path, shoppingListItems, config)
+  await api.post(path, shoppingListItems)
     .then((response) => {
       if (response.status === 200) {
         showUpdateMessage('Shopping list items added')

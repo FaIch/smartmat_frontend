@@ -40,7 +40,8 @@
 <script setup lang="ts">
 import { ref, onMounted, defineExpose } from 'vue'
 import { useUserStore } from '../stores/UserStore'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
+import api from '../utils/httputils'
 import { SHA256 } from 'crypto-js'
 
 const userStore = useUserStore()
@@ -56,7 +57,7 @@ const changesMade = ref(false)
 
 onMounted(async () => {
   if (userStore.loggedIn) {
-    await axios.get('http://localhost:8080/user/details')
+    await api.get('/user/details')
       .then((response) => {
         phoneNumber.value = response.data.phoneNumber
         address.value = response.data.address
@@ -87,7 +88,7 @@ const submitForm = async () => {
       return
     }
     try {
-      await axios.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
+      await api.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
       changesMade.value = true
     } catch (error) {
       console.error('Error updating phone number', error)
@@ -101,7 +102,7 @@ const submitForm = async () => {
       return
     }
     try {
-      await axios.put('/user/edit/address?address=' + address.value, null)
+      await api.put('/user/edit/address?address=' + address.value, null)
       changesMade.value = true
     } catch (error) {
       console.error('Error updating address', error)
@@ -112,7 +113,7 @@ const submitForm = async () => {
     const hashedOldPassword = SHA256(oldPassword.value)
     const hashedNewPassword = SHA256(newPassword.value)
     try {
-      const response = await axios.put(
+      const response = await api.put(
         '/user/edit/password?oldPassword=' + hashedOldPassword + '&newPassword=' + hashedNewPassword, null)
       if (response.data.error) {
         throw new Error(response.data.error)
@@ -131,7 +132,7 @@ const submitForm = async () => {
 
   if (numberOfHouseholdMembers.value) {
     try {
-      await axios.put(
+      await api.put(
         '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
     } catch (error) {
       console.error('Error updating household members', error)
