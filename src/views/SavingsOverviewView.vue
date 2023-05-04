@@ -33,7 +33,8 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 // Calculating percentage for each time period based on the average value for money lost
-const averageMoneyLostYear = 5322.0 // kr per year
+// The same formula applies to foodWaste and CO2Emissions, because they're products of each other
+const averageMoneyLostYear = 5322.0 // money lost per person (in NOK) per year
 const averageMoneyLost = computed(() => {
   if (flag.value === 'yearly') {
     return `${(moneyLost.value * 100 / averageMoneyLostYear * numberOfHouseholdMembers.value)
