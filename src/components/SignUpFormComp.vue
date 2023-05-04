@@ -151,13 +151,7 @@ async function submitSignup () {
       numberOfHouseholdMembers: selectedHouseholdMembers.value
     }
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      requireCredentials: false
-    }
-    api.post(path, data, config).then(response => {
+    api.post(path, data).then(response => {
       if (response.status === 200) {
         updateMessage.value = response.data
       }

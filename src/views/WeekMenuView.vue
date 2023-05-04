@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="week-menu-container">
     <h1 class="title">Uke menyer</h1>
     <p>Nedenfor har du to ulike ukesmenyer du kan velge mellom<br><br>
       Den første består av anbefalte retter som inneholder de varene du har mest av i  kjøleskapet,<br>
@@ -7,7 +7,7 @@
       Den andre består av helt tilfeldige retter som kan gi inspirasjon</p>
     <div class="week-menus">
       <WeekMenuCardComp :week-menu="recommendedMenu" @click="goToMenu(recipeItemsIdListRecommended,'Anbefalte Oppskrifter')"/>
-    <WeekMenuCardComp :week-menu="randomMenu" @click="goToMenu(recipeItemsIdListRandom,'Inspirerende Oppskrifter')"/>
+      <WeekMenuCardComp :week-menu="randomMenu" @click="goToMenu(recipeItemsIdListRandom,'Inspirerende Oppskrifter')"/>
     </div>
   </div>
 </template>
@@ -119,15 +119,12 @@ function goToMenu (menuIds: number[], type: string) {
 
 <style scoped>
 
-.container {
-  /* Fixed distance from nav bar, need to change this so it corresponds with window size */
-  display: grid;
-  margin-top: 75px;
-  height: 100vh;
-}
-
-.title {
-  padding: 20px;
+.week-menu-container {
+  display: flex;
+  flex-direction: column;
+  padding-top: 120px;
+  height: 100%;
+  min-height: 100vh;
 }
 
 h1 {
@@ -136,14 +133,20 @@ h1 {
   font-weight: normal;
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
+
 p {
-  margin-top: -18%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-size: 17px;
 }
+
 .week-menus {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  margin-top: -40%;
+  max-width: 2000px;
+  width: 100%;
+  align-self: center;
 }
 
 </style>

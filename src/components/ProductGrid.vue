@@ -60,7 +60,6 @@ function toggleProductSelection (product: ItemInterface) {
   } else {
     selectedProducts.value.push(product)
   }
-  // Emit the updated selectedProducts array to the parent component
   emits('update-selected-products', selectedProducts.value)
 }
 

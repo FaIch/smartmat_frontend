@@ -106,7 +106,7 @@ async function removeMenu () {
         recipeStore.setType('')
         recipeStore.setRecipeIds([])
         recipeStore.setWeekMenu([])
-        recipeStore.getRecipeIdsCompleted([])
+        recipeStore.getRecipeIdsCompleted()
         await router.push('/weekMenu')
       }
     })

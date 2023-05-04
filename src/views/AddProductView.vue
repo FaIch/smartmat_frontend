@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
-import api from '../utils/httputils'
+import axios from 'axios'
 import { ItemInterface, Unit } from '../components/types'
 
 const eanCode = ref('')
@@ -65,7 +65,7 @@ watch(
 
 const findProduct = async () => {
   // Replace with your actual API call
-  const response = await api.get(`https://kassal.app/api/v1/products/ean/${eanCode.value}`, {
+  const response = await axios.get(`https://kassal.app/api/v1/products/ean/${eanCode.value}`, {
     headers: {
       Authorization: 'Bearer YrzNOzoCrOnQ76PmBymhEK8pgOESFcT5yhNyVl5w',
       'Response-type': 'application/json'
@@ -86,13 +86,13 @@ const findProduct = async () => {
 
 const fetchCategories = async () => {
   // Replace with your actual API call
-  const response = await api.get(path + '/categories')
+  const response = await axios.get(path + '/categories')
   categories.value = response.data
 }
 
 const fetchUnits = async () => {
   // Replace with your actual API call
-  const response = await api.get(path + '/units')
+  const response = await axios.get(path + '/units')
   units.value = response.data
   console.log(response.data)
 }
@@ -100,7 +100,7 @@ const fetchUnits = async () => {
 const submitProduct = async () => {
   // Replace with your actual API call
   console.log(formData)
-  await api.post(path + '/add', formData)
+  await axios.post(path + '/add', formData)
 
   eanCode.value = ''
   productData.value = undefined
