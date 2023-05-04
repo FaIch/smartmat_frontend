@@ -43,7 +43,7 @@
                 </router-link>
 
         <div
-          v-if="!showHamburgerMenu"
+          v-if="!showHamburgerMenu && userStore.role === Role.PARENT"
           class="icon-link"
           @click.prevent="() => navigate('/profile')"
           :class="{ active: isActiveLink('/profile') }"
@@ -65,23 +65,38 @@
         <div class="menu" v-if="showHamburgerMenu">
           <button class="menu-button" @click="toggleMenu">
           </button>
-          <ul class="sub-menu" v-if="isMenuVisible">
-            <li>
-              <router-link to="/chat" @click.prevent="closeMenu" class="icon-link" exact-active-class="active">
-                Messages
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/notifications" @click.prevent="closeMenu" class="icon-link" exact-active-class="active">
-                Notifications
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/login" @click.prevent="closeMenu" class="icon-link" exact-active-class="active">
-                Profile
-              </router-link>
-            </li>
-          </ul>
+            <ul class="sub-menu" v-if="isMenuVisible">
+                <li>
+                    <a @click.prevent="() => { closeMenu(); navigate('/recipes'); }" class="icon-link" :class="{ active: isActiveLink('/recipes') }">
+                        Oppskrifter
+                    </a>
+                </li>
+                <li>
+                    <a @click.prevent="() => { closeMenu(); navigate('/weekMenu'); }" class="icon-link" :class="{ active: isActiveLink('/weekMenu') }">
+                        Ukesmeny
+                    </a>
+                </li>
+                <li>
+                    <a @click.prevent="() => { closeMenu(); navigate('/shoppinglist'); }" class="icon-link" :class="{ active: isActiveLink('/shoppinglist') }">
+                        Handleliste
+                    </a>
+                </li>
+                <li>
+                    <a @click.prevent="() => { closeMenu(); navigate('/fridge'); }" class="icon-link" :class="{ active: isActiveLink('/fridge') }">
+                        Mitt Kjøleskap
+                    </a>
+                </li>
+                <li>
+                    <a @click.prevent="() => { closeMenu(); navigate('/profile'); }" class="icon-link" :class="{ active: isActiveLink('/profile') }">
+                        Min Profil
+                    </a>
+                </li>
+                <li>
+                    <a @click.prevent="() => { closeMenu(); navigate('/login'); }" class="icon-link" :class="{ active: isActiveLink('/login') }">
+                        Logg Ut
+                    </a>
+                </li>
+            </ul>
         </div>
       </div>
     </div>
@@ -95,11 +110,12 @@ import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import NotificationCenterComp from './NotificationCenterComp.vue'
 import router from '../router/index'
+import { Role } from './types'
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
 const screenWidth = ref(window.innerWidth)
-const showHamburgerMenu = computed(() => screenWidth.value < 500)
+const showHamburgerMenu = computed(() => screenWidth.value < 850)
 const isMenuVisible = ref(false)
 const route = useRoute()
 const currentPath = computed(() => route.path)
@@ -269,21 +285,28 @@ a{
   background-color: transparent;
   border: none;
   cursor: pointer;
+    background-image: url('../assets/icons/menu.png');
 }
 
 .sub-menu {
   position: absolute;
   top: 75px;
-  left: 0;
+  right: 0px;
   width: 100%;
-  background-color: #e9f1fe;
+  background-color: #e9f1feff;
   border: 1px solid #cccccc;
-  border-top: none;
+    border-right-width: 150px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   padding: 10px 0;
   margin: 0;
   text-align: center;
   list-style: none;
+}
+@media only screen and (max-width: 400px) {
+    .sub-menu {
+        right: 10px;
+        width: 90%;
+    }
 }
 
 .sub-menu li {
@@ -315,19 +338,20 @@ a{
   background-color: #f3f3f3;
 }
 
-@media only screen and (max-width: 400px){
-  .navbar-container{
-    justify-content: center;
-  }
-  .navbar-icons img{
-    padding-right: 5px;
-    padding-left: 5px;
-  }
+@media only screen and (min-width: 851px) {
+    .navbar-icons {
+        display: flex;
+    }
+
+    .menu {
+        display: none;
+    }
 }
-@media only screen and (max-width: 300px){
-  .navbar-icons img{
-    padding: 0;
-    margin: 0;
-  }
+
+.menu {
+    position: fixed;
+    top: 10px;
+    right: 20px;
 }
+
 </style>

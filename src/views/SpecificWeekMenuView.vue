@@ -126,6 +126,30 @@ async function saveMenu () {
     })
 }
 
+async function removeMenu () {
+  const path = '/week-menu/remove'
+  await api.get(path)
+    .then(async (response) => {
+      if (response.status === 200) {
+        recipeStore.setHasWeekMenu(false)
+        recipeStore.setType('')
+        recipeStore.setRecipeIds([])
+        recipeStore.setWeekMenu([])
+        recipeStore.getRecipeIdsCompleted()
+        await router.push('/weekMenu')
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 404) {
+        console.log('no week menu for user in db')
+      }
+      if (error.response.status === 400) {
+        console.log('error')
+      } else if (error.response.status === 600) {
+        userStore.logout()
+      }
+    })
+}
 </script>
 
 <style scoped>

@@ -1,8 +1,8 @@
 <template>
   <div class="menu-card">
-    <img class="menu-image" :src="props?.weekMenu?.firstRecipeImage" alt="">
+    <img class="menu-image" :src="props.weekMenu.firstRecipeImage" alt="">
     <div class="menu-details">
-      <h2 class="menu-title-type">{{ props?.weekMenu?.type}}</h2>
+      <h2 class="menu-title-type">{{ props.weekMenu.type}}</h2>
     </div>
   </div>
 </template>
@@ -41,10 +41,9 @@ const props = defineProps({
 }
 
 .menu-details {
-  display: flex;
-  flex-direction: column;
   background-color: #fff;
   align-content: center;
+  height: 100%;
 }
 
 .menu-title-type {
@@ -53,9 +52,8 @@ const props = defineProps({
   font-size: 20px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bold;
-  width: 200px;
+  width: 100%;
   height: 100%;
-  text-align: center;
 }
 
 </style>
