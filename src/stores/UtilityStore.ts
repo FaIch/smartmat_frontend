@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useUtilityStore = defineStore('utilityStore', () => {
-  const navBarItems = ref(true)
+  const navBarItems = ref(false)
 
   function hideItems () {
     navBarItems.value = false

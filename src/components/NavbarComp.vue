@@ -132,7 +132,7 @@ const showHamburgerMenu = computed(() => screenWidth.value < 850)
 const isMenuVisible = ref(false)
 const route = useRoute()
 const currentPath = computed(() => route.path)
-const showItems = ref(true)
+const showItems = ref(false)
 
 const isActiveLink = (path: string) => {
   return currentPath.value === path

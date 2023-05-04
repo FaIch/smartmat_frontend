@@ -2,24 +2,29 @@
   <div class="recipes-container">
     <div class="recipes-title">
       <h1>Middagsforslag</h1>
-      <div class="selector">
-        <img
-          src="../assets/icons/remove.svg"
-          @click="decrement"
-        />
-        <input class="input-field"
-          v-model.number="quantity"
-          id="quantity"
-          disabled
-          ref="quantityInput"
-        />
-        <img
-          src="../assets/icons/add.svg"
-          @click="increment"
-        />
+    </div>
+    <div class="search-div">
+      <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar" @search="filterRecipes"/>
+      <div class="selector-outer">
+        <h4>Porsjoner:</h4>
+        <div class="selector">
+          <img
+            src="../assets/icons/remove.svg"
+            @click="decrement"
+          />
+          <input class="input-field"
+            v-model.number="quantity"
+            id="quantity"
+            disabled
+            ref="quantityInput"
+          />
+          <img
+            src="../assets/icons/add.svg"
+            @click="increment"
+          />
+        </div>
       </div>
     </div>
-    <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar" @search="filterRecipes"/>
     <div v-if="updateMessage.length === 0" class="recipes-grid">
       <RecipeCardComp class="recipe-card" v-for="(recipe, index) in filteredRecipes" :key="index" :recipe="recipe"/>
     </div>
@@ -138,10 +143,13 @@ onMounted(() => {
 }
 
 .recipes-title {
-  display: flex;
-  flex-direction: row;
+  align-items: center;
   flex-wrap: wrap;
   width: 100%;
+}
+
+.selector-outer {
+  margin-top: -30px;
 }
 
 .selector {
@@ -149,17 +157,30 @@ onMounted(() => {
   flex-direction: row;
   justify-self: right;
   align-self: right;
-  margin-top: 10px;
 }
 
-#search-bar{
-  position: relative;
+.selector input {
+  height: 40px;
+  width: 60px;
+  border-radius: 20px;
+  background-color: #e9f1fe;
   text-align: center;
-  margin-top: 17px;
+  margin-top: 5px;
+}
+
+.selector img {
+  cursor: pointer;
+}
+
+#search-bar {
+  text-align: center;
+  justify-self: center;
+  align-self: center;
   color: black;
-  width: 50%;
   max-width: 1000px;
+  width: 70%;
   z-index: 3;
+  margin-right: 0;
   scale: 0.8;
 }
 
@@ -180,9 +201,60 @@ onMounted(() => {
   margin-top: 80px;
 }
 
+.search-div {
+  margin-top: 10px;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .search-div {
+    flex-direction: column;
+  }
+
+  #search-bar {
+    width: 400px;
+  }
+
+  .selector-outer {
+    margin: 0;
+    margin-top: 10px;
+  }
+}
+
 @media only screen and (max-width: 360px) {
+
+  .recipes-title h1 {
+    font-size: 30px;
+  }
   .recipe-card {
     scale: 0.8;
+  }
+  #search-bar {
+    width: 100%;
+  }
+
+  .recipes-grid {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .recipe-card {
+    scale: 0.7;
+  }
+  .recipes-grid {
+    min-width: 0px;
+    width: 250px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap:nowrap;
   }
 }
 </style>

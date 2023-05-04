@@ -32,7 +32,7 @@ describe('ProductGrid form', async () => {
 
   it('displays the correct default page', async () => {
     const currPage = wrapper.find('span')
-    expect(currPage.text()).toContain('Side 1')
+    expect(currPage.text()).toContain('1')
   })
 
   it('allows selecting products', async () => {

@@ -56,7 +56,9 @@
           :disabled="!edit"
         />
         <button v-if="edit" id="edit-button" class="btn btn-dark" @click="activateEdit">Rediger</button>
+        <img id="edit-icon" v-if="edit" src="../assets/icons/edit.svg" @click.stop="activateEdit">
         <button v-if="!edit" id="save-button" class="btn btn-dark" @click.stop="activateSave">Lagre</button>
+        <img id="save-icon" v-if="!edit" src="../assets/icons/check.svg" @click.stop="activateSave">
       </div>
     </div>
     <div v-if="confirmEat || confirmThrow" class="confirm-popup">
@@ -139,7 +141,6 @@ const activateEdit = () => {
   }
   expirationDateInput.value.disabled = false
   quantityInput.value.disabled = false
-  expirationDateInput.value.focus()
   edit.value = false
 }
 
@@ -409,6 +410,7 @@ function cancelAction () {
   top: 0;
   height: 50%;
   bottom: 0;
+  min-width: 40px;
   width: 10%;
   display: flex;
   justify-content: center;
@@ -450,6 +452,7 @@ function cancelAction () {
   left: 0;
   top: 50%;
   bottom: 0;
+  min-width: 40px;
   width: 10%;
   display: flex;
   justify-content: center;
@@ -549,6 +552,44 @@ function cancelAction () {
 .disabled {
   pointer-events: none;
   opacity: 0.7;
+}
+
+#edit-icon,
+#save-icon {
+  cursor: pointer;
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .card-image {
+    display: none;
+  }
+  .card {
+    width: 100%;
+  }
+  #edit-button,
+  #save-button {
+    display: none;
+  }
+  #edit-icon {
+    display: flex;
+    width: 32px;
+  }
+  #save-icon {
+    display: flex;
+    width: 35px;
+  }
+  .section-one {
+    width: 90%;
+    max-width: 100%;
+  }
+  .section-two {
+    width: 7%;
+  }
+  .card-body {
+    width: 100%;
+    margin-left: 10px;
+  }
 }
 
 </style>

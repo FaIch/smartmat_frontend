@@ -90,7 +90,6 @@ export const useUserStore = defineStore('userStore', () => {
   }
 },
 {
-  // Pinia store options
   persist: true
 })
 
