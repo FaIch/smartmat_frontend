@@ -1,7 +1,7 @@
 <template>
   <div class="my-fridge">
-    <div class="search-div">
-      <SearchBar id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts" v-if="props.fridge"/>
+    <div v-if="props.fridge" class="search-div">
+      <SearchBar id="search-bar" :search-placeholder="searchPlaceholder" @search="searchProducts"/>
       <button v-if="userStore.role === 'PARENT'" class="products-button" @click="toggleProductSelector">Se alle produkter</button>
       <div v-if="showProductSelector" class="popup-overlay" @click="toggleProductSelector"></div>
       <div v-if="showProductSelector" class="product-selector-popup">
@@ -112,9 +112,14 @@ async function getItemsInFridge () {
 }
 
 async function onUpdate (updatedProduct: FridgeItemCardInterface) {
-  const path = '/fridge/edit/' + updatedProduct.id
+  const path = '/fridge/edit'
+  const fridgeItemRequest = {
+    itemId: updatedProduct.id,
+    quantity: updatedProduct.quantity,
+    expirationDate: updatedProduct.expirationDate
+  }
 
-  await api.put(path)
+  await api.put(path, fridgeItemRequest)
     .then(async (response) => {
       if (response.status === 200) {
         const index = products.value.findIndex(

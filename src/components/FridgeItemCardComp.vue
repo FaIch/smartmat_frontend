@@ -27,8 +27,14 @@
         <div class="edits">
           <div class="expiration-date-div">
             <p class="card-text">Utløpsdato:</p>
-            <input type="date" class="input-field" :disabled="edit" id="expiration-date" v-model="expirationDate"
-            ref="expirationDateInput"/>
+            <input
+              type="date"
+              class="input-field"
+              :disabled="edit"
+              id="expiration-date"
+              v-model="expirationDate"
+              ref="expirationDateInput"
+            />
           </div>
           <div class="quantity-div">
             <p class="card-text">{{ unitType }}</p>

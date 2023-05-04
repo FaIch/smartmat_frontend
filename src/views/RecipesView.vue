@@ -4,19 +4,19 @@
       <h1>Middagsforslag</h1>
       <div class="selector">
         <img
-                src="../assets/icons/remove.svg"
-                @click="decrement"
-              />
-              <input class="input-field"
-                v-model.number="quantity"
-                id="quantity"
-                disabled
-                ref="quantityInput"
-              />
-              <img
-                src="../assets/icons/add.svg"
-                @click="increment"
-              />
+          src="../assets/icons/remove.svg"
+          @click="decrement"
+        />
+        <input class="input-field"
+          v-model.number="quantity"
+          id="quantity"
+          disabled
+          ref="quantityInput"
+        />
+        <img
+          src="../assets/icons/add.svg"
+          @click="increment"
+        />
       </div>
     </div>
     <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar" @search="filterRecipes"/>
