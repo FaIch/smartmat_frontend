@@ -31,15 +31,15 @@ body,html {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: rgb(224, 224, 224); /* Background color of the scrollbar track */
+  background-color: rgb(224, 224, 224);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #555; /* Background color of the scrollbar thumb */
+  background-color: #555;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #888; /* Background color of the scrollbar thumb when hovered */
+  background-color: #888;
 }
 
 * {
