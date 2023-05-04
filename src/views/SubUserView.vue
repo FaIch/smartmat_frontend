@@ -91,7 +91,7 @@ function selectAccount (subuser: SubUser, index: number) {
   if (subuser.role === 'CHILD') {
     userStore.subUserLogin(subuser)
     utilityStore.showItems()
-    router.push('/fridge')
+    router.push('/savings')
     return
   }
   if (selectedIndex.value === index) {
@@ -128,7 +128,7 @@ async function validateAndLogin (subuser: SubUser, index: number) {
   const isPinCorrect = pin === subuser.passcode.toString()
   if (isPinCorrect) {
     userStore.subUserLogin(subuser)
-    router.push('/fridge')
+    router.push('/savings')
     utilityStore.showItems()
   } else {
     selectAccount(subuser, index)

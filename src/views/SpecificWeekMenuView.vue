@@ -85,7 +85,6 @@ async function saveMenu () {
     .then(async (response) => {
       if (response.status === 200) {
         console.log(response.data)
-        await router.push('/specificMenu')
       }
     })
     .catch((error) => {
