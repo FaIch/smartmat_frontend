@@ -251,7 +251,7 @@ watch(
 }
 
 .card-image {
-  width: 35%;
+  width: 30%;
   max-height: 150px; /* Increase max-height value */
   margin: auto;
   margin-left: 50px;
