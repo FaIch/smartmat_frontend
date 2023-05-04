@@ -216,8 +216,7 @@ watch(
 }
 
 .edit-quantity-div {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   align-items: center;
   width: 120px;
 }
