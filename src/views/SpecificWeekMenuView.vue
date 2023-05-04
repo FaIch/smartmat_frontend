@@ -3,17 +3,55 @@
     <h1 class="title">Din ukemeny </h1>
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
-    <p>Ingredienser: {{weekMenuData.totalAmountOfItems}}</p>
-    <p>Mangler: {{weekMenuData.totalAmountOfMissingItems}}</p>
-    <p>Antall datovarer:  {{weekMenuData.totalAmountOfItemsToExpire}}</p>
-    <br>
-    <button class="button" v-if="!recipeStore.getHasWeekMenu()" @click="saveMenu" :class="{'dark-green': isButtonClicked}">Lagre Ukesmeny</button>
-    <button class="button" v-else @click="removeMenu">Fjern Ukesmeny</button>
     <div class="recipe-row">
-      <RecipeCardCompWeekMenu v-for="(recipe, index) in menu?.weekMenuRecipes" :key="index" :recipe="recipe"/>
+      <RecipeCardCompWeekMenu v-for="(recipe, index) in menu?.weekMenuRecipes" :key="index" :recipe="recipe" @update-card="updateCard"/>
     </div>
     <div class="required-ingredients">
-      <li v-for="(ingredient, index) in recipeItems" :key="index">{{ ingredient.item.name + " " + ingredient.quantity + " " + ingredient.item.unit}} </li>
+      <button @click="toggleDropdown">Toggle Ingredients</button>
+      <div v-show="isDropdownOpen">
+        <button @click="addAllToShoppingList">Legg til handlelist</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Amount & Unit</th>
+              <th>Ingredient</th>
+              <th>Availability</th>
+              <th>
+                <input
+                  type="checkbox"
+                  @change="toggleSelectAll"
+                  v-model="selectAllChecked"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
+              <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+              <td>{{ ingredient.item.name }}</td>
+              <td>
+                <span v-if="ingredientAvailable(ingredient)">
+                  In fridge
+                </span>
+                <span v-else-if="inShoppingList(ingredient)">
+                  In shopping list
+                </span>
+                <span v-else>
+                  Not enough
+                </span>
+              </td>
+              <td class="checkbox-cell">
+                <input
+            v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+            type="checkbox"
+            @change="toggleSelectedItem(ingredient)"
+            v-model="ingredient.selected"
+          />
+              </td>
+            </tr>
+          </tbody>
+      </table>
+    </div>
   </div>
   </div>
 </template>
@@ -21,25 +59,48 @@
 <script setup lang="ts">
 // TODO: hvorfor forsvinner på refresh?!
 
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
-import { MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
+import { ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 import router from '../router'
 const userStore = useUserStore()
-
+const isDropdownOpen = ref(false)
 const isButtonClicked = ref(false)
 const menu = ref<MenuInterface>()
 const recipeItems = ref<RecipeIngredientInterface[]>([])
 const shoppingList = ref<ShoppingListItemCardInterface[]>([])
 const fridgeItems = ref<FridgeItemCardInterface[]>([])
+const selectAllChecked = ref(false)
+const portions = ref(4)
+const selectedItems = ref<ShoppingListItem[]>([])
+
 // const selectedItems = ref<ShoppingListItem[]>([])
 
 onMounted(() => {
+  fetchData()
+})
+
+async function fetchData () {
   getWeekMenu()
   getShoppingList()
   getFridgeItems()
+}
+
+const updateCard = () => {
+  // Update your data here, e.g., fetch the new data from the API
+  fetchData()
+}
+
+const adjustedRecipeItems = computed(() => {
+  return recipeItems.value.map((ingredient) => {
+    const adjustedQuantity = Math.ceil((ingredient.quantity * (portions.value / 4)))
+    return {
+      ...ingredient,
+      quantity: adjustedQuantity
+    }
+  })
 })
 
 async function getWeekMenu () {
@@ -63,11 +124,14 @@ async function getWeekMenu () {
 
 async function getIngredientList () {
   const path = '/week-menu/get-recipes-items'
-  await api.get(path)
+  const body = menu.value?.weekMenuRecipes.map((recipe) => recipe.recipe.id)
+  console.log(body)
+  await api.post(path, body)
     .then(async (response) => {
       if (response.status === 200) {
         console.log(response.data)
         recipeItems.value = response.data
+        console.log(recipeItems.value)
       }
     })
     .catch((error) => {
@@ -125,26 +189,152 @@ async function getFridgeItems () {
     })
 }
 
-async function saveMenu () {
-  isButtonClicked.value = true
-  const weekMenuRequest = {
+watch(
+  () => selectAllChecked.value,
+  (newValue) => {
+    recipeItems.value.forEach((ingredient) => {
+      if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
+        ingredient.selected = newValue
+        toggleSelectedItem(ingredient)
+      }
+    })
   }
+)
 
-  const path = '/week-menu/save'
-  await api.post(path, weekMenuRequest)
-    .then(async (response) => {
-      if (response.status === 200) {
-        console.log(response.data)
-        await router.push('/specificMenu')
+function ingredientAvailable (ingredient: RecipeIngredientInterface): boolean {
+  const adjustedIngredient = adjustedRecipeItems.value.find(
+    (item) => item.item.id === ingredient.item.id
+  )
+
+  if (!adjustedIngredient) return false
+
+  const fridgeItem = fridgeItems.value.find(
+    (item) => item.item.id === adjustedIngredient.item.id
+  )
+
+  if (fridgeItem) {
+    return fridgeItem.quantity >= adjustedIngredient.quantity
+  }
+  return false
+}
+
+function inShoppingList (item: ShoppingListItemCardInterface): boolean {
+  const shoppingListItem = shoppingList.value.find(listItem => listItem.item.id === item.item.id)
+  if (shoppingListItem) {
+    console.log(shoppingListItem.item.name + shoppingListItem.quantity)
+    return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
+  }
+  return false
+}
+
+function toggleSelectAll () {
+  if (selectAllChecked.value) {
+    adjustedRecipeItems.value.forEach(ingredient => {
+      if (
+        !ingredientAvailable(ingredient) &&
+        !inShoppingList(ingredient) &&
+        !ingredient.selected
+      ) {
+        ingredient.selected = true
+        toggleSelectedItem(ingredient)
       }
     })
-    .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
-        userStore.logout()
+  } else {
+    adjustedRecipeItems.value.forEach(ingredient => {
+      if (
+        !ingredientAvailable(ingredient) &&
+        !inShoppingList(ingredient) &&
+        ingredient.selected
+      ) {
+        ingredient.selected = false
+        toggleSelectedItem(ingredient)
       }
     })
+  }
+}
+
+function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
+  const adjustedIngredient = adjustedRecipeItems.value.find(
+    item => item.item.id === ingredient.item.id
+  )
+
+  if (!adjustedIngredient) return
+
+  const index = selectedItems.value.findIndex(
+    item => item.id === adjustedIngredient.item.id
+  )
+
+  const fridgeItem = fridgeItems.value.find(
+    item => item.item.id === adjustedIngredient.item.id
+  )
+
+  const shoppingListItem = shoppingList.value.find(
+    listItem => listItem.item.id === adjustedIngredient.item.id
+  )
+
+  let requiredQuantity =
+    fridgeItem && fridgeItem.quantity < adjustedIngredient.quantity
+      ? Math.ceil(
+        (adjustedIngredient.quantity - fridgeItem.quantity) /
+            adjustedIngredient.item.baseAmount
+      )
+      : Math.ceil(
+        adjustedIngredient.quantity / adjustedIngredient.item.baseAmount
+      )
+
+  requiredQuantity = shoppingListItem
+    ? requiredQuantity - shoppingListItem.quantity
+    : requiredQuantity
+
+  if (index === -1) {
+    selectedItems.value.push({
+      id: adjustedIngredient.item.id,
+      quantity: requiredQuantity
+    })
+  } else {
+    selectedItems.value[index].quantity = requiredQuantity
+  }
+}
+
+async function addAllToShoppingList () {
+  const checkedProductsData = selectedItems.value.map((item) => ({
+    itemId: item.id,
+    quantity: item.quantity
+  }))
+
+  console.log(checkedProductsData)
+  if (checkedProductsData.length) {
+    const path = '/shopping-list/add'
+    await api.post(path, checkedProductsData)
+      .then(async (response) => {
+        if (response.status === 200) {
+          console.log('All selected items added to the shopping list')
+          // Refresh the shopping list
+          getShoppingList()
+          // Clear the selected items
+          selectedItems.value = []
+
+          // Uncheck the added items
+          recipeItems.value.forEach((ingredient) => {
+            if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
+              ingredient.selected = false
+            }
+          })
+          // Uncheck the 'select all' checkbox
+          selectAllChecked.value = false
+        }
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          userStore.logout()
+        }
+        console.log(error)
+      })
+  }
+}
+
+function toggleDropdown () {
+  isDropdownOpen.value = !isDropdownOpen.value
 }
 
 </script>
@@ -168,6 +358,7 @@ async function saveMenu () {
 
 .recipe-row {
   display: flex;
+  direction: column;
   flex-wrap: wrap;
   justify-content: center;
 }
