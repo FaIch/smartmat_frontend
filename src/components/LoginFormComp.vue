@@ -41,7 +41,7 @@
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import router from '../router/index'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import api from '../utils/httputils'
 import { SHA256 } from 'crypto-js'
 
@@ -51,7 +51,17 @@ const updateMessage = ref('')
 const emit = defineEmits(['switch-view'])
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
-
+const props = defineProps({
+  signupMessage: {
+    type: String,
+    required: true
+  }
+})
+watchEffect(() => {
+  if (props.signupMessage) {
+    updateMessage.value = props.signupMessage
+  }
+})
 const validateLogin = () => {
   const emailRegex = ref(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
 

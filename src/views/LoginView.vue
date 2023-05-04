@@ -4,7 +4,7 @@
       <div class="form-container">
         <div class="login-forms">
           <div class="login-form-content">
-            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" data-cy="login-form-comp"/>
+            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" data-cy="login-form-comp" :signupMessage="signupMessage" />
             <SignUpFormComp v-show="!showLoginForm" @switchView="toggleView" data-cy="signup-form-comp"/>
           </div>
         </div>
@@ -24,6 +24,7 @@ import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
+const signupMessage = ref('')
 
 onMounted(() => {
   userStore.logout()
@@ -32,7 +33,14 @@ onMounted(() => {
 
 const showLoginForm = ref(true)
 
-const toggleView = () => {
+interface MessageInput {
+  message: string;
+}
+
+const toggleView = (message?: Partial<MessageInput>) => {
+  if (message && message.message) {
+    signupMessage.value = message.message
+  }
   showLoginForm.value = !showLoginForm.value
 }
 
