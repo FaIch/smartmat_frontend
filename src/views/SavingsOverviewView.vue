@@ -19,10 +19,10 @@
       </div>
     </div>
     <div class="menu">
-      <button class="selector" @click="showAllTime()">Totalt</button>
-      <button class="selector" @click="showLastYear()">Siste år</button>
-      <button class="selector" @click="showLastMonth()">Siste måned</button>
-      <button class="selector" @click="showLastWeek()">Siste Uke</button>
+      <button :class="{'selector': true, 'selected': flag === 'weekly'}" @click="showLastWeek()">Siste Uke</button>
+      <button :class="{'selector': true, 'selected': flag === 'monthly'}" @click="showLastMonth()">Siste Måned</button>
+      <button :class="{'selector': true, 'selected': flag === 'yearly'}" @click="showLastYear()">Siste År</button>
+      <button :class="{'selector': true, 'selected': flag === 'allTime'}" @click="showAllTime()">Total</button>
     </div>
   </div>
 </template>
@@ -36,11 +36,20 @@ import axios from 'axios'
 const averageMoneyLostYear = 5322.0 // kr per year
 const averageMoneyLost = computed(() => {
   if (flag.value === 'yearly') {
-    return `${(moneyLost.value * 100 / averageMoneyLostYear).toFixed(1)}% av årlig gjennomsnitt`
+    return `${(moneyLost.value * 100 / averageMoneyLostYear * numberOfHouseholdMembers.value)
+        .toFixed(1)}% av årlig gjennomsnitt for husholdninger med
+        ${numberOfHouseholdMembers.value} personer`
   } else if (flag.value === 'monthly') {
-    return `${(moneyLost.value * 100 / (averageMoneyLostYear / 12)).toFixed(1)}% av månedtlig gjennomsnitt`
+    return `${(moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value / 12))
+        .toFixed(1)}% av månedtlig gjennomsnitt for husholdninger med
+        ${numberOfHouseholdMembers.value} personer`
   } else if (flag.value === 'weekly') {
-    return `${(moneyLost.value * 100 / (averageMoneyLostYear / 52)).toFixed(1)}% av ukentlig gjennomsnitt`
+    return `${(moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value / 52))
+        .toFixed(1)}% av ukentlig gjennomsnitt for husholdninger med
+        ${numberOfHouseholdMembers.value} personer`
+  } else if (flag.value === 'allTime') {
+    return `Dette matsvinnet tilsvarer utslipp fra ${(co2Emissions.value * 6.25)
+        .toFixed(1)}km kjøring med bensinbil`
   } else {
     return ''
   }
@@ -50,6 +59,7 @@ const flag = ref('')
 const foodWaste = ref<number>(0)
 const moneyLost = ref<number>(0)
 const co2Emissions = ref<number>(0)
+const numberOfHouseholdMembers = ref<number>(1)
 
 const config = {
   headers: {
@@ -110,11 +120,20 @@ const showLastWeek = () => {
     })
 }
 
-onMounted(() => {
-  showAllTime()
-  showLastYear()
-  showLastMonth()
+const fetchNumberOfHouseholdMembers = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/user/numberOfHouseholdMembers',
+      config
+    )
+    numberOfHouseholdMembers.value = response.data
+  } catch (error) {
+    console.error('Error fetching numberOfHouseholdMembers:', error)
+  }
+}
+
+onMounted(async () => {
   showLastWeek()
+  await fetchNumberOfHouseholdMembers()
 })
 
 </script>
@@ -125,14 +144,11 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   background-image: url("../assets/startpagebackground3.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-}
-.menu {
-  display: flex;
 }
 
 .selector {
@@ -150,6 +166,11 @@ onMounted(() => {
 }
 
 .selector:hover {
+  color: #25A13A;
+  background: #fff;
+}
+
+.selector.selected {
   color: #25A13A;
   background: #fff;
 }
@@ -195,17 +216,36 @@ p {
 }
 
 .averages {
+  max-width: 400px;
   font-weight: bold;
   font-size: 20px;
   margin: 1rem;
   padding: 1rem;
 }
-</style>
 
-/*
-Tar man utgangspunkt i Miljødirektoratets beregninger fra 2016 vil 84,7kg matsvinn
-tilsvare et tap på omtrent 5 322 norske kroner. I den samme rapporten estimeres det
-at 1kg matsvinn tilsvarer 3,6kg CO2-ekvivalenter, hvilket betyr at en gjennomsnittlig
-forbruker står for omtrent 305kg CO2-ekvivalenter per år. Dette utslippet tilsvarer
-1906km kjøring med bensinbil og mer enn tre tur-retur flygninger mellom Trondheim og Oslo.
-*/
+/* Media Query added for devices with a max width of 768px */
+@media screen and (max-width: 768px) {
+  h1 {
+    font-weight: bolder;
+    font-size: 30px;
+    color: white;
+    margin: 5.5rem 0 0;
+    padding: 0;
+  }
+  .numbers {
+    flex-direction: column;
+    align-items: center;
+  }
+  .menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .mainNumbers {
+    font-size: 50px;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+</style>

@@ -23,10 +23,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import SearchBarComp from './SearchBarComp.vue'
 import { ItemInterface } from './types'
 import { useUserStore } from '../stores/UserStore'
+import api from '../utils/httputils'
 
 const userStore = useUserStore()
 const products = ref<ItemInterface[]>([])
@@ -63,14 +64,8 @@ function toggleProductSelection (product: ItemInterface) {
 }
 
 async function fetchProducts () {
-  const config = {
-    headers: {
-      'Content-type': 'application/json'
-    },
-    withCredentials: true
-  }
   try {
-    const response = await axios.get('http://localhost:8080/items/list', config)
+    const response = await api.get('/items/list')
     if (response.status === 200) {
       products.value = response.data
     }

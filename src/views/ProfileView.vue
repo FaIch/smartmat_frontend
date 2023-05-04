@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted, defineExpose } from 'vue'
 import { useUserStore } from '../stores/UserStore'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { SHA256 } from 'crypto-js'
 
 const userStore = useUserStore()
@@ -53,16 +53,10 @@ const address = ref('')
 const wrongOldPassword = ref(false)
 const numberOfHouseholdMembers = ref('')
 const changesMade = ref(false)
-const config = {
-  headers: {
-    'Content-type': 'application/json'
-  },
-  withCredentials: true
-}
 
 onMounted(async () => {
   if (userStore.loggedIn) {
-    await axios.get('http://localhost:8080/user/details', config)
+    await api.get('http://localhost:8080/user/details')
       .then((response) => {
         phoneNumber.value = response.data.phoneNumber
         address.value = response.data.address
@@ -93,9 +87,7 @@ const submitForm = async () => {
       return
     }
     try {
-      await axios.put('http://localhost:8080/user/edit/phone?phoneNumber=' + phoneNumber.value, null,
-        config
-      )
+      await api.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
       changesMade.value = true
     } catch (error) {
       console.error('Error updating phone number', error)
@@ -109,10 +101,7 @@ const submitForm = async () => {
       return
     }
     try {
-      await axios.put(
-        'http://localhost:8080/user/edit/address?address=' + address.value, null,
-        config
-      )
+      await api.put('/user/edit/address?address=' + address.value, null)
       changesMade.value = true
     } catch (error) {
       console.error('Error updating address', error)
@@ -123,10 +112,8 @@ const submitForm = async () => {
     const hashedOldPassword = SHA256(oldPassword.value)
     const hashedNewPassword = SHA256(newPassword.value)
     try {
-      const response = await axios.put(
-        'http://localhost:8080/user/edit/password?oldPassword=' + hashedOldPassword + '&newPassword=' + hashedNewPassword, null,
-        config
-      )
+      const response = await api.put(
+        '/user/edit/password?oldPassword=' + hashedOldPassword + '&newPassword=' + hashedNewPassword, null)
       if (response.data.error) {
         throw new Error(response.data.error)
       }
@@ -142,15 +129,12 @@ const submitForm = async () => {
     }
   }
 
-  // Update the postal code
   if (numberOfHouseholdMembers.value) {
     try {
-      await axios.put(
-        'http://localhost:8080/user/edit/postalCode?postalCode=' + numberOfHouseholdMembers.value, null,
-        config
-      )
+      await api.put(
+        '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
     } catch (error) {
-      console.error('Error updating postal code', error)
+      console.error('Error updating household members', error)
     }
   }
 }

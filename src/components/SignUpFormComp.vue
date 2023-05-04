@@ -81,8 +81,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import axios from 'axios'
 import { SHA256 } from 'crypto-js'
+import api from '../utils/httputils'
 
 const email = ref('')
 const password = ref('')
@@ -140,8 +140,8 @@ async function submitSignup () {
   if (validateSignup()) {
     const path =
       addChildUser.value
-        ? 'http://localhost:8080/user/create/child'
-        : 'http://localhost:8080/user/create'
+        ? '/user/create/child'
+        : '/user/create'
 
     const hashedPassword = SHA256(password.value)
 
@@ -154,9 +154,10 @@ async function submitSignup () {
     const config = {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      requireCredentials: false
     }
-    axios.post(path, data, config).then(response => {
+    api.post(path, data, config).then(response => {
       if (response.status === 200) {
         updateMessage.value = response.data
       }

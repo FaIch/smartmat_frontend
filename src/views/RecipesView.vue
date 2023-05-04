@@ -2,6 +2,22 @@
   <div class="recipes-container">
     <div class="recipes-title">
       <h1>Middagsforslag</h1>
+      <div class="selector">
+        <img
+                src="../assets/icons/remove.svg"
+                @click="decrement"
+              />
+              <input class="input-field"
+                v-model.number="quantity"
+                id="quantity"
+                disabled
+                ref="quantityInput"
+              />
+              <img
+                src="../assets/icons/add.svg"
+                @click="increment"
+              />
+      </div>
     </div>
     <SearchBarComp :search-placeholder="searchPlaceholder" id="search-bar" @search="filterRecipes"/>
     <div v-if="updateMessage.length === 0" class="recipes-grid">
@@ -17,32 +33,29 @@
 import SearchBarComp from '../components/SearchBarComp.vue'
 import RecipeCardComp from '../components/RecipeCardComp.vue'
 import { ref, onMounted } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import { useUserStore } from '../stores/UserStore'
 import { RecipeCardInterface } from '../components/types'
+import api from '../utils/httputils'
 
 const userStore = useUserStore()
 const searchPlaceholder = ref('Søk etter oppskrifter...')
 const recipes = ref<RecipeCardInterface[]>([])
-onMounted(() => {
-  getRecipes().then(() => {
-    filteredRecipes.value = recipes.value
-  })
-})
+
 const updateMessage = ref('')
 const filteredRecipes = ref<RecipeCardInterface[]>([])
+const quantity = ref(4)
 
 async function getRecipes () {
-  const path = 'http://localhost:8080/recipe/list/sorted'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
+  const params = {
+    params: {
+      amount: quantity.value
+    }
   }
-
+  const path = '/recipe/list/sorted'
   try {
-    const response = await axios.get(path, config)
+    console.log(params)
+    const response = await api.get(path, params)
 
     if (response.status === 200) {
       recipes.value = response.data
@@ -67,6 +80,42 @@ async function filterRecipes (searchInput: string) {
     return recipeCard.recipe.name.toLowerCase().includes(searchInput.toLowerCase())
   })
 }
+
+async function fetchUserData () {
+  api.get('/user/details').then((response) => {
+    if (response.status === 200) {
+      console.log(response.data.numberOfHouseholdMembers)
+      quantity.value = response.data.numberOfHouseholdMembers
+    }
+  })
+}
+
+function increment () {
+  quantity.value++
+  updateQuantity()
+}
+
+function decrement () {
+  if (quantity.value > 1) {
+    quantity.value--
+    updateQuantity()
+  }
+}
+
+function updateQuantity () {
+  getRecipes().then(() => {
+    filteredRecipes.value = recipes.value
+  })
+}
+
+onMounted(() => {
+  fetchUserData().then(() => {
+    getRecipes().then(() => {
+      filteredRecipes.value = recipes.value
+    })
+  })
+})
+
 </script>
 
 <style scoped>
@@ -86,6 +135,21 @@ async function filterRecipes (searchInput: string) {
   margin-top: 5px;
   font-weight: normal;
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+.recipes-title {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.selector {
+  display: flex;
+  flex-direction: row;
+  justify-self: right;
+  align-self: right;
+  margin-top: 10px;
 }
 
 #search-bar{

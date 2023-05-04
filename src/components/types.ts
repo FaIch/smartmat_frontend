@@ -69,11 +69,11 @@ export interface WeekMenuCardInterface {
   type:string;
 }
 
-export type WeekMenuData= {
-  totalAmountOfItems:number;
-  totalAmountOfMissingItems:number;
-  totalAmountOfItemsToExpire:number;
-};
+export interface WeekMenuData {
+    totalAmountOfItems:number;
+    totalAmountOfMissingItems:number;
+    totalAmountOfItemsToExpire:number;
+}
 
 export type WeekMenu= {
   id:number;

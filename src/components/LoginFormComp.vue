@@ -42,7 +42,7 @@ import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import router from '../router/index'
 import { ref } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { SHA256 } from 'crypto-js'
 
 const email = ref('')
@@ -86,21 +86,14 @@ function resetUpdate () {
 async function submitLogin () {
   resetUpdate()
   if (validateLogin()) {
-    const path = 'http://localhost:8080/user/login'
+    const path = '/user/login'
     const hashedPassword = SHA256(password.value)
     const request = {
       email: email.value,
       password: hashedPassword.toString()
     }
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    }
-
-    await axios.post(path, request, config)
+    await api.post(path, request)
       .then(async (response) => {
         if (response.status === 200) {
           userStore.login(response.data.userEmail)

@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { SubUser } from '../components/types'
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import router from '../router/index'
@@ -72,14 +72,8 @@ onMounted(() => {
 })
 
 async function getSubUsers () {
-  const path = 'http://localhost:8080/user/sub-user/get'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  const path = '/user/sub-user/get'
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         subUsers.value = response.data
@@ -175,20 +169,14 @@ function navigateInput (event: KeyboardEvent, pinIndex: number) {
 }
 
 async function setSubUserPasscode (subuser: SubUser) {
-  const path = 'http://localhost:8080/user/sub-user/edit'
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
+  const path = '/user/sub-user/edit'
   const subUserRequest = {
     userEmail: subuser.email,
     nickname: subuser.nickname,
     role: subuser.role,
     passcode: subuser.passcode
   }
-  await axios.put(path, subUserRequest, config)
+  await api.put(path, subUserRequest)
     .then(async (response) => {
       if (response.status === 200) {
         updateMessage.value = `PIN kode satt: ${subuser.passcode}`

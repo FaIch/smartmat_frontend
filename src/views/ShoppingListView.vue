@@ -25,7 +25,7 @@ import ShoppingListComp from '../components/ShoppingListComp.vue'
 import SuggestedItemsComp from '../components/SuggestedItemsComp.vue'
 import WishListComp from '../components/WishListComp.vue'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 
 const numberOfShoppingListItems = ref()
@@ -39,15 +39,9 @@ onMounted(() => {
 })
 
 async function getNumberOfShoppingListItems () {
-  const path = 'http://localhost:8080/shopping-list/get/number'
+  const path = '/shopping-list/get/number'
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true
-  }
-  await axios.get(path, config)
+  await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
         numberOfShoppingListItems.value = response.data.shoppingListItemsNumber
