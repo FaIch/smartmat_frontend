@@ -434,4 +434,40 @@ async function markSingleItemAsWaste (productParam: FridgeItemCardInterface) {
   transform: scale(1);
 }
 
+@media only screen and (max-width: 800px) {
+  .search-div {
+    flex-direction: column;
+    justify-content: center;
+  }
+  #search-bar {
+    width: 400px;
+  }
+  .products-button {
+    margin: 0;
+    margin-top: 10px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .fridge-button {
+    margin-top: 20px;
+    margin-bottom: 0px;
+  }
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 50px;
+  }
+  .item-cards {
+    width: 80%;
+    min-width: 280px;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  #search-bar {
+    width: 100%;
+  }
+}
+
 </style>

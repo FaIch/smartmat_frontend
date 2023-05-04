@@ -88,7 +88,7 @@ function refreshPage () {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60px;
+  min-height: 72px;
   width: 100%;
 }
 .separator {
@@ -128,5 +128,14 @@ h2 {
 
 .inactive {
   font-size: 20px;
+}
+
+@media only screen and (max-width: 800px) {
+  .active {
+    font-size: 30px;
+  }
+  .inactive {
+    font-size: 15px;
+  }
 }
 </style>
