@@ -1,6 +1,6 @@
 <template>
   <div class="product-selector-view">
-    <h2>Selected ({{ numberSelected }})</h2>
+    <h2>Valgt ({{ numberSelected }})</h2>
     <div class="button-container">
       <button class="selector-button" v-if="props.buttonType === 'fridge'" @click="addToFridge">Legg til i kjøleskap</button>
       <button class="selector-button" v-if="props.buttonType === 'shopping'" @click="addToShoppingList" data-cy="addShopping">Legg til i handleliste</button>
