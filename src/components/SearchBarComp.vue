@@ -140,19 +140,15 @@ function updateSearch () {
   }
 }
 
-@media only screen and (max-width: 370px) {
+@media only screen and (max-width: 500px) {
   #search-icon{
     display: none;
   }
-}
-
-@media only screen and (max-width: 279px) {
-  #search-input{
-    display: none;
-    width: 0;
-  }
-  .search-form{
-    display: none;
+  #search-input {
+    justify-self: left;
+    margin: 0;
+    padding: 0;
+    text-align: left;
   }
 }
 @media only screen and (min-width: 825px) {

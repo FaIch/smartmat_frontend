@@ -19,11 +19,11 @@
       <img src="../assets/icons/white-utensils.svg" alt="Eaten Icon Hover" class="eaten-icon eaten-icon-hover" />
     </div>
     <div class="card-image">
-      <img :src=props.product.item.image class="card-img-top" alt="...">
+      <img :src=product.item.image class="card-img-top" alt="...">
     </div>
     <div class="card-body">
       <div class="section-one">
-        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ props.product.item.name }}</h5>
+        <h5 class="card-title" :style="{ fontSize: titleFontSize }">{{ product.item.name }}</h5>
         <div class="edits">
           <div class="expiration-date-div">
             <p class="card-text">Utløpsdato:</p>
