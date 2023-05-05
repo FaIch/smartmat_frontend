@@ -1,6 +1,6 @@
 <template>
   <div class="recipe-container">
-    <div class="buttons">
+    <div v-if="userStore.role === Role.PARENT" class="buttons">
       <div v-tippy="'Bytt med tilfeldig'" class="reroll" v-if="!props.recipe.completed">
         <img
           src="../assets/icons/refresh.svg"
@@ -37,11 +37,12 @@
 </template>
 
 <script setup lang="ts">
-import { WeekMenuRecipeInterface } from './types'
+import { WeekMenuRecipeInterface, Role } from './types'
 import router from '../router/index'
 import api from '../utils/httputils'
+import { useUserStore } from '../stores/UserStore'
 const emits = defineEmits(['update-card'])
-
+const userStore = useUserStore()
 const handleClick = () => {
   if (!props.recipe.completed) {
     goToRecipe(props.recipe.recipe.id)

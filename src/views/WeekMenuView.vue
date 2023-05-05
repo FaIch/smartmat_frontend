@@ -7,7 +7,7 @@
       <div class="required-ingredients">
         <button class="button-toggle" @click="toggleDropdown">Vis ingredienser</button>
         <div ref="ingredientsList" class="ingredients-list">
-            <button class="button" @click="addAllToShoppingList">Legg til i handleliste</button>
+            <button class="button" v-if="userStore.role === Role.PARENT" @click="addAllToShoppingList">Legg til i handleliste</button>
             <table>
               <thead>
                 <tr>
@@ -16,6 +16,7 @@
                   <th class="break-words">Tilgjengelighet</th>
                   <th>
                     <input
+                      :disabled="userStore.role === Role.CHILD"
                       type="checkbox"
                       @change="toggleSelectAll"
                       v-model="selectAllChecked"
@@ -44,6 +45,7 @@
                       type="checkbox"
                       @change="toggleSelectedItem(ingredient)"
                       v-model="ingredient.selected"
+                      :disabled="userStore.role === Role.CHILD"
                     />
                   </td>
                 </tr>
@@ -83,7 +85,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
-import { Unit, ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
+import { Role, Unit, ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 
 const userStore = useUserStore()
@@ -521,6 +523,7 @@ a {
 
 table {
   width: 100%;
+  margin-top: 20px;
   border-collapse: collapse;
 }
 
@@ -535,8 +538,16 @@ th {
   background-color: #f2f2f2;
 }
 
+th input {
+  cursor: pointer;
+}
+
 .checkbox-cell {
   text-align: center;
+}
+
+.checkbox-cell input {
+  cursor: pointer;
 }
 
 .selector-outer {
@@ -548,6 +559,10 @@ th {
   flex-direction: row;
   justify-self: right;
   align-self: right;
+}
+
+.selector-outer h4 {
+  margin: 0;
 }
 
 .selector input {

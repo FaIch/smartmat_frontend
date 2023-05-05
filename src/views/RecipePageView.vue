@@ -62,18 +62,19 @@
               </td>
               <td class="checkbox-cell">
                 <input
-            v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-            type="checkbox"
-            @change="toggleSelectedItem(ingredient)"
-            v-model="ingredient.selected"
-          />
+                  v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+                  type="checkbox"
+                  @change="toggleSelectedItem(ingredient)"
+                  v-model="ingredient.selected"
+                  :disabled="userStore.role === Role.CHILD"
+                />
               </td>
             </tr>
           </tbody>
         </table>
         <div class="buttons">
-          <button :disabled="userStore.role === Role.CHILD" v-bind:class="{ 'grey-background': userStore.role === Role.CHILD }" v-if="!allIngredientsInShoppingListOrFridge" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
-          <button v-if="allIngredientsInFridge" class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
+          <button v-if="!allIngredientsInShoppingListOrFridge && userStore.role === Role.PARENT" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button v-if="allIngredientsInFridge && userStore.role === Role.PARENT" class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
         </div>
       </div>
     </div>
