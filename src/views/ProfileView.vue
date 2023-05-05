@@ -27,7 +27,7 @@
                     <label id="errorLabel"> {{ errorMessage }}</label>
                 </div>
             </fieldset>
-            <div v-if="changesMade" id="response-wrapper">
+            <div v-if="changesMade && !wrongOldPassword" id="response-wrapper">
               <h3 >Endringer lagret </h3>
               <i class="material-symbols-outlined">task_alt</i>
             </div>
@@ -64,7 +64,6 @@ onMounted(async () => {
         phoneNumber.value = response.data.phoneNumber
         address.value = response.data.address
         numberOfHouseholdMembers.value = response.data.numberOfHouseholdMembers
-        console.log(response)
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -120,12 +119,15 @@ const submitForm = async () => {
       const response = await api.put(
         '/user/edit/password?oldPassword=' + hashedOldPassword + '&newPassword=' + hashedNewPassword, null)
       if (response.data.error) {
+        wrongOldPassword.value = true
+        changesMade.value = false
         throw new Error(response.data.error)
       }
       changesMade.value = true
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response && error.response.data === 'Feil passord') {
         wrongOldPassword.value = true
+        changesMade.value = false
       }
     }
   }
