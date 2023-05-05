@@ -180,7 +180,6 @@ function toggleSelectAll () {
 }
 
 onMounted(() => {
-  console.log('test' + myProp)
   fetchRecipe()
   fetchRecipeItems()
   fetchShoppingList()
@@ -192,10 +191,7 @@ async function fetchRecipe () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('success')
-        console.log(response.data)
         recipe.value = response.data
-        console.log(recipe.value?.description)
       }
     })
     .catch((error) => {
@@ -212,8 +208,6 @@ async function fetchRecipeItems () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('success')
-        console.log(response.data)
         recipeItems.value = response.data
       }
     })
@@ -230,8 +224,6 @@ async function fetchShoppingList () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('Shopping list:')
-        console.log(response.data)
         shoppingList.value = response.data
       }
     })
@@ -248,10 +240,6 @@ async function fetchFridgeItems () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('Fridge')
-        console.log(response.data)
-
-        // Aggregate the quantities of items with the same ID
         const aggregatedFridgeItems: FridgeItemCardInterface[] = response.data.reduce((acc: FridgeItemCardInterface[], item: FridgeItemCardInterface) => {
           const existingItemIndex = acc.findIndex((accItem: FridgeItemCardInterface) => accItem.item.id === item.item.id)
 
@@ -350,7 +338,6 @@ function inShoppingList (item: ShoppingListItemCardInterface): boolean {
     if (fridgeItem) {
       return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= (item.quantity - fridgeItem.quantity)
     }
-    console.log(shoppingListItem.item.name + shoppingListItem.quantity)
     return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
   }
   return false
@@ -361,26 +348,18 @@ async function addAllToShoppingList () {
     itemId: item.id,
     quantity: item.quantity
   }))
-
-  console.log(checkedProductsData)
   if (checkedProductsData.length) {
     const path = '/shopping-list/add'
     await api.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log('All selected items added to the shopping list')
-          // Refresh the shopping list
           fetchShoppingList()
-          // Clear the selected items
           selectedItems.value = []
-
-          // Uncheck the added items
           recipeItems.value.forEach((ingredient) => {
             if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
               ingredient.selected = false
             }
           })
-          // Uncheck the 'select all' checkbox
           selectAllChecked.value = false
         }
       })
@@ -406,8 +385,6 @@ async function removeFromFridge () {
     await api.post(path, itemsData)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log('All items removed from the fridge')
-          // Refresh the fridge items
           if (!isNaN(myProp)) {
             const path = `/week-menu/${myProp}/toggle-completed`
             api.put(path)

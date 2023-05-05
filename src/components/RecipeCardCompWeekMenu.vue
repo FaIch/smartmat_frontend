@@ -157,7 +157,7 @@ async function reroll () {
   max-width: 300px;
   max-height: 280px;
   cursor: pointer;
-  margin: 15px;
+  margin-top: 15px;
 }
 
 .recipe-card.completed {
@@ -302,5 +302,17 @@ async function reroll () {
 
 .completed {
   border: solid 2px red;
+}
+
+@media only screen and (max-width: 400px) {
+  .recipe-container {
+    scale: 0.9;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .recipe-container {
+    scale: 0.8;
+  }
 }
 </style>

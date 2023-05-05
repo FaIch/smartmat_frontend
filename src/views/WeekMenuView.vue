@@ -1,53 +1,74 @@
 <template>
-  <div class="container" v-if="menu">
+  <div class="week-menu-container" v-if="menu">
     <h1 class="title">Din ukemeny </h1>
-    <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
+    <p> Ukesmenyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
-    <div class="required-ingredients">
-      <button class="button-toggle" @click="toggleDropdown">Vis Ingredienser</button>
-      <div ref="ingredientsList" class="ingredients-list">
-          <button class="button" @click="addAllToShoppingList">Legg til handlelist</button>
-          <table>
-            <thead>
-              <tr>
-                <th>Mengde</th>
-                <th>Varer</th>
-                <th>Tilgjengelighet</th>
-                <th>
-                  <input
-                    type="checkbox"
-                    @change="toggleSelectAll"
-                    v-model="selectAllChecked"
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-                <td>{{ ingredient.quantity }} {{ convertUnitFromEngToNo(ingredient.item.unit) }}</td>
-                <td>{{ ingredient.item.name }}</td>
-                <td>
-                  <span v-if="ingredientAvailable(ingredient)">
-                    I kjøleskap
-                  </span>
-                  <span v-else-if="inShoppingList(ingredient)">
-                    I handleliste
-                  </span>
-                  <span v-else>
-                    Ikke i kjøleskap
-                  </span>
-                </td>
-                <td class="checkbox-cell">
-                  <input
-                    v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-                    type="checkbox"
-                    @change="toggleSelectedItem(ingredient)"
-                    v-model="ingredient.selected"
-                  />
-                </td>
-              </tr>
-            </tbody>
-        </table>
+    <div class="ingredients-container">
+      <div class="required-ingredients">
+        <button class="button-toggle" @click="toggleDropdown">Vis ingredienser</button>
+        <div ref="ingredientsList" class="ingredients-list">
+            <button class="button" @click="addAllToShoppingList">Legg til i handleliste</button>
+            <table>
+              <thead>
+                <tr>
+                  <th class="break-words">Mengde</th>
+                  <th class="break-words">Varer</th>
+                  <th class="break-words">Tilgjengelighet</th>
+                  <th>
+                    <input
+                      type="checkbox"
+                      @change="toggleSelectAll"
+                      v-model="selectAllChecked"
+                    />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
+                  <td class="break-words">{{ ingredient.quantity }} {{ convertUnitFromEngToNo(ingredient.item.unit) }}</td>
+                  <td class="break-words">{{ ingredient.item.name }}</td>
+                  <td class="break-words">
+                    <span v-if="ingredientAvailable(ingredient)">
+                      I kjøleskap
+                    </span>
+                    <span v-else-if="inShoppingList(ingredient)">
+                      I handleliste
+                    </span>
+                    <span v-else>
+                      Ikke i kjøleskap
+                    </span>
+                  </td>
+                  <td class="checkbox-cell">
+                    <input
+                      v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+                      type="checkbox"
+                      @change="toggleSelectedItem(ingredient)"
+                      v-model="ingredient.selected"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="selector-outer">
+        <h4>Porsjoner:</h4>
+        <div class="selector">
+          <img
+            src="../assets/icons/remove.svg"
+            @click="decrement"
+          />
+          <input class="input-field"
+            v-model.number="quantity"
+            id="quantity"
+            disabled
+            ref="quantityInput"
+          />
+          <img
+            src="../assets/icons/add.svg"
+            @click="increment"
+          />
+        </div>
       </div>
     </div>
     <div class="recipe-row">
@@ -75,6 +96,7 @@ const selectAllChecked = ref(false)
 const portions = ref(4)
 const selectedItems = ref<ShoppingListItem[]>([])
 const ingredientsList = ref<HTMLElement | null>(null)
+const quantity = ref(4)
 
 function convertUnitFromEngToNo (unit: Unit) {
   if (unit === Unit.GRAMS) {
@@ -84,6 +106,30 @@ function convertUnitFromEngToNo (unit: Unit) {
   } else {
     return 'mL'
   }
+}
+
+function increment () {
+  if (quantity.value >= 150) {
+    return
+  }
+  quantity.value++
+  updateQuantity()
+}
+
+function decrement () {
+  if (quantity.value <= 1) {
+    return
+  }
+  quantity.value--
+  updateQuantity()
+}
+
+function updateQuantity () {
+  /*
+  getRecipes().then(() => {
+    filteredRecipes.value = recipes.value
+  })
+  */
 }
 // const selectedItems = ref<ShoppingListItem[]>([])
 
@@ -352,14 +398,18 @@ function toggleDropdown () {
 </script>
 
 <style scoped>
-.container {
+.week-menu-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding-top: 100px;
   min-height: 100vh;
   height: 100%;
+}
+
+.ingredients-container {
+  display: flex;
+  flex-direction: row;
 }
 
 .title {
@@ -371,10 +421,16 @@ function toggleDropdown () {
 }
 
 .recipe-row {
+  margin-top: 30px;
+  margin-bottom: 50px;
+  min-width: 300px;
+  width: 80%;
+  max-width: 1500px;
   display: flex;
-  direction: column;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 40px;
 }
 
 @media screen and (max-width: 768px) {
@@ -481,5 +537,71 @@ th {
 
 .checkbox-cell {
   text-align: center;
+}
+
+.selector-outer {
+  margin-top: -30px;
+}
+
+.selector {
+  display: flex;
+  flex-direction: row;
+  justify-self: right;
+  align-self: right;
+}
+
+.selector input {
+  height: 40px;
+  width: 60px;
+  border-radius: 20px;
+  background-color: #e9f1fe;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.selector img {
+  cursor: pointer;
+}
+
+.break-words {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media only screen and (max-width: 700px) {
+  .ingredients-container {
+    flex-direction: column;
+  }
+  .selector {
+    justify-content: center;
+    align-self: center;
+    justify-self: center;
+  }
+  .selector-outer {
+    width: 80%;
+    align-self: center;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .required-ingredients {
+    width: 100%;
+    justify-self: center;
+    align-self: center;
+  }
+  .ingredients-container {
+    width: 90%;
+  }
+
+  .ingredients-list {
+    width: 100%;
+  }
+  .recipe-row {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    flex-direction: unset;
+  }
 }
 </style>
