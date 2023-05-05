@@ -123,7 +123,11 @@ async function getWeekMenu () {
 
 async function getIngredientList () {
   const path = '/week-menu/get-recipes-items'
-  const body = menu.value?.weekMenuRecipes.map((recipe) => recipe.recipe.id)
+  const body = menu.value
+    ? menu.value.weekMenuRecipes
+      .filter((recipe) => !recipe.completed)
+      .map((recipe) => recipe.recipe.id)
+    : []
   console.log(body)
   await api.post(path, body)
     .then(async (response) => {
