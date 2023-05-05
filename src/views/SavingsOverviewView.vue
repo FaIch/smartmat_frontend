@@ -16,7 +16,7 @@
       </div>
     </div>
     <div>
-      <p class="averages">{{ averageMoneyLost }}</p>
+        <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
     </div>
     <div class="menu">
       <button :class="{'selector': true, 'selected': flag === 'weekly'}" @click="showLastWeek()">Siste Uke</button>
@@ -94,6 +94,19 @@ const showLastYear = () => {
       flag.value = 'yearly'
     })
 }
+const isExcess = computed(() => {
+  let percentage = 0
+
+  if (flag.value === 'yearly') {
+    percentage = moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value)
+  } else if (flag.value === 'monthly') {
+    percentage = moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value / 12)
+  } else if (flag.value === 'weekly') {
+    percentage = moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value / 52)
+  }
+
+  return percentage > 100
+})
 
 const showLastMonth = () => {
   axios.get('http://localhost:8080/waste/total/last-month',
@@ -247,6 +260,9 @@ p {
     margin: 0;
     padding: 0;
   }
+}
+.excess {
+    color: red;
 }
 
 </style>
