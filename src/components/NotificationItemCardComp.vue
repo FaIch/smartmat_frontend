@@ -30,8 +30,9 @@ const props = defineProps({
 
 const expired = computed(() => {
   const expirationDate = new Date(props.product.expirationDate)
-  const currentDate = new Date()
-  return expirationDate < currentDate
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  return expirationDate <= yesterday
 })
 
 const unitType = computed(() => {
