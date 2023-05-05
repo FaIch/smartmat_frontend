@@ -39,7 +39,7 @@
                 :key="pinIndex"
                 v-model="pinCodes[index][pinIndex]"
                 class="pin-input"
-                type="text"
+                type="password"
                 maxlength="1"
                 @input="focusNextInput($event, pinIndex)"
                 @keydown="navigateInput($event, pinIndex)"
@@ -180,7 +180,7 @@ async function setSubUserPasscode (subuser: SubUser) {
   await api.put(path, subUserRequest)
     .then(async (response) => {
       if (response.status === 200) {
-        updateMessage.value = `PIN kode satt: ${subuser.passcode}`
+        updateMessage.value = 'PIN kode satt'
       }
     }).catch((error) => {
       if (error.response.status === 401) {
