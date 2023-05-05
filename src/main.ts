@@ -24,7 +24,6 @@ app.use(pinia)
 app.use(router)
 app.use(
   VueTippy,
-  // optional
   {
     directive: 'tippy',
     component: 'tippy',
@@ -33,8 +32,7 @@ app.use(
       placement: 'auto-end',
       allowHTML: true
     }
-  }
-)
+  })
 
 // Mount Vue app to DOM
 app.mount('#app')

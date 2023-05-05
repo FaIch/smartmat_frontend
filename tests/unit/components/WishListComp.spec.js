@@ -1,9 +1,15 @@
 import { shallowMount } from '@vue/test-utils'
 import Wishlist from '../../../src/components/WishListComp.vue'
 import { describe, expect, it, beforeEach, afterEach } from 'vitest'
-
 import { createPinia } from 'pinia'
+import MockAdapter from 'axios-mock-adapter'
+import api from '../../../src/utils/httputils'
 
+const mock = new MockAdapter(api)
+
+afterEach(() => {
+  mock.reset()
+})
 const pinia = createPinia()
 
 describe('WishListComp.vue', () => {

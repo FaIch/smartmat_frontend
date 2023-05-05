@@ -1,8 +1,15 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, beforeEach } from 'vitest'
+import { describe, expect, it, beforeEach, afterEach } from 'vitest'
 import ProductGrid from '../../../src/components/ProductGrid.vue'
 import { createPinia } from 'pinia'
+import MockAdapter from 'axios-mock-adapter'
+import api from '../../../src/utils/httputils'
 
+const mock = new MockAdapter(api)
+
+afterEach(() => {
+  mock.reset()
+})
 const pinia = createPinia()
 const mockStore = {
   someGetter: 'mockValue'

@@ -67,14 +67,15 @@ const goToRecipe = (id: number) => {
 }
 
 async function prepared () {
-  console.log(props.recipe.completed)
   const path = `/week-menu/${props.recipe.id}/toggle-completed`
   api.put(path)
     .then(() => {
       emits('update-card')
     })
     .catch((error) => {
-      console.log(error)
+      if (error.response.status === 401) {
+        userStore.logout()
+      }
     })
 }
 async function reroll () {
@@ -84,7 +85,9 @@ async function reroll () {
       emits('update-card')
     })
     .catch((error) => {
-      console.log(error)
+      if (error.response.status === 401) {
+        userStore.logout()
+      }
     })
 }
 </script>

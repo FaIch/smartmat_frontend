@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LoginFormComp from '../../../src/components/LoginFormComp.vue'
 import { createPinia } from 'pinia'
@@ -7,18 +7,18 @@ const pinia = createPinia()
 const mockStore = {
   someGetter: 'mockValue'
 }
-let wrapper
 
-beforeEach(() => {
-  wrapper = mount(LoginFormComp, {
-    global: {
-      plugins: [pinia],
-      mocks: {
-        $pinia: pinia,
-        $store: mockStore
-      }
+const wrapper = mount(LoginFormComp, {
+  global: {
+    plugins: [pinia],
+    mocks: {
+      $pinia: pinia,
+      $store: mockStore
     }
-  })
+  },
+  props: {
+    signupMessage: ''
+  }
 })
 
 describe('Login form validation', () => {

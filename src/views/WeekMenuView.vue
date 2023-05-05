@@ -170,9 +170,7 @@ async function getWeekMenu () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
     })
@@ -192,9 +190,7 @@ async function getIngredientList () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 400) {
-        console.log('error')
-      } else if (error.response.status === 600) {
+      if (error.response.status === 401) {
         userStore.logout()
       }
     })
@@ -212,7 +208,6 @@ async function getShoppingList () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error)
     })
 }
 
@@ -240,7 +235,6 @@ async function getFridgeItems () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error)
     })
 }
 
@@ -380,7 +374,6 @@ async function addAllToShoppingList () {
         if (error.response.status === 401) {
           userStore.logout()
         }
-        console.log(error)
       })
   }
 }

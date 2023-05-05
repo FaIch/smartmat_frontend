@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { createApp } from 'vue'
+import VueTippy from 'vue-tippy'
 import { mount } from '@vue/test-utils'
 import FridgeItemCardComp from '../../../src/components/FridgeItemCardComp.vue'
 import 'tippy.js/dist/tippy.css'
 import { createPinia } from 'pinia'
 
+const app = createApp({})
+app.use(VueTippy)
 const pinia = createPinia()
 
 describe('FridgeItemCardTests', () => {
@@ -29,7 +33,7 @@ describe('FridgeItemCardTests', () => {
       product
     },
     global: {
-      plugins: [pinia]
+      plugins: [pinia, VueTippy]
     }
   })
 

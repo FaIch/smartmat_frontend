@@ -1,21 +1,23 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, beforeEach } from 'vitest'
 import NavbarComp from '../../../src/components/NavbarComp.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import { createPinia } from 'pinia'
 import { Role } from '../../../src/components/types.ts'
+import { defineComponent } from 'vue'
 
 const pinia = createPinia()
 const mockStore = {
   someGetter: 'mockValue',
   role: Role.PARENT
 }
-let wrapper
+const DummyComponent = defineComponent({})
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createMemoryHistory(),
   routes: [
-    { path: '/savings', name: 'savings' },
+    { path: '/', redirect: '/savings' },
+    { path: '/savings', name: 'savings', component: DummyComponent },
     { path: '/recipes', name: 'recipes' },
     { path: '/weekMenu', name: 'weekMenu' },
     { path: '/shoppinglist', name: 'shoppinglist' },
@@ -25,12 +27,22 @@ const router = createRouter({
   ]
 })
 
-beforeEach(() => {
-  wrapper = mount(NavbarComp, {
-    global: {
-      plugins: [pinia, mockStore, router]
+const wrapper = mount(NavbarComp, {
+  global: {
+    plugins: [pinia, router],
+    provide: {
+      userStore: () => mockStore
+    },
+    stubs: {
+      'router-link': true,
+      'router-view': true
     }
-  })
+  }
+})
+
+beforeEach(async () => {
+  router.push('/')
+  await router.isReady()
 })
 
 describe('NavbarComp form', async () => {

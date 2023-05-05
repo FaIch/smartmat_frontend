@@ -123,13 +123,12 @@ const showHamburgerMenu = computed(() => screenWidth.value < 800)
 const isMenuVisible = ref(false)
 const isProfileMenuVisible = ref(false)
 const route = useRoute()
-const currentPath = computed(() => route.path)
 const showItems = ref(false)
 
 const centeredNavbarLeft = computed(() => !showItems.value)
 
 const isActiveLink = (path: string) => {
-  return currentPath.value === path
+  return route.path === path
 }
 
 const navigate = (route: string) => {

@@ -200,7 +200,6 @@ async function fetchRecipe () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error.response.data.message)
     })
 }
 
@@ -217,7 +216,6 @@ async function fetchRecipeItems () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error)
     })
 }
 
@@ -233,7 +231,6 @@ async function fetchShoppingList () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error)
     })
 }
 
@@ -260,7 +257,6 @@ async function fetchFridgeItems () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error)
     })
 }
 
@@ -369,7 +365,6 @@ async function addAllToShoppingList () {
         if (error.response.status === 401) {
           userStore.logout()
         }
-        console.log(error)
       })
   }
 }
@@ -398,7 +393,6 @@ async function removeFromFridge () {
         if (error.response.status === 401) {
           userStore.logout()
         }
-        console.log(error)
       })
   }
 }
