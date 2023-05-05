@@ -16,7 +16,7 @@
       </div>
     </div>
     <div>
-      <p class="averages">{{ averageMoneyLost }}</p>
+        <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
     </div>
     <div class="menu">
       <button :class="{'selector': true, 'selected': flag === 'weekly'}" @click="showLastWeek()">Siste Uke</button>
@@ -62,6 +62,11 @@ const moneyLost = ref<number>(0)
 const co2Emissions = ref<number>(0)
 const numberOfHouseholdMembers = ref<number>(1)
 
+onMounted(async () => {
+  showLastWeek()
+  await fetchNumberOfHouseholdMembers()
+})
+
 const config = {
   headers: {
     'Content-type': 'application/json'
@@ -75,9 +80,9 @@ const showAllTime = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'allTime'
     })
 }
@@ -88,12 +93,25 @@ const showLastYear = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'yearly'
     })
 }
+const isExcess = computed(() => {
+  let percentage = 0
+
+  if (flag.value === 'yearly') {
+    percentage = moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value)
+  } else if (flag.value === 'monthly') {
+    percentage = moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value / 12)
+  } else if (flag.value === 'weekly') {
+    percentage = moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value / 52)
+  }
+
+  return percentage > 100
+})
 
 const showLastMonth = () => {
   axios.get('http://localhost:8080/waste/total/last-month',
@@ -101,9 +119,9 @@ const showLastMonth = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'monthly'
     })
 }
@@ -114,9 +132,9 @@ const showLastWeek = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'weekly'
     })
 }
@@ -131,11 +149,6 @@ const fetchNumberOfHouseholdMembers = async () => {
     console.error('Error fetching numberOfHouseholdMembers:', error)
   }
 }
-
-onMounted(async () => {
-  showLastWeek()
-  await fetchNumberOfHouseholdMembers()
-})
 
 </script>
 
@@ -247,6 +260,9 @@ p {
     margin: 0;
     padding: 0;
   }
+}
+.excess {
+    color: red;
 }
 
 </style>

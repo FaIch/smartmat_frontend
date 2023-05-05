@@ -1,54 +1,77 @@
 <template>
-  <div class="container" v-if="menu">
+  <div class="week-menu-container" v-if="menu">
     <h1 class="title">Din ukemeny </h1>
-    <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
+    <p> Ukesmenyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
-    <div class="required-ingredients">
+    <div class="ingredients-container">
+      <div class="required-ingredients">
       <button @click="newMenu">Ny meny</button>
-      <button class="button-toggle" @click="toggleDropdown">Vis Ingredienser</button>
-      <div ref="ingredientsList" class="ingredients-list">
-          <button class="button" @click="addAllToShoppingList">Legg til handlelist</button>
-          <table>
-            <thead>
-              <tr>
-                <th>Amount & Unit</th>
-                <th>Ingredient</th>
-                <th>Availability</th>
-                <th>
-                  <input
-                    type="checkbox"
-                    @change="toggleSelectAll"
-                    v-model="selectAllChecked"
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-                <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
-                <td>{{ ingredient.item.name }}</td>
-                <td>
-                  <span v-if="ingredientAvailable(ingredient)">
-                    In fridge
-                  </span>
-                  <span v-else-if="inShoppingList(ingredient)">
-                    In shopping list
-                  </span>
-                  <span v-else>
-                    Not enough
-                  </span>
-                </td>
-                <td class="checkbox-cell">
-                  <input
-              v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-              type="checkbox"
-              @change="toggleSelectedItem(ingredient)"
-              v-model="ingredient.selected"
-            />
-                </td>
-              </tr>
-            </tbody>
-        </table>
+        <button class="button-toggle" @click="toggleDropdown">Vis ingredienser</button>
+        <div ref="ingredientsList" class="ingredients-list">
+            <button class="button" v-if="userStore.role === Role.PARENT" @click="addAllToShoppingList">Legg til i handleliste</button>
+            <table>
+              <thead>
+                <tr>
+                  <th class="break-words">Mengde</th>
+                  <th class="break-words">Varer</th>
+                  <th class="break-words">Tilgjengelighet</th>
+                  <th>
+                    <input
+                      :disabled="userStore.role === Role.CHILD"
+                      type="checkbox"
+                      @change="toggleSelectAll"
+                      v-model="selectAllChecked"
+                    />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
+                  <td class="break-words">{{ ingredient.quantity }} {{ convertUnitFromEngToNo(ingredient.item.unit) }}</td>
+                  <td class="break-words">{{ ingredient.item.name }}</td>
+                  <td class="break-words">
+                    <span v-if="ingredientAvailable(ingredient)">
+                      I kjøleskap
+                    </span>
+                    <span v-else-if="inShoppingList(ingredient)">
+                      I handleliste
+                    </span>
+                    <span v-else>
+                      Ikke i kjøleskap
+                    </span>
+                  </td>
+                  <td class="checkbox-cell">
+                    <input
+                      v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+                      type="checkbox"
+                      @change="toggleSelectedItem(ingredient)"
+                      v-model="ingredient.selected"
+                      :disabled="userStore.role === Role.CHILD"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="selector-outer">
+        <h4>Porsjoner:</h4>
+        <div class="selector">
+          <img
+            src="../assets/icons/remove.svg"
+            @click="decrement"
+          />
+          <input class="input-field"
+            v-model.number="quantity"
+            id="quantity"
+            disabled
+            ref="quantityInput"
+          />
+          <img
+            src="../assets/icons/add.svg"
+            @click="increment"
+          />
+        </div>
       </div>
     </div>
     <div class="recipe-row">
@@ -63,7 +86,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
-import { ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
+import { Role, Unit, ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 
 const userStore = useUserStore()
@@ -75,8 +98,42 @@ const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectAllChecked = ref(false)
 const portions = ref(4)
 const selectedItems = ref<ShoppingListItem[]>([])
-const ingredientsList = ref(null)
+const ingredientsList = ref<HTMLElement | null>(null)
+const quantity = ref(4)
 
+function convertUnitFromEngToNo (unit: Unit) {
+  if (unit === Unit.GRAMS) {
+    return 'g'
+  } else if (unit === Unit.ITEM) {
+    return 'stk.'
+  } else {
+    return 'mL'
+  }
+}
+
+function increment () {
+  if (quantity.value >= 150) {
+    return
+  }
+  quantity.value++
+  updateQuantity()
+}
+
+function decrement () {
+  if (quantity.value <= 1) {
+    return
+  }
+  quantity.value--
+  updateQuantity()
+}
+
+function updateQuantity () {
+  /*
+  getRecipes().then(() => {
+    filteredRecipes.value = recipes.value
+  })
+  */
+}
 // const selectedItems = ref<ShoppingListItem[]>([])
 
 onMounted(() => {
@@ -109,7 +166,6 @@ async function getWeekMenu () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
         menu.value = response.data
         getIngredientList()
       }
@@ -151,7 +207,6 @@ async function getShoppingList () {
     .then(async (response) => {
       if (response.status === 200) {
         shoppingList.value = response.data
-        console.log(response.data)
       }
     })
     .catch((error) => {
@@ -222,7 +277,6 @@ function ingredientAvailable (ingredient: RecipeIngredientInterface): boolean {
 function inShoppingList (item: ShoppingListItemCardInterface): boolean {
   const shoppingListItem = shoppingList.value.find(listItem => listItem.item.id === item.item.id)
   if (shoppingListItem) {
-    console.log(shoppingListItem.item.name + shoppingListItem.quantity)
     return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
   }
   return false
@@ -308,7 +362,6 @@ async function addAllToShoppingList () {
     await api.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log('All selected items added to the shopping list')
           // Refresh the shopping list
           getShoppingList()
           // Clear the selected items
@@ -336,10 +389,12 @@ async function addAllToShoppingList () {
 function toggleDropdown () {
   isDropdownOpen.value = !isDropdownOpen.value
 
-  if (isDropdownOpen.value) {
-    ingredientsList.value.style.maxHeight = `${ingredientsList.value.scrollHeight}px`
-  } else {
-    ingredientsList.value.style.maxHeight = '0'
+  if (ingredientsList.value) {
+    if (isDropdownOpen.value) {
+      ingredientsList.value.style.maxHeight = `${ingredientsList.value.scrollHeight}px`
+    } else {
+      ingredientsList.value.style.maxHeight = '0'
+    }
   }
 }
 
@@ -364,12 +419,18 @@ async function newMenu () {
 </script>
 
 <style scoped>
-.container {
+.week-menu-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  margin-top: 100px;
+  padding-top: 100px;
+  min-height: 100vh;
+  height: 100%;
+}
+
+.ingredients-container {
+  display: flex;
+  flex-direction: row;
 }
 
 .title {
@@ -381,10 +442,16 @@ async function newMenu () {
 }
 
 .recipe-row {
+  margin-top: 30px;
+  margin-bottom: 50px;
+  min-width: 300px;
+  width: 80%;
+  max-width: 1500px;
   display: flex;
-  direction: column;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 40px;
 }
 
 @media screen and (max-width: 768px) {
@@ -475,6 +542,7 @@ a {
 
 table {
   width: 100%;
+  margin-top: 20px;
   border-collapse: collapse;
 }
 
@@ -489,7 +557,85 @@ th {
   background-color: #f2f2f2;
 }
 
+th input {
+  cursor: pointer;
+}
+
 .checkbox-cell {
   text-align: center;
+}
+
+.checkbox-cell input {
+  cursor: pointer;
+}
+
+.selector-outer {
+  margin-top: -30px;
+}
+
+.selector {
+  display: flex;
+  flex-direction: row;
+  justify-self: right;
+  align-self: right;
+}
+
+.selector-outer h4 {
+  margin: 0;
+}
+
+.selector input {
+  height: 40px;
+  width: 60px;
+  border-radius: 20px;
+  background-color: #e9f1fe;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.selector img {
+  cursor: pointer;
+}
+
+.break-words {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media only screen and (max-width: 700px) {
+  .ingredients-container {
+    flex-direction: column;
+  }
+  .selector {
+    justify-content: center;
+    align-self: center;
+    justify-self: center;
+  }
+  .selector-outer {
+    width: 80%;
+    align-self: center;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .required-ingredients {
+    width: 100%;
+    justify-self: center;
+    align-self: center;
+  }
+  .ingredients-container {
+    width: 90%;
+  }
+
+  .ingredients-list {
+    width: 100%;
+  }
+  .recipe-row {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    flex-direction: unset;
+  }
 }
 </style>

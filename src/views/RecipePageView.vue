@@ -40,13 +40,14 @@
                   type="checkbox"
                   @change="toggleSelectAll"
                   v-model="selectAllChecked"
+                  :disabled="userStore.role === Role.CHILD"
                 />
               </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-              <td class="break-words">{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+              <td class="break-words">{{ ingredient.quantity }} {{ convertUnitFromEngToNo(ingredient.item.unit) }}</td>
               <td class="break-words">{{ ingredient.item.name }}</td>
               <td class="break-words">
                 <span v-if="ingredientAvailable(ingredient)">
@@ -56,23 +57,24 @@
                   I handlelisten
                 </span>
                 <span v-else>
-                  Ikke nok
+                  Ikke nok i kjøleskap
                 </span>
               </td>
               <td class="checkbox-cell">
                 <input
-            v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-            type="checkbox"
-            @change="toggleSelectedItem(ingredient)"
-            v-model="ingredient.selected"
-          />
+                  v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+                  type="checkbox"
+                  @change="toggleSelectedItem(ingredient)"
+                  v-model="ingredient.selected"
+                  :disabled="userStore.role === Role.CHILD"
+                />
               </td>
             </tr>
           </tbody>
         </table>
         <div class="buttons">
-          <button v-if="!allIngredientsInShoppingListOrFridge" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
-          <button v-if="allIngredientsInFridge" class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
+          <button v-if="!allIngredientsInShoppingListOrFridge && userStore.role === Role.PARENT" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button v-if="allIngredientsInFridge && userStore.role === Role.PARENT" class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
         </div>
       </div>
     </div>
@@ -90,7 +92,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
 import api from '../utils/httputils'
-import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
+import { Unit, RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem, Role } from '../components/types'
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -107,6 +109,15 @@ const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<
 const selectAllChecked = ref(false)
 const portions = ref(4)
 
+function convertUnitFromEngToNo (unit: Unit) {
+  if (unit === Unit.GRAMS) {
+    return 'g'
+  } else if (unit === Unit.ITEM) {
+    return 'stk.'
+  } else {
+    return 'mL'
+  }
+}
 // Create a computed property to adjust the ingredient quantities
 const adjustedRecipeItems = computed(() => {
   return recipeItems.value.map((ingredient) => {
@@ -119,13 +130,17 @@ const adjustedRecipeItems = computed(() => {
 })
 
 function increment () {
+  if (portions.value >= 150) {
+    return
+  }
   portions.value++
 }
 
 function decrement () {
-  if (portions.value > 1) {
-    portions.value--
+  if (portions.value <= 1) {
+    return
   }
+  portions.value--
 }
 
 watch(
@@ -167,7 +182,6 @@ function toggleSelectAll () {
 }
 
 onMounted(() => {
-  console.log('test' + myProp)
   fetchRecipe()
   fetchRecipeItems()
   fetchShoppingList()
@@ -179,10 +193,7 @@ async function fetchRecipe () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('success')
-        console.log(response.data)
         recipe.value = response.data
-        console.log(recipe.value?.description)
       }
     })
     .catch((error) => {
@@ -199,8 +210,6 @@ async function fetchRecipeItems () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('success')
-        console.log(response.data)
         recipeItems.value = response.data
       }
     })
@@ -217,8 +226,6 @@ async function fetchShoppingList () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('Shopping list:')
-        console.log(response.data)
         shoppingList.value = response.data
       }
     })
@@ -235,10 +242,6 @@ async function fetchFridgeItems () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('Fridge')
-        console.log(response.data)
-
-        // Aggregate the quantities of items with the same ID
         const aggregatedFridgeItems: FridgeItemCardInterface[] = response.data.reduce((acc: FridgeItemCardInterface[], item: FridgeItemCardInterface) => {
           const existingItemIndex = acc.findIndex((accItem: FridgeItemCardInterface) => accItem.item.id === item.item.id)
 
@@ -337,7 +340,6 @@ function inShoppingList (item: ShoppingListItemCardInterface): boolean {
     if (fridgeItem) {
       return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= (item.quantity - fridgeItem.quantity)
     }
-    console.log(shoppingListItem.item.name + shoppingListItem.quantity)
     return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
   }
   return false
@@ -348,26 +350,18 @@ async function addAllToShoppingList () {
     itemId: item.id,
     quantity: item.quantity
   }))
-
-  console.log(checkedProductsData)
   if (checkedProductsData.length) {
     const path = '/shopping-list/add'
     await api.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log('All selected items added to the shopping list')
-          // Refresh the shopping list
           fetchShoppingList()
-          // Clear the selected items
           selectedItems.value = []
-
-          // Uncheck the added items
           recipeItems.value.forEach((ingredient) => {
             if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
               ingredient.selected = false
             }
           })
-          // Uncheck the 'select all' checkbox
           selectAllChecked.value = false
         }
       })
@@ -393,8 +387,6 @@ async function removeFromFridge () {
     await api.post(path, itemsData)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log('All items removed from the fridge')
-          // Refresh the fridge items
           if (!isNaN(myProp)) {
             const path = `/week-menu/${myProp}/toggle-completed`
             api.put(path)
@@ -664,6 +656,11 @@ tr:nth-child(even) {
   td {
     padding: 8px 4px;
   }
+}
+
+.grey-background {
+  background-color: grey;
+  pointer-events: none;
 }
 
 </style>
