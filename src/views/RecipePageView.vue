@@ -94,6 +94,7 @@ import { Unit, RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardI
 
 const userStore = useUserStore()
 const route = useRoute()
+const myProp = parseInt(route.query.myProp as string)
 const recipeId = computed(() => {
   return route.params.id
 })
@@ -175,6 +176,7 @@ function toggleSelectAll () {
 }
 
 onMounted(() => {
+  console.log('test' + myProp)
   fetchRecipe()
   fetchRecipeItems()
   fetchShoppingList()
@@ -396,6 +398,10 @@ async function removeFromFridge () {
         if (response.status === 200) {
           console.log('All items removed from the fridge')
           // Refresh the fridge items
+          if (!isNaN(myProp)) {
+            const path = `/week-menu/${myProp}/toggle-completed`
+            api.put(path)
+          }
           fetchFridgeItems()
         }
       })

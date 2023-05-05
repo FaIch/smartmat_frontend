@@ -167,6 +167,7 @@ watch(
     quantity.value = newQuantity
   }
 )
+
 </script>
 
 <style scoped>

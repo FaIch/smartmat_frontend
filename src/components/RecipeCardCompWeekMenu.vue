@@ -38,19 +38,14 @@
 
 <script setup lang="ts">
 import { WeekMenuRecipeInterface } from './types'
-import { useRouter } from 'vue-router'
+import router from '../router/index'
 import api from '../utils/httputils'
 const emits = defineEmits(['update-card'])
-const router = useRouter()
 
 const handleClick = () => {
   if (!props.recipe.completed) {
     goToRecipe(props.recipe.recipe.id)
   }
-}
-
-const goToRecipe = (id: number) => {
-  router.push({ name: 'recipe', params: { id } })
 }
 
 const props = defineProps({
@@ -60,8 +55,19 @@ const props = defineProps({
   }
 })
 
-async function reroll () {
-  const path = `/week-menu/reroll/${props.recipe.recipe.id}`
+const goToRecipe = (id: number) => {
+  router.push({
+    name: 'recipe',
+    params: { id },
+    query: {
+      myProp: props.recipe.id
+    }
+  })
+}
+
+async function prepared () {
+  console.log(props.recipe.completed)
+  const path = `/week-menu/${props.recipe.id}/toggle-completed`
   api.put(path)
     .then(() => {
       emits('update-card')
@@ -70,13 +76,10 @@ async function reroll () {
       console.log(error)
     })
 }
-
-async function prepared () {
-  console.log(props.recipe.completed)
-  const path = `/week-menu/week-menu-recipe/${props.recipe.id}/toggle-completed`
+async function reroll () {
+  const path = `/week-menu/reroll/${props.recipe.recipe.id}`
   api.put(path)
-    .then((response) => {
-      console.log(response)
+    .then(() => {
       emits('update-card')
     })
     .catch((error) => {
