@@ -46,7 +46,7 @@
           </thead>
           <tbody>
             <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-              <td class="break-words">{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+              <td class="break-words">{{ ingredient.quantity }} {{ convertUnitFromEngToNo(ingredient.item.unit) }}</td>
               <td class="break-words">{{ ingredient.item.name }}</td>
               <td class="break-words">
                 <span v-if="ingredientAvailable(ingredient)">
@@ -56,7 +56,7 @@
                   I handlelisten
                 </span>
                 <span v-else>
-                  Ikke nok
+                  Ikke i kjøleskap
                 </span>
               </td>
               <td class="checkbox-cell">
@@ -90,7 +90,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
 import api from '../utils/httputils'
-import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
+import { Unit, RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -106,6 +106,15 @@ const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<
 const selectAllChecked = ref(false)
 const portions = ref(4)
 
+function convertUnitFromEngToNo (unit: Unit) {
+  if (unit === Unit.GRAMS) {
+    return 'g'
+  } else if (unit === Unit.ITEM) {
+    return 'stk.'
+  } else {
+    return 'mL'
+  }
+}
 // Create a computed property to adjust the ingredient quantities
 const adjustedRecipeItems = computed(() => {
   return recipeItems.value.map((ingredient) => {

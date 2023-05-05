@@ -10,9 +10,9 @@
           <table>
             <thead>
               <tr>
-                <th>Amount & Unit</th>
-                <th>Ingredient</th>
-                <th>Availability</th>
+                <th>Mengde</th>
+                <th>Varer</th>
+                <th>Tilgjengelighet</th>
                 <th>
                   <input
                     type="checkbox"
@@ -24,26 +24,26 @@
             </thead>
             <tbody>
               <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-                <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+                <td>{{ ingredient.quantity }} {{ convertUnitFromEngToNo(ingredient.item.unit) }}</td>
                 <td>{{ ingredient.item.name }}</td>
                 <td>
                   <span v-if="ingredientAvailable(ingredient)">
-                    In fridge
+                    I kjøleskap
                   </span>
                   <span v-else-if="inShoppingList(ingredient)">
-                    In shopping list
+                    I handleliste
                   </span>
                   <span v-else>
-                    Not enough
+                    Ikke i kjøleskap
                   </span>
                 </td>
                 <td class="checkbox-cell">
                   <input
-              v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-              type="checkbox"
-              @change="toggleSelectedItem(ingredient)"
-              v-model="ingredient.selected"
-            />
+                    v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+                    type="checkbox"
+                    @change="toggleSelectedItem(ingredient)"
+                    v-model="ingredient.selected"
+                  />
                 </td>
               </tr>
             </tbody>
@@ -62,7 +62,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
-import { ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
+import { Unit, ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
 
 const userStore = useUserStore()
@@ -74,8 +74,17 @@ const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectAllChecked = ref(false)
 const portions = ref(4)
 const selectedItems = ref<ShoppingListItem[]>([])
-const ingredientsList = ref(null)
+const ingredientsList = ref<HTMLElement | null>(null)
 
+function convertUnitFromEngToNo (unit: Unit) {
+  if (unit === Unit.GRAMS) {
+    return 'g'
+  } else if (unit === Unit.ITEM) {
+    return 'stk.'
+  } else {
+    return 'mL'
+  }
+}
 // const selectedItems = ref<ShoppingListItem[]>([])
 
 onMounted(() => {
@@ -108,7 +117,6 @@ async function getWeekMenu () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
         menu.value = response.data
         getIngredientList()
       }
@@ -129,13 +137,10 @@ async function getIngredientList () {
       .filter((recipe) => !recipe.completed)
       .map((recipe) => recipe.recipe.id)
     : []
-  console.log(body)
   await api.post(path, body)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
         recipeItems.value = response.data
-        console.log(recipeItems.value)
       }
     })
     .catch((error) => {
@@ -153,7 +158,6 @@ async function getShoppingList () {
     .then(async (response) => {
       if (response.status === 200) {
         shoppingList.value = response.data
-        console.log(response.data)
       }
     })
     .catch((error) => {
@@ -182,7 +186,6 @@ async function getFridgeItems () {
           return acc
         }, [])
         fridgeItems.value = aggregatedFridgeItems
-        console.log(fridgeItems.value)
       }
     })
     .catch((error) => {
@@ -225,7 +228,6 @@ function ingredientAvailable (ingredient: RecipeIngredientInterface): boolean {
 function inShoppingList (item: ShoppingListItemCardInterface): boolean {
   const shoppingListItem = shoppingList.value.find(listItem => listItem.item.id === item.item.id)
   if (shoppingListItem) {
-    console.log(shoppingListItem.item.name + shoppingListItem.quantity)
     return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
   }
   return false
@@ -306,13 +308,11 @@ async function addAllToShoppingList () {
     quantity: item.quantity
   }))
 
-  console.log(checkedProductsData)
   if (checkedProductsData.length) {
     const path = '/shopping-list/add'
     await api.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
-          console.log('All selected items added to the shopping list')
           // Refresh the shopping list
           getShoppingList()
           // Clear the selected items
@@ -340,10 +340,12 @@ async function addAllToShoppingList () {
 function toggleDropdown () {
   isDropdownOpen.value = !isDropdownOpen.value
 
-  if (isDropdownOpen.value) {
-    ingredientsList.value.style.maxHeight = `${ingredientsList.value.scrollHeight}px`
-  } else {
-    ingredientsList.value.style.maxHeight = '0'
+  if (ingredientsList.value) {
+    if (isDropdownOpen.value) {
+      ingredientsList.value.style.maxHeight = `${ingredientsList.value.scrollHeight}px`
+    } else {
+      ingredientsList.value.style.maxHeight = '0'
+    }
   }
 }
 
@@ -355,7 +357,9 @@ function toggleDropdown () {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 100px;
+  padding-top: 100px;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .title {
