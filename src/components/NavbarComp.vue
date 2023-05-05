@@ -180,6 +180,9 @@ const handleWindowClick = (event: MouseEvent) => {
   if (!target.closest('.profile')) {
     closeProfileMenu()
   }
+  if (!target.closest('.hamburger-menu')) {
+    closeMenu()
+  }
 }
 
 </script>

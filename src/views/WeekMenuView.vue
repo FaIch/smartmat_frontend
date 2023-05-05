@@ -4,6 +4,7 @@
       <h1 class="title">Din ukemeny </h1>
     </div>
     <p> Ukesmenyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
+    <p> For å generere en helt ny ukesmeny, kan du klikke "Ny meny" nederst på siden.</p>
     <br>
     <div class="ingredients-container">
       <div class="required-ingredients">
@@ -412,6 +413,7 @@ async function newMenu () {
 .ingredients-container {
   display: flex;
   flex-direction: row;
+  margin-top: 30px;
 }
 
 .title-div {
@@ -459,6 +461,13 @@ async function newMenu () {
   padding: 0;
   z-index: 0;
   margin-left: 10px;
+}
+
+.button:hover {
+  background-color: #25A13A;
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
 }
 
 a {
@@ -593,10 +602,11 @@ th input {
 .new-menu-button {
   background-color: #1A7028;
   color: white;
-  height: 40px;
-  width: 150px;
+  font-size: 25px;
+  height: 50px;
+  width: 200px;
   border-radius: 100px;
-  margin-left: 20px;
+  margin-bottom: 80px;
   border: none;
 }
 
@@ -626,14 +636,11 @@ th input {
   .selector-outer {
     width: 80%;
     align-self: center;
+    margin-left: 0;
   }
 
   .title-div {
     flex-direction: column;
-  }
-  .new-menu-button {
-    margin: 0;
-    margin-bottom: 20px;
   }
 }
 
@@ -646,7 +653,6 @@ th input {
   .ingredients-container {
     width: 90%;
   }
-
   .ingredients-list {
     width: 100%;
   }

@@ -7,12 +7,12 @@
                     <label for="email">E-post Adresse</label>
                     <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Din e-post adresse" readonly disabled>
                     <label for="oldPassword">Gammelt Passord</label>
-                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Ditt gamle passord">
+                    <input minlength="8" id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Ditt gamle passord">
                     <div v-if="wrongOldPassword" class="error-message">
                         Feil gammelt passord
                     </div>
                     <label for="newPassword">Nytt Passord</label>
-                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Ditt nye passord">
+                    <input minlength="8" id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Ditt nye passord">
                 </div>
             </fieldset>
             <fieldset class="row">
