@@ -20,7 +20,8 @@
             class="profile-image"
           />
           <div class="user-name">
-            <h1> {{ subuser.nickname }}</h1>
+            <h1 v-if="subuser.role === 'PARENT'"> Forelder </h1>
+            <h1 v-if="subuser.role === 'CHILD'"> Barn </h1>
             <img src="../assets/icons/lock.svg" v-if="subuser.role === 'PARENT'">
           </div>
         </div>
@@ -30,8 +31,8 @@
           @click.stop
         >
           <div class="pin-inputs">
-            <h2 v-if="subuser.passcode !== 0">PIN:</h2>
-            <h2 v-if="subuser.passcode === 0">Sett PIN:</h2>
+            <h2 v-if="subuser.passcode !== null">PIN:</h2>
+            <h2 v-if="subuser.passcode === null">Sett PIN:</h2>
             <div class="pin-row">
               <input
                 v-for="(_, pinIndex) in Array(4)"
@@ -118,14 +119,14 @@ async function validateAndLogin (subuser: SubUser, index: number) {
     updateMessage.value = 'PIN-kode kan bare være tall.'
     return
   }
-  if (subuser.passcode === 0) {
+  if (subuser.passcode === null) {
     selectAccount(subuser, index)
-    subuser.passcode = parseInt(pin, 10)
+    subuser.passcode = pin
     setSubUserPasscode(subuser)
     return
   }
 
-  const isPinCorrect = pin === subuser.passcode.toString()
+  const isPinCorrect = pin === subuser.passcode
   if (isPinCorrect) {
     userStore.subUserLogin(subuser)
     router.push('/savings')
