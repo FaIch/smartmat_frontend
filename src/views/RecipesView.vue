@@ -59,7 +59,6 @@ async function getRecipes () {
   }
   const path = '/recipe/list/sorted'
   try {
-    console.log(params)
     const response = await api.get(path, params)
 
     if (response.status === 200) {
@@ -89,22 +88,25 @@ async function filterRecipes (searchInput: string) {
 async function fetchUserData () {
   api.get('/user/details').then((response) => {
     if (response.status === 200) {
-      console.log(response.data.numberOfHouseholdMembers)
       quantity.value = response.data.numberOfHouseholdMembers
     }
   })
 }
 
 function increment () {
+  if (quantity.value >= 150) {
+    return
+  }
   quantity.value++
   updateQuantity()
 }
 
 function decrement () {
-  if (quantity.value > 1) {
-    quantity.value--
-    updateQuantity()
+  if (quantity.value <= 1) {
+    return
   }
+  quantity.value--
+  updateQuantity()
 }
 
 function updateQuantity () {

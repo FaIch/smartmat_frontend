@@ -16,7 +16,7 @@
       </div>
     </div>
     <div id="register">
-      <button id="register-button" @click="navigateToLogin()">Registrer deg nå</button>
+      <button id="register-button" @click="navigateToLogin()">Logg Inn</button>
     </div>
   </div>
 </template>
@@ -81,6 +81,7 @@ h1 {
 }
 
 #register-button {
+  padding: 20px;
   height: 50px;
   margin: 12px auto 10%;
   color: #fff;
@@ -91,7 +92,9 @@ h1 {
   border-radius: 5px;
   cursor: pointer;
   transition: .2s ease-in;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #register-button:hover{
