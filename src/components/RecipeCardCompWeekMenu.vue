@@ -1,24 +1,26 @@
 <template>
-  <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
-    <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
-    <div class="recipe-details">
-      <div class="recipe-details-top">
-        <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
-      </div>
-      <div class="recipe-eaten" v-if="props.recipe.completed">
-        <label>Spist</label>
-      </div>
-      <div class="recipe-details-bot">
-        <div class="recipe-time">
-          <h4>{{ props.recipe.recipe.estimatedTime }}</h4>
+  <div class="recipe-container">
+    <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
+      <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
+      <div class="recipe-details">
+        <div class="recipe-details-top">
+          <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
+        </div>
+        <div class="recipe-details-bot">
+          <div class="recipe-time">
+            <h4>{{ props.recipe.recipe.estimatedTime }}</h4>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="recipeButtons">
-        <button class="prepared" @click="prepared" v-if="props.recipe.completed">unprepare</button>
-        <button class="prepared" @click="prepared" v-else>prepare</button>
-        <button class="reroll" @click="reroll">reroll</button>
+    <div class="completed-overlay" v-if="props.recipe.completed">
+      <i class="fas fa-check completed-checkmark"></i>
+    </div>
+    <div class="recipeButtons">
+      <button class="prepared checkmark-icon" @click="prepared" v-if="props.recipe.completed"><i class="fas fa-check"></i></button>
+      <button class="prepared checkmark-icon" @click="prepared" v-else><i class="fas fa-check"></i></button>
+      <button class="reroll refresh-icon" @click="reroll"><i class="fas fa-sync"></i></button>
+    </div>
   </div>
 </template>
 
@@ -69,6 +71,49 @@ async function reroll () {
 
 <style scoped>
 
+.recipe-container {
+  position: relative;
+  display: inline-block;
+}
+
+.recipeButtons {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  margin-top: 15px;
+}
+
+.prepared, .reroll {
+  width: 50%;
+  height: 40px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkmark-icon i, .refresh-icon i {
+  margin: 0;
+}
+
+.completed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 280px; /* match the height of the recipe card */
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.completed-checkmark {
+  color: #1A7028;
+  font-size: 48px;
+}
+
 .recipe-card {
   background-color: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
@@ -77,6 +122,30 @@ async function reroll () {
   max-height: 280px;
   cursor: pointer;
   margin: 15px;
+}
+
+.recipe-card.completed {
+  position: relative;
+}
+
+.recipe-card.completed::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 255, 0, 0.75);
+  z-index: 1;
+}
+
+.recipe-card.completed .recipe-image {
+  filter: grayscale(100%);
+}
+
+.recipe-card.completed .recipe-title {
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 .recipe-card-saved-menu {
