@@ -479,7 +479,7 @@ a {
   border: none;
   margin: 0;
   padding: 0;
-  position: absolute; /* Add this */
+  position: absolute;
   z-index: 1;
   cursor: pointer;
   display: flex;
@@ -507,14 +507,14 @@ a {
 .required-ingredients div {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.5s ease-in-out; /* add a transition for expanding and collapsing */
+  transition: max-height 0.5s ease-in-out;
 }
 
 .required-ingredients.show div {
-  max-height: 1000px; /* increase the max-height to accommodate the content */
+  max-height: 1000px;
 }
 .ingredients-list {
-  top: 32px; /* Add this */
+  top: 32px;
   max-height: 0px;
   overflow: hidden;
   transition: max-height 0.5s ease-in-out;

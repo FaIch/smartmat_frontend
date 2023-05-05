@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { requireAuth } from '../auth-guard' // Update the import path accordingly
+import { requireAuth } from '../auth-guard'
 import { checkIfUserIsParent, checkIsSubUserLoggedIn, checkIsUserLoggedIn } from '../stores/UserStore'
 import LoginView from '../views/LoginView.vue'
 import StartView from '../views/StartView.vue'

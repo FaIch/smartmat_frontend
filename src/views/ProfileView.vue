@@ -108,7 +108,9 @@ const submitForm = async () => {
         changesMade.value = true
       })
       .catch((error) => {
-        console.error(error)
+        if (error.response.status === 401) {
+          userStore.logout()
+        }
       })
   }
 
@@ -123,7 +125,9 @@ const submitForm = async () => {
         changesMade.value = true
       })
       .catch((error) => {
-        console.error(error)
+        if (error.response.status === 401) {
+          userStore.logout()
+        }
       })
   }
 
@@ -154,7 +158,9 @@ const submitForm = async () => {
         changesMade.value = true
       })
       .catch((error) => {
-        console.error(error)
+        if (error.response.status === 401) {
+          userStore.logout()
+        }
       })
   }
 }

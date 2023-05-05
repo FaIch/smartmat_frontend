@@ -67,7 +67,6 @@ describe('FridgeItemCardTests', () => {
     const saveButton = wrapper.find('#save-button')
     await saveButton.trigger('click')
 
-    // expects '' because the input fields are disabled by default.
     expect(expirationDateInput.attributes('')).toBeTruthy()
     expect(quantityInput.attributes('')).toBeTruthy()
   })

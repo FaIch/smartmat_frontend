@@ -5,7 +5,6 @@ import api from '../utils/httputils'
 import router from '../router/index'
 import { Role, SubUser } from '../components/types'
 
-// Define user store using Pinia
 export const useUserStore = defineStore('userStore', () => {
   const email = ref('')
   const loggedIn = ref(false)
@@ -14,7 +13,6 @@ export const useUserStore = defineStore('userStore', () => {
   const subUser = ref<SubUser>()
   const refreshTokenTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
-  // Function for refreshing user token
   async function refreshToken () {
     const path = '/user/auth/refreshToken'
     try {
@@ -28,7 +26,6 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  // Function for starting the refresh timer
   function startRefreshTimer () {
     if (refreshTokenTimeoutId.value) {
       clearTimeout(refreshTokenTimeoutId.value)
@@ -42,7 +39,6 @@ export const useUserStore = defineStore('userStore', () => {
     }
   })
 
-  // Function to stop the refresh token timer
   function stopRefreshTimer () {
     if (refreshTokenTimeoutId.value) {
       clearTimeout(refreshTokenTimeoutId.value)
@@ -76,7 +72,6 @@ export const useUserStore = defineStore('userStore', () => {
     stopRefreshTimer()
     router.push('/login')
   }
-  // Return the reactive refs and functions as store properties
   return {
     email,
     role,
