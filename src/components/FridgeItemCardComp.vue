@@ -152,6 +152,10 @@ const activateSave = () => {
   if (!expirationDateInput.value || !quantityInput.value) {
     return
   }
+  if (!expirationDate.value) {
+    alert('Ugyldig dato.')
+    return
+  }
   const isQuantityValid = validateQuantity(quantity.value)
 
   if (!isQuantityValid) {
@@ -164,13 +168,10 @@ const activateSave = () => {
   expirationDateInput.value.disabled = true
   quantityInput.value.disabled = true
   edit.value = true
-
-  // Check if the values have been changed
   if (
     expirationDate.value !== props.product.expirationDate ||
     quantity.value !== props.product.quantity
   ) {
-    // Emit the update event with the updated item data
     emit('update', {
       ...props.product,
       expirationDate: expirationDate.value,
