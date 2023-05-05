@@ -37,7 +37,7 @@ import axios from 'axios'
 const averageMoneyLostYear = 5322.0 // money lost per person (in NOK) per year
 const averageMoneyLost = computed(() => {
   if (flag.value === 'yearly') {
-    return `${(moneyLost.value * 100 / averageMoneyLostYear * numberOfHouseholdMembers.value)
+    return `${(moneyLost.value * 100 / (averageMoneyLostYear * numberOfHouseholdMembers.value))
         .toFixed(1)}% av årlig gjennomsnitt for husholdninger med
         ${numberOfHouseholdMembers.value} personer`
   } else if (flag.value === 'monthly') {

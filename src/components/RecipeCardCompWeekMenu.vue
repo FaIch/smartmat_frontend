@@ -1,62 +1,69 @@
 <template>
-  <div :class="[recipeStore.getHasWeekMenu() ? 'recipe-card-saved-menu' : 'recipe-card']" @click="goToRecipe(props.recipe.recipe.id)">
+  <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
     <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
     <div class="recipe-details">
       <div class="recipe-details-top">
         <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
-        <div class="recipe-warning">
-          <img v-tippy="tooltipOptions" v-show="props.recipe.amountNearlyExpired > 0" src="../assets/icons/warning.svg"/>
-          <h5 v-show="props.recipe.amountNearlyExpired > 0">{{ props.recipe.amountNearlyExpired }}</h5>
-        </div>
       </div>
-      <div class="recipe-eaten" v-if="recipeStore.getHasWeekMenu()">
-        <input type="checkbox" :checked="recipeStore.getRecipeIdsCompleted().includes(props.recipe.recipe.id)">
+      <div class="recipe-eaten" v-if="props.recipe.completed">
         <label>Spist</label>
       </div>
       <div class="recipe-details-bot">
         <div class="recipe-time">
           <h4>{{ props.recipe.recipe.estimatedTime }}</h4>
         </div>
-        <div class="recipe-missing">
-          <h5> {{ missingIngredients }} </h5>
-        </div>
       </div>
     </div>
+  </div>
+  <div class="recipeButtons">
+        <button class="prepared" @click="prepared" v-if="props.recipe.completed">unprepare</button>
+        <button class="prepared" @click="prepared" v-else>prepare</button>
+        <button class="reroll" @click="reroll">reroll</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RecipeCardInterface } from './types'
-import { computed, reactive } from 'vue'
+import { WeekMenuRecipeInterface } from './types'
 import { useRouter } from 'vue-router'
-import { useRecipeStore } from '../stores/RecipeStore'
+import api from '../utils/httputils'
 
+const emits = defineEmits(['update-card'])
 const router = useRouter()
-const recipeStore = useRecipeStore()
 const goToRecipe = (id: number) => {
   router.push({ name: 'recipe', params: { id } })
 }
 
 const props = defineProps({
   recipe: {
-    type: Object as () => RecipeCardInterface,
+    type: Object as () => WeekMenuRecipeInterface,
     required: true
   }
 })
 
-const missingIngredients = computed(() => {
-  const numberMissing = props.recipe.recipe.numberOfItems - props.recipe.amountInFridge
-  if (numberMissing === 0) {
-    return 'Du har alt'
-  } else {
-    return `Du mangler ${numberMissing} ingredienser`
-  }
-})
+async function prepared () {
+  console.log(props.recipe.completed)
+  const path = `/week-menu/week-menu-recipe/${props.recipe.id}/toggle-completed`
+  api.put(path)
+    .then((response) => {
+      console.log(response)
+      emits('update-card')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
 
-const tooltipOptions = reactive({
-  content: `${props.recipe.amountNearlyExpired} varer går snart ut på dato`,
-  placement: 'bottom'
-})
+async function reroll () {
+  const path = `/week-menu/reroll/${props.recipe.recipe.id}`
+  api.put(path)
+    .then((response) => {
+      console.log(response)
+      emits('update-card')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
 
 </script>
 

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`WishListComp > renders correctly 1`] = `
+exports[`WishListComp.vue > renders correctly 1`] = `
 "<div data-v-d50070a5=\\"\\" class=\\"page-container\\">
   <div data-v-d50070a5=\\"\\" class=\\"loading\\">Laster...</div>
 </div>"
