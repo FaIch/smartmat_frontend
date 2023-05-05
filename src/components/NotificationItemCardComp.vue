@@ -1,10 +1,13 @@
 <template>
-    <div class="card">
+    <div class="card" @click="goToFridge()">
         <div class="card-image">
             <img :src=props.product.item.image class="card-img-top" alt="...">
         </div>
         <div class="card-body">
-                <h5 class="card-title">{{ props.product.item.name }}</h5>
+          <h5 class="card-title">
+            {{ props.product.item.name }}
+            <span v-if="expired" class="expired-text">(Utløpt)</span>
+          </h5>
                 <div class="card-info">
                     <p>Utløpsdato: {{ props.product.expirationDate }} <br> {{ props.product.quantity }} {{ unitType }} </p>
                 </div>
@@ -15,12 +18,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { FridgeItemCardInterface, Unit } from './types'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const props = defineProps({
   product: {
     type: Object as () => FridgeItemCardInterface,
     required: true
   }
+})
+
+const expired = computed(() => {
+  const expirationDate = new Date(props.product.expirationDate)
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  return expirationDate <= yesterday
 })
 
 const unitType = computed(() => {
@@ -35,6 +47,10 @@ const unitType = computed(() => {
       return ''
   }
 })
+
+function goToFridge () {
+  router.push('/fridge')
+}
 </script>
 
 <style scoped>

@@ -8,7 +8,7 @@ exports[`Login form validation > renders correctly 1`] = `
   </div>
   <form data-v-b1606448=\\"\\">
     <div data-v-b1606448=\\"\\" class=\\"input-boxes\\">
-      <div data-v-b1606448=\\"\\" class=\\"input-box\\"><i data-v-b1606448=\\"\\" class=\\"fas fa-envelope\\"></i><input data-v-b1606448=\\"\\" data-cy=\\"input-email\\" type=\\"email\\" placeholder=\\"Email...\\" required=\\"\\"></div>
+      <div data-v-b1606448=\\"\\" class=\\"input-box\\"><i data-v-b1606448=\\"\\" class=\\"fas fa-envelope\\"></i><input data-v-b1606448=\\"\\" data-cy=\\"input-email\\" type=\\"email\\" placeholder=\\"E-post...\\" required=\\"\\"></div>
       <div data-v-b1606448=\\"\\" class=\\"input-box\\"><i data-v-b1606448=\\"\\" class=\\"fas fa-lock\\"></i><input data-v-b1606448=\\"\\" data-cy=\\"input-password\\" type=\\"password\\" placeholder=\\"Passord...\\" required=\\"\\"></div>
       <div data-v-b1606448=\\"\\" class=\\"button input-box\\" data-cy=\\"button-login\\"><input data-v-b1606448=\\"\\" type=\\"submit\\" value=\\"Logg inn\\"></div>
       <div data-v-b1606448=\\"\\" class=\\"text sign-up-text\\">Har du ikke bruker? <label data-v-b1606448=\\"\\" data-cy=\\"switch-to-signup\\">Registrer deg</label></div>
