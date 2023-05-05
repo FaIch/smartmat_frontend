@@ -62,6 +62,11 @@ const moneyLost = ref<number>(0)
 const co2Emissions = ref<number>(0)
 const numberOfHouseholdMembers = ref<number>(1)
 
+onMounted(async () => {
+  showLastWeek()
+  await fetchNumberOfHouseholdMembers()
+})
+
 const config = {
   headers: {
     'Content-type': 'application/json'
@@ -75,9 +80,9 @@ const showAllTime = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'allTime'
     })
 }
@@ -88,9 +93,9 @@ const showLastYear = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'yearly'
     })
 }
@@ -101,9 +106,9 @@ const showLastMonth = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'monthly'
     })
 }
@@ -114,9 +119,9 @@ const showLastWeek = () => {
   )
     .then((response) => {
       const data = response.data
-      foodWaste.value = data[0] / 1000
-      moneyLost.value = data[1] / 1000
-      co2Emissions.value = data[2] / 1000
+      foodWaste.value = +(data[0] / 1000).toFixed(1)
+      moneyLost.value = +(data[1] / 1000).toFixed(1)
+      co2Emissions.value = +(data[2] / 1000).toFixed(1)
       flag.value = 'weekly'
     })
 }
@@ -131,11 +136,6 @@ const fetchNumberOfHouseholdMembers = async () => {
     console.error('Error fetching numberOfHouseholdMembers:', error)
   }
 }
-
-onMounted(async () => {
-  showLastWeek()
-  await fetchNumberOfHouseholdMembers()
-})
 
 </script>
 
