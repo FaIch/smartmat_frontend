@@ -329,8 +329,14 @@ function ingredientAvailable (ingredient: RecipeIngredientInterface): boolean {
 }
 
 function inShoppingList (item: ShoppingListItemCardInterface): boolean {
+  const fridgeItem = fridgeItems.value.find(
+    (fridgeItem) => fridgeItem.item.id === item.item.id
+  )
   const shoppingListItem = shoppingList.value.find(listItem => listItem.item.id === item.item.id)
   if (shoppingListItem) {
+    if (fridgeItem) {
+      return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= (item.quantity - fridgeItem.quantity)
+    }
     console.log(shoppingListItem.item.name + shoppingListItem.quantity)
     return (shoppingListItem.quantity * shoppingListItem.item.baseAmount) >= item.quantity
   }
