@@ -100,7 +100,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/recipe/:id',
     name: 'recipe',
-    component: RecipePageView
+    component: RecipePageView,
+    meta: {
+      props: true
+    }
   }
 ]
 
