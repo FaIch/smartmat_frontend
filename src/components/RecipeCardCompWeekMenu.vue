@@ -1,6 +1,20 @@
 <template>
   <div class="recipe-container">
-    <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
+    <div v-if="userStore.role === Role.PARENT" class="buttons">
+      <div v-tippy="'Bytt med tilfeldig'" class="reroll" v-if="!props.recipe.completed">
+        <img
+          src="../assets/icons/refresh.svg"
+          class="refresh-icon"
+          @click="reroll"/>
+      </div>
+      <div v-tippy="'Marker som lagd'" class="checkmark" v-if="!props.recipe.completed">
+        <img
+          src="../assets/icons/check.svg"
+          class="checkmark-icon"
+          @click="prepared">
+      </div>
+    </div>
+    <div class="recipe-card" @click="handleClick()">
       <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
       <div class="recipe-details">
         <div class="recipe-details-top">
@@ -12,24 +26,28 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="completed-overlay" v-if="props.recipe.completed">
-      <i class="fas fa-check completed-checkmark"></i>
-    </div>
-    <div class="recipeButtons">
-      <button class="prepared checkmark-icon" @click="prepared" v-if="props.recipe.completed"><i class="fas fa-check"></i></button>
-      <button class="prepared checkmark-icon" @click="prepared" v-else><i class="fas fa-check"></i></button>
-      <button class="reroll refresh-icon" @click="reroll"><i class="fas fa-sync"></i></button>
+        <div class="completed-overlay" v-if="props.recipe.completed">
+         <img
+          src="../assets/icons/check.svg"
+          class="marked-completed"
+          >
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { WeekMenuRecipeInterface } from './types'
+import { WeekMenuRecipeInterface, Role } from './types'
 import router from '../router/index'
 import api from '../utils/httputils'
-
+import { useUserStore } from '../stores/UserStore'
 const emits = defineEmits(['update-card'])
+const userStore = useUserStore()
+const handleClick = () => {
+  if (!props.recipe.completed) {
+    goToRecipe(props.recipe.recipe.id)
+  }
+}
 
 const props = defineProps({
   recipe: {
@@ -52,45 +70,48 @@ async function prepared () {
   console.log(props.recipe.completed)
   const path = `/week-menu/${props.recipe.id}/toggle-completed`
   api.put(path)
-    .then((response) => {
-      console.log(response)
+    .then(() => {
       emits('update-card')
     })
     .catch((error) => {
       console.log(error)
     })
 }
-
 async function reroll () {
   const path = `/week-menu/reroll/${props.recipe.recipe.id}`
   api.put(path)
-    .then((response) => {
-      console.log(response)
+    .then(() => {
       emits('update-card')
     })
     .catch((error) => {
       console.log(error)
     })
 }
-
 </script>
 
 <style scoped>
 
 .recipe-container {
   position: relative;
-  display: inline-block;
-}
-
-.recipeButtons {
   display: flex;
-  justify-content: space-between;
-  width: 300px;
-  margin-top: 15px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.prepared, .reroll {
-  width: 50%;
+.buttons {
+  display: flex;
+  flex-direction: row;
+  height: 40px;
+}
+
+.checkmark {
+  margin-left: 30px;
+}
+
+.reroll ,
+.checkmark {
+  width: 40px;
   height: 40px;
   font-size: 18px;
   display: flex;
@@ -98,8 +119,10 @@ async function reroll () {
   justify-content: center;
 }
 
-.checkmark-icon i, .refresh-icon i {
-  margin: 0;
+.refresh-icon ,
+.checkmark-icon {
+  width: 40px;
+  cursor: pointer;
 }
 
 .completed-overlay {
@@ -107,12 +130,20 @@ async function reroll () {
   top: 0;
   left: 0;
   width: 100%;
-  height: 280px; /* match the height of the recipe card */
-  background-color: rgba(255, 255, 255, 0.75);
+  height: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  z-index: 1;
+  align-items: center;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.4);
+  cursor:auto;
+}
+
+.marked-completed {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .completed-checkmark {
@@ -121,13 +152,13 @@ async function reroll () {
 }
 
 .recipe-card {
+  position: relative;
   background-color: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
   max-width: 300px;
   max-height: 280px;
   cursor: pointer;
-  margin: 15px;
+  margin-top: 15px;
 }
 
 .recipe-card.completed {
@@ -272,5 +303,17 @@ async function reroll () {
 
 .completed {
   border: solid 2px red;
+}
+
+@media only screen and (max-width: 400px) {
+  .recipe-container {
+    scale: 0.9;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .recipe-container {
+    scale: 0.8;
+  }
 }
 </style>
