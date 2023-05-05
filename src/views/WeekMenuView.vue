@@ -62,8 +62,8 @@
             @click="decrement"
           />
           <input class="input-field"
-            v-model.number="quantity"
-            id="quantity"
+            v-model.number="portions"
+            id="portions"
             disabled
             ref="quantityInput"
           />
@@ -99,7 +99,6 @@ const selectAllChecked = ref(false)
 const portions = ref(4)
 const selectedItems = ref<ShoppingListItem[]>([])
 const ingredientsList = ref<HTMLElement | null>(null)
-const quantity = ref(4)
 
 function convertUnitFromEngToNo (unit: Unit) {
   if (unit === Unit.GRAMS) {
@@ -112,18 +111,18 @@ function convertUnitFromEngToNo (unit: Unit) {
 }
 
 function increment () {
-  if (quantity.value >= 150) {
+  if (portions.value >= 150) {
     return
   }
-  quantity.value++
+  portions.value++
   updateQuantity()
 }
 
 function decrement () {
-  if (quantity.value <= 1) {
+  if (portions.value <= 1) {
     return
   }
-  quantity.value--
+  portions.value--
   updateQuantity()
 }
 
