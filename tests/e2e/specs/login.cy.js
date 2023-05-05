@@ -18,6 +18,6 @@ describe('login', () => {
     cy.get('[data-cy=input-email]').type('test@test.com')
     cy.get('[data-cy=input-password]').type('123456789')
     cy.get('[data-cy=button-login]').click()
-    cy.url().should('include', '/fridge')
+    cy.url().should('include', '/savings')
   })
 })

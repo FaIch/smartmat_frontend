@@ -22,7 +22,7 @@ describe('Week Menu', () => {
     cy.get('.item-cards').first().click()
     cy.get('.add-button').click()
     cy.wait(500)
-    cy.get('[data-cy=inventory]').click()
+    cy.get('[data-cy=fridge]').click()
     cy.wait(1000)
     cy.get('.item-cards').first().click()
   })
