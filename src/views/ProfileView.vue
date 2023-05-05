@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineExpose } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 import { AxiosError } from 'axios'
 import api from '../utils/httputils'
@@ -88,7 +88,6 @@ onMounted(async () => {
         if (error.response.status === 401) {
           userStore.logout()
         }
-        console.error(error)
       })
   }
 })

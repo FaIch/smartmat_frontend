@@ -395,8 +395,6 @@ async function newMenu () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log('New menu created')
-        // Refresh the menu
         fetchData()
       }
     })
@@ -404,7 +402,6 @@ async function newMenu () {
       if (error.response.status === 401) {
         userStore.logout()
       }
-      console.log(error)
     })
 }
 

@@ -153,7 +153,6 @@ const fetchNumberOfHouseholdMembers = async () => {
     )
     numberOfHouseholdMembers.value = response.data
   } catch (error) {
-    console.error('Error fetching numberOfHouseholdMembers:', error)
   }
 }
 
