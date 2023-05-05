@@ -64,10 +64,9 @@ import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
 import { ShoppingListItem, MenuInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface } from '../components/types'
 import RecipeCardCompWeekMenu from '../components/RecipeCardCompWeekMenu.vue'
-import router from '../router'
+
 const userStore = useUserStore()
 const isDropdownOpen = ref(false)
-const isButtonClicked = ref(false)
 const menu = ref<MenuInterface>()
 const recipeItems = ref<RecipeIngredientInterface[]>([])
 const shoppingList = ref<ShoppingListItemCardInterface[]>([])
