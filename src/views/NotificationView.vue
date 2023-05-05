@@ -77,8 +77,7 @@ async function getItemsExpired () {
   align-items: center;
   margin-top: 10px;
   padding-top: 2rem;
-  background-color: white;
-  border-style: solid;
+  background-color: #ccc;
 }
 
 .notification-info {

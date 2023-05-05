@@ -14,9 +14,9 @@
       </div>
     </div>
     <div class="pagination">
-      <button class="page-button" @click="previousPage" :disabled="currentPage === 1">Previous</button>
-      <span>Side {{ currentPage }} of {{ totalPages }}</span>
-      <button class="page-button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+      <button class="page-button" @click="previousPage" :disabled="currentPage === 1">Forrige</button>
+      <span>{{ currentPage }} av {{ totalPages }}</span>
+      <button class="page-button" @click="nextPage" :disabled="currentPage === totalPages">Neste</button>
     </div>
   </div>
 </template>
@@ -106,7 +106,8 @@ onMounted(fetchProducts)
   margin-bottom: 20px;
   color: black;
   width: 100%;
-  max-width: 1000px;
+  justify-self: center;
+  align-self: center;
   z-index: 3;
   scale: 0.8;
 }
@@ -151,6 +152,11 @@ onMounted(fetchProducts)
   gap: 16px;
 }
 
+.pagination span {
+  min-width: 60px;
+  margin-top: 20px;
+}
+
 .grid-item img {
   max-width: 90%;
   max-height: 90%;
@@ -168,8 +174,8 @@ onMounted(fetchProducts)
   background-color: #1A7028;
   color: white;
   height: 40px;
-  width: 200px;
-  margin: 20px;
+  margin-top: 20px;
+  width: 120px;
   border-radius: 100px;
   border: none;
 }
@@ -192,4 +198,61 @@ onMounted(fetchProducts)
   cursor: not-allowed;
 }
 
+@media only screen and (max-width: 1500px) {
+  .grid-item {
+    height: 200px;
+    width: 200px;
+  }
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .grid-item img {
+    max-width: 70%;
+    max-height: 70%;
+  }
+}
+
+@media only screen and (max-width: 770px) {
+  .grid-item {
+    height: 170px;
+    width: 170px;
+  }
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .grid-item img {
+    max-width: 100%;
+  }
+}
+
+@media only screen and (max-width: 575px) {
+  .grid-item {
+    height: 140px;
+    width: 140px;
+  }
+  .grid-item img {
+    max-width: 100%;
+  }
+
+  .product-grid-container{
+    width: 250px;
+    max-width: 250px;
+    min-width: 250px;
+  }
+
+  .grid-container {
+    width: 250px;
+    max-width: 250px;
+    min-width: 250px;
+  }
+
+  .pagination {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    align-self: center;
+    justify-self: center;
+  }
+}
 </style>

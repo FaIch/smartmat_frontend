@@ -2,7 +2,7 @@
   <div class="fridge-container">
     <div class="task-bar">
       <h2 :class="{ active: activeTab === 1, inactive: activeTab !== 1 }" @click="showShoppingList">
-        Min handleliste ({{ numberOfShoppingListItems }})
+        Handleliste ({{ numberOfShoppingListItems }})
       </h2>
       <div class="separator"></div>
       <h2 :class="{ active: activeTab === 2, inactive: activeTab !== 2 }" @click="showSuggestions">
@@ -11,7 +11,7 @@
       <div class="separator">
       </div>
       <h2 :class="{ active: activeTab === 3, inactive: activeTab !== 3 }" @click="showWishlist">
-        Barnas ønskeliste ({{ numberOfWishListItems }})
+        Ønskeliste ({{ numberOfWishListItems }})
       </h2>
     </div>
     <ShoppingListComp v-if="activeTab === 1" @refresh-page="refreshPage"/>
@@ -85,9 +85,8 @@ const showWishlist = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60px;
-  width: 50%;
-  align-self: center;
+  min-height: 72px;
+  width: 100%;
 }
 .separator {
   position: relative;
@@ -126,5 +125,23 @@ h2 {
 
 .inactive {
   font-size: 20px;
+}
+
+@media only screen and (max-width: 800px) {
+  .active {
+    font-size: 30px;
+  }
+  .inactive {
+    font-size: 15px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .active {
+    font-size: 25px;
+  }
+  .inactive {
+    font-size: 14px;
+  }
 }
 </style>

@@ -4,7 +4,7 @@
       <div class="form-container">
         <div class="login-forms">
           <div class="login-form-content">
-            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" data-cy="login-form-comp"/>
+            <LoginFormComp v-show="showLoginForm" @switchView="toggleView" data-cy="login-form-comp" :signupMessage="signupMessage" />
             <SignUpFormComp v-show="!showLoginForm" @switchView="toggleView" data-cy="signup-form-comp"/>
           </div>
         </div>
@@ -24,6 +24,7 @@ import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/UserStore'
 const utilityStore = useUtilityStore()
 const userStore = useUserStore()
+const signupMessage = ref('')
 
 onMounted(() => {
   userStore.logout()
@@ -32,7 +33,14 @@ onMounted(() => {
 
 const showLoginForm = ref(true)
 
-const toggleView = () => {
+interface MessageInput {
+  message: string;
+}
+
+const toggleView = (message?: Partial<MessageInput>) => {
+  if (message && message.message) {
+    signupMessage.value = message.message
+  }
   showLoginForm.value = !showLoginForm.value
 }
 
@@ -183,16 +191,16 @@ https://www.youtube.com/watch?v=U69WL9jInW0
   text-align: center;
   margin-top: 25px;
 }
-@media (max-width: 730px) {
-  .login-form-content .login-form,
-  .login-form-content .signup-form{
-    width: 100%;
+
+@media only screen and (min-width: 2500px){
+  .login-container {
+    scale: 1.5;
   }
 }
 
-@media only screen and (min-width: 992px){
+@media only screen and (min-width: 1600px){
   .login-container {
-    scale: 1;
+    scale: 1.2;
   }
 }
 
@@ -212,6 +220,13 @@ https://www.youtube.com/watch?v=U69WL9jInW0
     max-width: 100%;
     width: 90%;
     padding: 0;
+  }
+}
+
+@media only screen and (max-width: 730px) {
+  .login-form-content .login-form,
+  .login-form-content .signup-form{
+    width: 100%;
   }
 }
 

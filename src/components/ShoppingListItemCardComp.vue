@@ -1,7 +1,7 @@
 <template>
   <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
     <div
-      v-tippy="'Kast i søpla'"
+      v-tippy= trashTooltip
       class="trash-icon-container"
       :class="{ 'disable-hover': disableHover }"
       @click.stop="deleteCard"
@@ -75,6 +75,13 @@ const selected = ref(false)
 const quantityInput = ref<HTMLInputElement | null>(null)
 const disableCardPointer = ref(false)
 const disableHover = ref(false)
+const trashTooltip = computed(() => {
+  if (props.onWishlist) {
+    return 'Fjern fra ønskelisten'
+  } else {
+    return 'Fjern fra handlelisten'
+  }
+})
 
 const unitType = computed(() => {
   switch (props.product.item.unit) {
@@ -251,7 +258,7 @@ watch(
 }
 
 .card-image {
-  width: 35%;
+  width: 30%;
   max-height: 150px; /* Increase max-height value */
   margin: auto;
   margin-left: 50px;
@@ -327,6 +334,7 @@ watch(
   top: 0;
   height: 100%;
   bottom: 0;
+  min-width: 40px;
   width: 10%;
   display: flex;
   justify-content: center;
@@ -361,5 +369,30 @@ watch(
 
 .trash-icon-container:hover .trash-icon-hover {
   display: block;
+}
+
+@media only screen and (max-width: 600px) {
+  .card-image {
+    display: none;
+  }
+  .card {
+    width: 100%;
+  }
+  .section-one {
+    width: 90%;
+    max-width: 100%;
+  }
+
+  .amount {
+    margin: 0;
+    justify-content: flex-end;
+  }
+  .section-two {
+    width: 7%;
+  }
+  .card-body {
+    width: 80%;
+    margin-left: 20%;
+  }
 }
 </style>
