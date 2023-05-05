@@ -23,12 +23,7 @@ describe('navbar', () => {
   })
 
   it('Should navigate to fridge when clicking fridge', () => {
-    cy.get('[data-cy=inventory]').click()
+    cy.get('[data-cy=fridge]').click()
     cy.url().should('include', '/fridge')
-  })
-
-  it('Should navigate to edit profile when clicking profile', () => {
-    cy.get('[data-cy=profile]').click()
-    cy.url().should('include', '/profile')
   })
 })

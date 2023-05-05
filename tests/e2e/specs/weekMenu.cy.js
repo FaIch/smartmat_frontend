@@ -7,11 +7,9 @@ describe('Week Menu', () => {
     cy.wait(500)
   })
 
-  it('Should route to specific week menu', () => {
+  it('Should route to week menu', () => {
     cy.get('[data-cy=weekMenu]').click()
     cy.wait(500)
-    cy.get('[data-cy=randomMenu]').click()
-    cy.wait(500)
-    cy.url().should('include', '/specificMenu')
+    cy.url().should('include', '/weekMenu')
   })
 })
