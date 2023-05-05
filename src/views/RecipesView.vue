@@ -96,15 +96,19 @@ async function fetchUserData () {
 }
 
 function increment () {
+  if (quantity.value >= 150) {
+    return
+  }
   quantity.value++
   updateQuantity()
 }
 
 function decrement () {
-  if (quantity.value > 1) {
-    quantity.value--
-    updateQuantity()
+  if (quantity.value <= 1) {
+    return
   }
+  quantity.value--
+  updateQuantity()
 }
 
 function updateQuantity () {

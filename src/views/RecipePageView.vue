@@ -56,7 +56,7 @@
                   I handlelisten
                 </span>
                 <span v-else>
-                  Ikke i kjøleskap
+                  Ikke nok i kjøleskap
                 </span>
               </td>
               <td class="checkbox-cell">
@@ -128,13 +128,17 @@ const adjustedRecipeItems = computed(() => {
 })
 
 function increment () {
+  if (portions.value >= 150) {
+    return
+  }
   portions.value++
 }
 
 function decrement () {
-  if (portions.value > 1) {
-    portions.value--
+  if (portions.value <= 1) {
+    return
   }
+  portions.value--
 }
 
 watch(
