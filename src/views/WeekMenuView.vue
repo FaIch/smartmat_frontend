@@ -4,6 +4,7 @@
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
     <div class="required-ingredients">
+      <button @click="newMenu">Ny meny</button>
       <button class="button-toggle" @click="toggleDropdown">Vis Ingredienser</button>
       <div ref="ingredientsList" class="ingredients-list">
           <button class="button" @click="addAllToShoppingList">Legg til handlelist</button>
@@ -129,13 +130,10 @@ async function getIngredientList () {
       .filter((recipe) => !recipe.completed)
       .map((recipe) => recipe.recipe.id)
     : []
-  console.log(body)
   await api.post(path, body)
     .then(async (response) => {
       if (response.status === 200) {
-        console.log(response.data)
         recipeItems.value = response.data
-        console.log(recipeItems.value)
       }
     })
     .catch((error) => {
@@ -182,7 +180,6 @@ async function getFridgeItems () {
           return acc
         }, [])
         fridgeItems.value = aggregatedFridgeItems
-        console.log(fridgeItems.value)
       }
     })
     .catch((error) => {
@@ -306,7 +303,6 @@ async function addAllToShoppingList () {
     quantity: item.quantity
   }))
 
-  console.log(checkedProductsData)
   if (checkedProductsData.length) {
     const path = '/shopping-list/add'
     await api.post(path, checkedProductsData)
@@ -345,6 +341,24 @@ function toggleDropdown () {
   } else {
     ingredientsList.value.style.maxHeight = '0'
   }
+}
+
+async function newMenu () {
+  const path = '/week-menu/new-menu'
+  await api.get(path)
+    .then(async (response) => {
+      if (response.status === 200) {
+        console.log('New menu created')
+        // Refresh the menu
+        fetchData()
+      }
+    })
+    .catch((error) => {
+      if (error.response.status === 401) {
+        userStore.logout()
+      }
+      console.log(error)
+    })
 }
 
 </script>
