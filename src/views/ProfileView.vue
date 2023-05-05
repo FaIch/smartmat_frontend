@@ -103,11 +103,13 @@ const submitForm = async () => {
       errorMessage.value = 'Ugyldig mobilnummer'
       return
     }
-    try {
-      await api.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
-      changesMade.value = true
-    } catch (error) {
-    }
+    await api.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
+      .then(() => {
+        changesMade.value = true
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   if (address.value) {
@@ -116,11 +118,13 @@ const submitForm = async () => {
       errorMessage.value = 'Ugyldig adresse format'
       return
     }
-    try {
-      await api.put('/user/edit/address?address=' + address.value, null)
-      changesMade.value = true
-    } catch (error) {
-    }
+    await api.put('/user/edit/address?address=' + address.value, null)
+      .then(() => {
+        changesMade.value = true
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   if (oldPassword.value && newPassword.value) {
@@ -144,12 +148,14 @@ const submitForm = async () => {
   }
 
   if (numberOfHouseholdMembers.value) {
-    try {
-      await api.put(
-        '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
-        .then(() => { changesMade.value = true })
-    } catch (error) {
-    }
+    await api.put(
+      '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
+      .then(() => {
+        changesMade.value = true
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 }
 

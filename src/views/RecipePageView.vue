@@ -118,7 +118,6 @@ function convertUnitFromEngToNo (unit: Unit) {
     return 'mL'
   }
 }
-// Create a computed property to adjust the ingredient quantities
 const adjustedRecipeItems = computed(() => {
   return recipeItems.value.map((ingredient) => {
     const adjustedQuantity = Math.ceil((ingredient.quantity * (portions.value / 4)))
@@ -312,7 +311,6 @@ function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
       selectedItems.value[index].quantity = requiredQuantity
     }
   } else {
-    // Remove the ingredient from the selectedItems array if the checkbox is unchecked
     if (index !== -1) {
       selectedItems.value.splice(index, 1)
     }
