@@ -123,5 +123,5 @@ export interface SubUser {
   email: string;
   nickname: string;
   role: Role;
-  passcode: number;
+  passcode: string;
 }
