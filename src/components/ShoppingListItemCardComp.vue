@@ -1,7 +1,7 @@
 <template>
   <div :class="[cardClass, { disabled: disableInteractions }]" @click="toggleCheckbox" :style="{cursor: disableCardPointer ? 'default' : 'pointer'}">
     <div
-      v-tippy="'Kast i søpla'"
+      v-tippy= trashTooltip
       class="trash-icon-container"
       :class="{ 'disable-hover': disableHover }"
       @click.stop="deleteCard"
@@ -75,6 +75,13 @@ const selected = ref(false)
 const quantityInput = ref<HTMLInputElement | null>(null)
 const disableCardPointer = ref(false)
 const disableHover = ref(false)
+const trashTooltip = computed(() => {
+  if (props.onWishlist) {
+    return 'Fjern fra ønskelisten'
+  } else {
+    return 'Fjern fra handlelisten'
+  }
+})
 
 const unitType = computed(() => {
   switch (props.product.item.unit) {

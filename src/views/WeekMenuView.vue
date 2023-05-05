@@ -3,56 +3,56 @@
     <h1 class="title">Din ukemeny </h1>
     <p> Ukes menyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
+    <div class="required-ingredients">
+      <button class="button-toggle" @click="toggleDropdown">Vis Ingredienser</button>
+      <div ref="ingredientsList" class="ingredients-list">
+          <button class="button" @click="addAllToShoppingList">Legg til handlelist</button>
+          <table>
+            <thead>
+              <tr>
+                <th>Amount & Unit</th>
+                <th>Ingredient</th>
+                <th>Availability</th>
+                <th>
+                  <input
+                    type="checkbox"
+                    @change="toggleSelectAll"
+                    v-model="selectAllChecked"
+                  />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
+                <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+                <td>{{ ingredient.item.name }}</td>
+                <td>
+                  <span v-if="ingredientAvailable(ingredient)">
+                    In fridge
+                  </span>
+                  <span v-else-if="inShoppingList(ingredient)">
+                    In shopping list
+                  </span>
+                  <span v-else>
+                    Not enough
+                  </span>
+                </td>
+                <td class="checkbox-cell">
+                  <input
+              v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
+              type="checkbox"
+              @change="toggleSelectedItem(ingredient)"
+              v-model="ingredient.selected"
+            />
+                </td>
+              </tr>
+            </tbody>
+        </table>
+      </div>
+    </div>
     <div class="recipe-row">
       <RecipeCardCompWeekMenu v-for="(recipe, index) in menu?.weekMenuRecipes" :key="index" :recipe="recipe" @update-card="updateCard"/>
     </div>
-    <div class="required-ingredients">
-      <button @click="toggleDropdown">Toggle Ingredients</button>
-      <div v-show="isDropdownOpen">
-        <button @click="addAllToShoppingList">Legg til handlelist</button>
-        <table>
-          <thead>
-            <tr>
-              <th>Amount & Unit</th>
-              <th>Ingredient</th>
-              <th>Availability</th>
-              <th>
-                <input
-                  type="checkbox"
-                  @change="toggleSelectAll"
-                  v-model="selectAllChecked"
-                />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-              <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
-              <td>{{ ingredient.item.name }}</td>
-              <td>
-                <span v-if="ingredientAvailable(ingredient)">
-                  In fridge
-                </span>
-                <span v-else-if="inShoppingList(ingredient)">
-                  In shopping list
-                </span>
-                <span v-else>
-                  Not enough
-                </span>
-              </td>
-              <td class="checkbox-cell">
-                <input
-            v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-            type="checkbox"
-            @change="toggleSelectedItem(ingredient)"
-            v-model="ingredient.selected"
-          />
-              </td>
-            </tr>
-          </tbody>
-      </table>
-    </div>
-  </div>
   </div>
 </template>
 
@@ -74,6 +74,7 @@ const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectAllChecked = ref(false)
 const portions = ref(4)
 const selectedItems = ref<ShoppingListItem[]>([])
+const ingredientsList = ref(null)
 
 // const selectedItems = ref<ShoppingListItem[]>([])
 
@@ -338,6 +339,12 @@ async function addAllToShoppingList () {
 
 function toggleDropdown () {
   isDropdownOpen.value = !isDropdownOpen.value
+
+  if (isDropdownOpen.value) {
+    ingredientsList.value.style.maxHeight = `${ingredientsList.value.scrollHeight}px`
+  } else {
+    ingredientsList.value.style.maxHeight = '0'
+  }
 }
 
 </script>
@@ -381,6 +388,7 @@ function toggleDropdown () {
   border-radius: 100px;
   border: none;
   margin: 0;
+  margin-top: 25px;
   padding: 0;
   z-index: 0;
   margin-left: 10px;
@@ -395,5 +403,79 @@ a {
 .recipe-items-fridge p {
   margin-bottom: 0;
   color: black;
+}
+.button-toggle {
+  background-color: #1A7028;
+  color: white;
+  height: 45px;
+  border-radius: 10px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  position: absolute; /* Add this */
+  z-index: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.button-toggle::after {
+  content: '';
+  border-top: 5px solid white;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  margin-left: 8px;
+}
+
+.isDropdownOpen .button-toggle::after {
+  border-top: none;
+  border-bottom: 5px solid white;
+}
+
+.required-ingredients {
+  position: relative;
+}
+.required-ingredients div {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out; /* add a transition for expanding and collapsing */
+}
+
+.required-ingredients.show div {
+  max-height: 1000px; /* increase the max-height to accommodate the content */
+}
+.ingredients-list {
+  top: 32px; /* Add this */
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 16px;
+  margin-top: 8px;
+  z-index: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.checkbox-cell {
+  text-align: center;
 }
 </style>
