@@ -41,7 +41,7 @@ describe('Login form validation', () => {
     await passwordInput.setValue('testpassword')
     await wrapper.find('.login-form form').trigger('submit')
 
-    expect(updateMessage.text()).toEqual('Please fill out all fields.')
+    expect(updateMessage.text()).toEqual('Vennligst fyll alle felt.')
   })
 
   it('should show an error message if email field is invalid', async () => {
@@ -53,7 +53,7 @@ describe('Login form validation', () => {
     await passwordInput.setValue('testpassword')
     await wrapper.find('.login-form form').trigger('submit')
 
-    expect(updateMessage.text()).toEqual('Invalid email.')
+    expect(updateMessage.text()).toEqual('Ugyldig e-post.')
   })
 
   it('should show an error message if email is too long', async () => {
@@ -65,7 +65,7 @@ describe('Login form validation', () => {
     await passwordInput.setValue('testpassword')
     await wrapper.find('.login-form form').trigger('submit')
 
-    expect(updateMessage.text()).toEqual('Email is too long.')
+    expect(updateMessage.text()).toEqual('E-post er for lang.')
   })
 
   it('should show an error message if password is too long', async () => {
@@ -77,7 +77,7 @@ describe('Login form validation', () => {
     await passwordInput.setValue('a'.repeat(201))
     await wrapper.find('.login-form form').trigger('submit')
 
-    expect(updateMessage.text()).toEqual('Password is too long.')
+    expect(updateMessage.text()).toEqual('Passord er for lang.')
   })
 
   it('should show an error message if password is too short', async () => {
@@ -89,6 +89,6 @@ describe('Login form validation', () => {
     await passwordInput.setValue('a'.repeat(3))
     await wrapper.find('.login-form form').trigger('submit')
 
-    expect(updateMessage.text()).toEqual('Password must be at least 8 characters.')
+    expect(updateMessage.text()).toEqual('Passord må være minst 8 karakterer langt.')
   })
 })

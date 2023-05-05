@@ -4,31 +4,31 @@
             <fieldset class="row">
               <h1>Innloggingsdetaljer</h1>
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Email adresse" readonly disabled>
+                    <label for="email">E-post Adresse</label>
+                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Din e-post adresse" readonly disabled>
                     <label for="oldPassword">Gammelt Passord</label>
-                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Gammelt passord">
+                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Ditt gamle passord">
                     <div v-if="wrongOldPassword" class="error-message">
                         Feil gammelt passord
                     </div>
                     <label for="newPassword">Nytt Passord</label>
-                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Nytt passord">
+                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Ditt nye passord">
                 </div>
             </fieldset>
             <fieldset class="row">
               <h1>Personlige Detaljer</h1>
                 <div class="form-group">
-                    <label for="mobileNumber">Telefon Nummer</label>
-                    <input id="mobileNumber" type="number" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Telefon nummer">
+                    <label for="mobileNumber">Mobilnummer</label>
+                    <input id="mobileNumber" type="number" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Ditt mobilnummer">
                     <label for="address">Adresse</label>
                     <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
-                    <label for="numberOfHouseholdMembers">Antall I Husholdning</label>
-                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall i husholdning">
+                    <label for="numberOfHouseholdMembers">Antall Personer I Husholdning</label>
+                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall personer i husholdningen din">
                     <label id="errorLabel"> {{ errorMessage }}</label>
                 </div>
             </fieldset>
             <div v-if="changesMade" id="response-wrapper">
-              <h3 >Endringer lagret! </h3>
+              <h3 >Endringer lagret </h3>
               <i class="material-symbols-outlined">task_alt</i>
             </div>
             <div class="submit-button">
@@ -88,7 +88,7 @@ const submitForm = async () => {
   if (phoneNumber.value) {
     const phoneNumberRegex = /^\d{8}$/
     if (!phoneNumberRegex.test(phoneNumber.value)) {
-      errorMessage.value = 'Ugyldig telefon nummer'
+      errorMessage.value = 'Ugyldig mobilnummer'
       return
     }
     try {

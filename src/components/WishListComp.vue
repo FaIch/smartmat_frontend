@@ -350,6 +350,13 @@ async function removeItem (itemId: number) {
     margin-left: -50px;
 }
 
+.products-button:hover {
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+  background-color: #25A13A;
+}
+
 .search-div {
     margin-top: 10px;
     display: flex;

@@ -1,64 +1,87 @@
 <template>
-  <div v-if="recipe" class="container">
-    <h1 class="title">{{ recipe.name }}</h1>
+  <div v-if="recipe" class="recipe-container">
     <img class="recipe-image" :src="recipe.image" alt="">
-    <h2 class="recipe-title">Ingredients</h2>
-    <div>
-    <label for="portions">Number of portions:</label>
-    <input type="number" id="portions" v-model.number="portions" min="1">
-  </div>
-  <button @click="addAllToShoppingList">Add All to Shopping List</button>
-  <button @click="removeFromFridge">I've cooked this recipe</button>
-  <table>
-    <thead>
-      <tr>
-        <th>Amount & Unit</th>
-        <th>Ingredient</th>
-        <th>Availability</th>
-        <th>
-          <input
+    <h1 class="title">{{ recipe.name }}</h1>
+    <div class="recipe-information">
+      <div class="recipe-stats">
+        <div class="portion-stats">
+          <h2 for="portions" class="recipe-title">Porsjoner</h2>
+          <img src="../assets/icons/portion.svg" class="icon"/>
+          <div class="edit-quantity-div">
+              <img
+                src="../assets/icons/remove.svg"
+                @click="decrement"
+              />
+              <div class="portion-number">
+                {{ portions }}
+              </div>
+              <img
+                src="../assets/icons/add.svg"
+                @click="increment"
+              />
+          </div>
+        </div>
+        <div class="estimated-time-stats">
+          <h2 class="recipe-title">Beregned tid</h2>
+          <img src="../assets/icons/clock.svg" class="icon"/>
+          <div class="portion-number">{{ recipe.estimatedTime }}</div>
+        </div>
+      </div>
+      <div class="ingredients">
+        <h2 class="recipe-title">Ingredienser</h2>
+        <table>
+          <thead>
+            <tr>
+              <th class="break-words">Mengde</th>
+              <th class="break-words">Varer</th>
+              <th class="break-words">Tilgjengelighet</th>
+              <th>
+                <input
+                  type="checkbox"
+                  @change="toggleSelectAll"
+                  v-model="selectAllChecked"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
+              <td class="break-words">{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+              <td class="break-words">{{ ingredient.item.name }}</td>
+              <td class="break-words">
+                <span v-if="ingredientAvailable(ingredient)">
+                  I kjøleskapet
+                </span>
+                <span v-else-if="inShoppingList(ingredient)">
+                  I handlelisten
+                </span>
+                <span v-else>
+                  Ikke nok
+                </span>
+              </td>
+              <td class="checkbox-cell">
+                <input
+            v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
             type="checkbox"
-            @change="toggleSelectAll"
-            v-model="selectAllChecked"
+            @change="toggleSelectedItem(ingredient)"
+            v-model="ingredient.selected"
           />
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-        <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
-        <td>{{ ingredient.item.name }}</td>
-        <td>
-          <span v-if="ingredientAvailable(ingredient)">
-            In fridge
-          </span>
-          <span v-else-if="inShoppingList(ingredient)">
-            In shopping list
-          </span>
-          <span v-else>
-            Not enough
-          </span>
-        </td>
-        <td class="checkbox-cell">
-          <input
-      v-if="!ingredientAvailable(ingredient) && !inShoppingList(ingredient)"
-      type="checkbox"
-      @change="toggleSelectedItem(ingredient)"
-      v-model="ingredient.selected"
-    />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-    <h2 class="recipe-title">Instructions</h2>
-    <div v-html="formattedText">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="buttons">
+          <button class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
+        </div>
+      </div>
     </div>
-    <h2 class="recipe-title">Estimated time</h2>
-    <p>{{ recipe.estimatedTime }}</p>
-    <!-- <h2 class="recipe-title">Number of items in fridge</h2>
-    <p>{{ recipe.numberOfItemsFridge }}</p>
-    <h2 class="recipe-title">Number of items needed for recipe</h2>
-    <p>{{ recipe.numberOfItemsRecipe }}</p> -->
+    <div class="recipe-steps">
+      <div class="instructions">
+        <h2 class="recipe-title">Fremgangsmåte</h2>
+        <div v-html="formattedText"/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -71,17 +94,14 @@ import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterfa
 
 const userStore = useUserStore()
 const route = useRoute()
-
 const recipeId = computed(() => {
   return route.params.id
 })
-
 const recipe = ref<RecipeInterface>()
 const recipeItems = ref<RecipeIngredientInterface[]>([])
 const shoppingList = ref<ShoppingListItemCardInterface[]>([])
 const fridgeItems = ref<FridgeItemCardInterface[]>([])
 const selectedItems = ref<ShoppingListItem[]>([])
-
 const formattedText = computed(() => recipe.value?.description.replace(/\n/g, '<br>'))
 const selectAllChecked = ref(false)
 const portions = ref(4)
@@ -96,6 +116,16 @@ const adjustedRecipeItems = computed(() => {
     }
   })
 })
+
+function increment () {
+  portions.value++
+}
+
+function decrement () {
+  if (portions.value > 1) {
+    portions.value--
+  }
+}
 
 watch(
   () => selectAllChecked.value,
@@ -363,40 +393,163 @@ async function removeFromFridge () {
 }
 
 </script>
+
 <style scoped>
 .checkbox-cell{
-  width: 1%;
+  width: 3%;
   white-space: nowrap;
 }
-.container {
-  display: grid;
-  margin-top: 100px;
+
+.checkbox-cell input {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+.recipe-container {
+  display: flex;
+  padding-top: 100px;
   border: 2px;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .title {
   padding: 20px;
+  border-bottom-color: black;
+  font-size: 30px;
 }
 
-.title {
-  color: #25A13A;
-  border-bottom-color: black;
+.recipe-information {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.recipe-title {
+  font-size: 20px;
+}
+
+.icon {
+  width: 50px;
+  height: 50px;
+  margin: 10px;
+  font-size: 30px;
+  line-height: 50px;
+}
+
+.ingredients{
+  display: flex;
+  flex-direction: column;
+  width: min(40%, 800px);
+}
+
+.edit-quantity-div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0px;
+}
+
+.edit-quantity-div img {
+  width: 30px;
+  cursor: pointer;
+}
+
+.instructions{
+  margin-top: 30px;
+  margin-bottom: 60px;
 }
 
 .recipe-image {
-  display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 400px;
-  height: 400px;
-  max-width: 50%;
+  height: 450px;
+}
+
+.recipe-steps {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.recipe-stats {
+  display: flex;
+  flex-direction: column;
+  margin-right: 50px;
+}
+
+.recipe-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+}
+
+.portion-stats {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 40px;
+  justify-content: center;
+  align-items: center;
+}
+
+.estimated-time-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.portion-number {
+  font-size: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-self: center;
+  width: 100%;
+  max-width: 440px;
+}
+
+.recipe-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 180px;
+  border-radius: 100px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  z-index: 4;
+}
+
+.recipe-button:hover {
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+  background-color: #25A13A;
+}
+button {
+  width: 40%;
 }
 
 table {
+  table-layout: auto;
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
   float: left;
+  border: 1px solid black;
 }
 
 th, td {
@@ -406,11 +559,80 @@ th, td {
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #ffffff;
   font-weight: bold;
+}
+
+th input {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
 }
 
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }
+
+.break-words {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media only screen and (max-width: 1100px) {
+
+  .recipe-image {
+    width: 80%;
+    height: auto;
+  }
+  .recipe-information {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recipe-stats {
+    margin-right: 0;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .portion-stats {
+    margin-bottom: 0;
+    margin-right: 50px;
+  }
+
+  .ingredients {
+    margin-top: 30px;
+    width: 80%;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .recipe-button {
+    margin-bottom: 20px;
+  }
+
+  .ingredients table {
+    width: 100%;
+    table-layout: fixed;
+    overflow-y: auto;
+  }
+
+  .ingredients {
+    width: 90%;
+  }
+
+  th,
+  td {
+    padding: 8px 4px;
+  }
+}
+
 </style>

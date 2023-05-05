@@ -11,7 +11,7 @@ describe('Signup form validation', () => {
   })
 
   it('should show an error message if email field is empty', async () => {
-    const emailInput = wrapper.find('input[placeholder="Email..."]')
+    const emailInput = wrapper.find('input[placeholder="E-post..."]')
     const passwordInput = wrapper.find('input[placeholder="Passord..."]')
     const confirmPasswordInput = wrapper.find('input[placeholder="Bekreft passord..."]')
     const update = wrapper.find('.update-message h4')
@@ -21,11 +21,11 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('testpassword')
     await wrapper.find('.signup-form form').trigger('submit')
 
-    expect(update.text()).to.equal('Please fill out all fields.')
+    expect(update.text()).to.equal('Vennligst fyll alle felt.')
   })
 
   it('should show an error message if email field is invalid', async () => {
-    const emailInput = wrapper.find('input[placeholder="Email..."]')
+    const emailInput = wrapper.find('input[placeholder="E-post..."]')
     const passwordInput = wrapper.find('input[placeholder="Passord..."]')
     const confirmPasswordInput = wrapper.find('input[placeholder="Bekreft passord..."]')
     const update = wrapper.find('.update-message h4')
@@ -35,11 +35,11 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('testpassword')
     await wrapper.find('.signup-form form').trigger('submit')
 
-    expect(update.text()).to.equal('Invalid email.')
+    expect(update.text()).to.equal('Ugyldig e-post.')
   })
 
   it('should show an error message if email is too long', async () => {
-    const emailInput = wrapper.find('input[placeholder="Email..."]')
+    const emailInput = wrapper.find('input[placeholder="E-post..."]')
     const passwordInput = wrapper.find('input[placeholder="Passord..."]')
     const confirmPasswordInput = wrapper.find('input[placeholder="Bekreft passord..."]')
     const update = wrapper.find('.update-message h4')
@@ -49,11 +49,11 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('testpassword')
     await wrapper.find('.signup-form form').trigger('submit')
 
-    expect(update.text()).to.equal('Email is too long.')
+    expect(update.text()).to.equal('E-post er for lang.')
   })
 
   it('should show an error message if passwords are not the same', async () => {
-    const emailInput = wrapper.find('input[placeholder="Email..."]')
+    const emailInput = wrapper.find('input[placeholder="E-post..."]')
     const passwordInput = wrapper.find('input[placeholder="Passord..."]')
     const confirmPasswordInput = wrapper.find('input[placeholder="Bekreft passord..."]')
     const update = wrapper.find('.update-message h4')
@@ -63,11 +63,11 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('testpassword2')
     await wrapper.find('.signup-form form').trigger('submit')
 
-    expect(update.text()).to.equal('Passwords are not the same.')
+    expect(update.text()).to.equal('Passordene er ikke like.')
   })
 
   it('should show an error message if password is too long', async () => {
-    const emailInput = wrapper.find('input[placeholder="Email..."]')
+    const emailInput = wrapper.find('input[placeholder="E-post..."]')
     const passwordInput = wrapper.find('input[placeholder="Passord..."]')
     const confirmPasswordInput = wrapper.find('input[placeholder="Bekreft passord..."]')
     const update = wrapper.find('.update-message h4')
@@ -77,11 +77,11 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('a'.repeat(201))
     await wrapper.find('.signup-form form').trigger('submit')
 
-    expect(update.text()).to.equal('Password is too long.')
+    expect(update.text()).to.equal('Passord er for lang.')
   })
 
   it('should show an error message if password is too short', async () => {
-    const emailInput = wrapper.find('input[placeholder="Email..."]')
+    const emailInput = wrapper.find('input[placeholder="E-post..."]')
     const passwordInput = wrapper.find('input[placeholder="Passord..."]')
     const confirmPasswordInput = wrapper.find('input[placeholder="Bekreft passord..."]')
     const update = wrapper.find('.update-message h4')
@@ -91,6 +91,6 @@ describe('Signup form validation', () => {
     await confirmPasswordInput.setValue('a'.repeat(2))
     await wrapper.find('.signup-form form').trigger('submit')
 
-    expect(update.text()).to.equal('Password must be at least 8 characters.')
+    expect(update.text()).to.equal('Passord må være minst 8 karakterer langt.')
   })
 })

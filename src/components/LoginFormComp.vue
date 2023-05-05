@@ -12,7 +12,7 @@
           data-cy="input-email"
           type="email"
           v-model="email"
-          placeholder="Email..."
+          placeholder="E-post..."
           @input="resetUpdate"
           required>
         </div>
@@ -66,24 +66,24 @@ const validateLogin = () => {
   const emailRegex = ref(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
 
   if (email.value === '' || password.value === '') {
-    updateMessage.value = 'Please fill out all fields.'
+    updateMessage.value = 'Vennligst fyll alle felt.'
     return false
   }
   if (!emailRegex.value.test(String(email.value).toLowerCase())) {
-    updateMessage.value = 'Invalid email.'
+    updateMessage.value = 'Ugyldig e-post.'
     return
   }
-  if (email.value.length > 50) {
-    updateMessage.value = 'Email is too long.'
+  if (email.value.length > 60) {
+    updateMessage.value = 'E-post er for lang.'
     return false
   }
   if (password.value.length > 200) {
-    updateMessage.value = 'Password is too long.'
+    updateMessage.value = 'Passord er for lang.'
     return false
   }
 
   if (password.value.length < 8) {
-    updateMessage.value = 'Password must be at least 8 characters.'
+    updateMessage.value = 'Passord må være minst 8 karakterer langt.'
     return false
   }
   return true
