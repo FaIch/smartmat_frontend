@@ -40,6 +40,7 @@
                   type="checkbox"
                   @change="toggleSelectAll"
                   v-model="selectAllChecked"
+                  :disabled="userStore.role === Role.CHILD"
                 />
               </th>
             </tr>
@@ -71,7 +72,7 @@
           </tbody>
         </table>
         <div class="buttons">
-          <button v-if="!allIngredientsInShoppingListOrFridge" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button :disabled="userStore.role === Role.CHILD" v-bind:class="{ 'grey-background': userStore.role === Role.CHILD }" v-if="!allIngredientsInShoppingListOrFridge" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
           <button v-if="allIngredientsInFridge" class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
         </div>
       </div>
@@ -90,7 +91,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
 import api from '../utils/httputils'
-import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem } from '../components/types'
+import { RecipeInterface, RecipeIngredientInterface, ShoppingListItemCardInterface, FridgeItemCardInterface, ShoppingListItem, Role } from '../components/types'
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -664,6 +665,11 @@ tr:nth-child(even) {
   td {
     padding: 8px 4px;
   }
+}
+
+.grey-background {
+  background-color: grey;
+  pointer-events: none;
 }
 
 </style>

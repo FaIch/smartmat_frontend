@@ -50,12 +50,11 @@
 
       <div class="navbar-right">
         <notification-center-comp v-if="showItems && !showHamburgerMenu"/>
-
         <div class="profile" v-if="showItems && !showHamburgerMenu">
           <img src="../assets/icons/profile.svg" class="profile-button" @click="toggleProfileMenu"/>
           <ul class="profile-menu" v-if="isProfileMenuVisible" @click.stop>
-            <li>
-              <a data-cy="profile" @click.prevent="() => { closeProfileMenu(); navigate('/profile'); }" :class="{ active: isActiveLink('/profile') }">
+            <li v-if=" userStore.role === Role.PARENT">
+              <a data-cy="profile" @click.prevent="() => { closeProfileMenu(); navigate('/profile'); }" :class="{ active: isActiveLink('/profile')}">
                 Profilinnstillinger
               </a>
             </li>
@@ -92,7 +91,7 @@
                 </a>
               </li>
               <li>
-                <a @click.prevent="() => { closeMenu(); navigate('/profile'); }" :class="{ active: isActiveLink('/profile') }">
+                <a v-if="userStore.role === Role.PARENT" @click.prevent="() => { closeMenu(); navigate('/profile'); }" :class="{ active: isActiveLink('/profile') }">
                   Min Profil
                 </a>
               </li>
@@ -115,6 +114,7 @@ import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import NotificationCenterComp from './NotificationCenterComp.vue'
 import router from '../router/index'
+import { Role } from '../components/types'
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
