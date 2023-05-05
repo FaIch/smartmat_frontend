@@ -19,8 +19,8 @@ const showNotifications = ref(false)
 
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value
-  console.log(showNotifications.value)
 }
+
 </script>
 
 <style scoped>
