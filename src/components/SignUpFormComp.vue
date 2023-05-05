@@ -154,6 +154,7 @@ async function submitSignup () {
     api.post(path, data).then(response => {
       if (response.status === 200) {
         updateMessage.value = response.data
+        emit('switch-view', { message: response.data })
       }
     }).catch((error) => {
       updateMessage.value = error.response.data

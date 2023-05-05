@@ -1,101 +1,106 @@
 <template>
-  <nav class="navbar is-opaque">
-    <div class="navbar-container">
-      <div class="navbar-logo">
-        <div @click.prevent="closeMenu" exact-active-class="active">
-          <h1
-            class="logo"
-            @click.prevent="() => navigate('/')"
-            :class="{ active: isActiveLink('/') }"
-          >SmartMat</h1>
+  <nav class="navbar">
+    <div class="navbar-container" :class="{ centered: centeredNavbarLeft }">
+      <div class="navbar-left">
+        <div
+          class="logo icon-link"
+          @click.prevent="() => navigate('/savings')"
+          :class="{ active: isActiveLink('/savings') }"
+        ></div>
+
+        <div class="navbar-icons" v-if="showItems">
+
+          <div
+            v-if="!showHamburgerMenu"
+            class="icon-link"
+            @click.prevent="() => navigate('/weekMenu')"
+            :class="{ active: isActiveLink('/weekMenu') }"
+          >
+            <h1 data-cy="weekMenu">Ukesmeny</h1>
+          </div>
+
+          <div
+            v-if="!showHamburgerMenu"
+            class="icon-link"
+            @click.prevent="() => navigate('/recipes')"
+            :class="{ active: isActiveLink('/recipes') }"
+            >
+            <h1 data-cy="recipes">Oppskrifter</h1>
+          </div>
+
+          <div
+            v-if="!showHamburgerMenu"
+            class="icon-link"
+            @click.prevent="() => navigate('/shoppinglist')"
+            :class="{ active: isActiveLink('/shoppinglist') }"
+          >
+            <h1 data-cy="shoppingCart">Handleliste</h1>
+          </div>
+
+          <div
+            v-if="!showHamburgerMenu"
+            class="icon-link"
+            @click.prevent="() => navigate('/fridge')"
+            :class="{ active: isActiveLink('/fridge') }"
+          >
+            <h1 data-cy="fridge">Mitt kjøleskap</h1>
+          </div>
         </div>
       </div>
 
-      <div class="navbar-icons" v-if="showItems">
-        <div
-          v-if="!showHamburgerMenu"
-          class="icon-link"
-          @click.prevent="() => navigate('/recipes')"
-          :class="{ active: isActiveLink('/recipes') }"
-        >
-        <h1 data-cy="recipes">{{ recipes }}</h1>
-        </div>
-        <div
-          v-if="!showHamburgerMenu"
-          class="icon-link"
-          @click.prevent="() => navigate('/weekMenu')"
-          :class="{ active: isActiveLink('/weekMenu') }"
-        >
-          <h1 data-cy="weekMenu">{{ weekMenu }}</h1>
-        </div>
+      <div class="navbar-right">
+        <notification-center-comp v-if="showItems && !showHamburgerMenu"/>
 
-        <div
-          v-if="!showHamburgerMenu"
-          class="icon-link"
-          @click.prevent="() => navigate('/shoppinglist')"
-          :class="{ active: isActiveLink('/shoppinglist') }"
-        >
-        <h1 data-cy="shoppingCart">{{ shoppingCart }}</h1>
+        <div class="profile" v-if="showItems && !showHamburgerMenu">
+          <img src="../assets/icons/profile.svg" class="profile-button" @click="toggleProfileMenu"/>
+          <ul class="profile-menu" v-if="isProfileMenuVisible" @click.stop>
+            <li>
+              <a data-cy="profile" @click.prevent="() => { closeProfileMenu(); navigate('/profile'); }" :class="{ active: isActiveLink('/profile') }">
+                Profilinnstillinger
+              </a>
+            </li>
+            <li>
+              <a @click.prevent="() => { closeProfileMenu(); navigate('/login'); }" :class="{ active: isActiveLink('/login') }">
+                Logg ut
+              </a>
+            </li>
+          </ul>
         </div>
 
-                <router-link v-if="!showHamburgerMenu" to="/fridge" class="icon-link" exact-active-class="active">
-                <h1>{{ inventory }}</h1>
-                </router-link>
-
-        <div
-          v-if="!showHamburgerMenu && userStore.role === Role.PARENT"
-          class="icon-link"
-          @click.prevent="() => navigate('/profile')"
-          :class="{ active: isActiveLink('/profile') }"
-        >
-        <h1 data-cy="profile">{{ profile }}</h1>
-        </div>
-
-        <div
-          v-if="!showHamburgerMenu"
-          class="icon-link"
-          @click.prevent="() => navigate('/login')"
-          :class="{ active: isActiveLink('/login') }"
-        >
-        <h1>{{ login }}</h1>
-        </div>
-
-        <notification-center-comp />
-
-        <div class="menu" v-if="showHamburgerMenu">
-          <button class="menu-button" @click="toggleMenu">
+        <div class="hamburger-menu" v-if="showHamburgerMenu">
+          <button class="hamburger-menu-button" @click="toggleMenu">
           </button>
-            <ul class="sub-menu" v-if="isMenuVisible">
-                <li>
-                    <a @click.prevent="() => { closeMenu(); navigate('/recipes'); }" class="icon-link" :class="{ active: isActiveLink('/recipes') }">
-                        Oppskrifter
-                    </a>
-                </li>
-                <li>
-                    <a @click.prevent="() => { closeMenu(); navigate('/weekMenu'); }" class="icon-link" :class="{ active: isActiveLink('/weekMenu') }">
-                        Ukesmeny
-                    </a>
-                </li>
-                <li>
-                    <a @click.prevent="() => { closeMenu(); navigate('/shoppinglist'); }" class="icon-link" :class="{ active: isActiveLink('/shoppinglist') }">
-                        Handleliste
-                    </a>
-                </li>
-                <li>
-                    <a @click.prevent="() => { closeMenu(); navigate('/fridge'); }" class="icon-link" :class="{ active: isActiveLink('/fridge') }">
-                        Mitt Kjøleskap
-                    </a>
-                </li>
-                <li>
-                    <a @click.prevent="() => { closeMenu(); navigate('/profile'); }" class="icon-link" :class="{ active: isActiveLink('/profile') }">
-                        Min Profil
-                    </a>
-                </li>
-                <li>
-                    <a @click.prevent="() => { closeMenu(); navigate('/login'); }" class="icon-link" :class="{ active: isActiveLink('/login') }">
-                        Logg Ut
-                    </a>
-                </li>
+            <ul class="hamburger-sub-menu" v-if="isMenuVisible">
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/weekMenu'); }" :class="{ active: isActiveLink('/weekMenu') }">
+                  Ukesmeny
+                </a>
+              </li>
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/recipes'); }" :class="{ active: isActiveLink('/recipes') }">
+                  Oppskrifter
+                </a>
+              </li>
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/shoppinglist'); }" :class="{ active: isActiveLink('/shoppinglist') }">
+                  Handleliste
+                </a>
+              </li>
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/fridge'); }" :class="{ active: isActiveLink('/fridge') }">
+                  Mitt Kjøleskap
+                </a>
+              </li>
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/profile'); }" :class="{ active: isActiveLink('/profile') }">
+                  Min Profil
+                </a>
+              </li>
+              <li>
+                <a @click.prevent="() => { closeMenu(); navigate('/login'); }" :class="{ active: isActiveLink('/login') }">
+                  Logg Ut
+                </a>
+              </li>
             </ul>
         </div>
       </div>
@@ -110,16 +115,18 @@ import { useUserStore } from '../stores/UserStore'
 import { useUtilityStore } from '../stores/UtilityStore'
 import NotificationCenterComp from './NotificationCenterComp.vue'
 import router from '../router/index'
-import { Role } from './types'
 
 const userStore = useUserStore()
 const utilityStore = useUtilityStore()
 const screenWidth = ref(window.innerWidth)
-const showHamburgerMenu = computed(() => screenWidth.value < 850)
+const showHamburgerMenu = computed(() => screenWidth.value < 800)
 const isMenuVisible = ref(false)
+const isProfileMenuVisible = ref(false)
 const route = useRoute()
 const currentPath = computed(() => route.path)
-const showItems = ref(true)
+const showItems = ref(false)
+
+const centeredNavbarLeft = computed(() => !showItems.value)
 
 const isActiveLink = (path: string) => {
   return currentPath.value === path
@@ -137,6 +144,14 @@ watch(() => utilityStore.navBarItems, (newValue) => {
   showItems.value = newValue
 })
 
+const toggleProfileMenu = () => {
+  isProfileMenuVisible.value = !isProfileMenuVisible.value
+}
+
+const closeProfileMenu = () => {
+  isProfileMenuVisible.value = false
+}
+
 const toggleMenu = () => {
   isMenuVisible.value = !isMenuVisible.value
 }
@@ -149,62 +164,24 @@ const updateScreenWidth = () => {
   screenWidth.value = window.innerWidth
 }
 
-const recipes = computed(() => {
-  if (screenWidth.value > 850) {
-    return 'Oppskrifter'
-  } else {
-    return ''
-  }
-})
-
-const weekMenu = computed(() => {
-  if (screenWidth.value > 850) {
-    return 'Ukesmeny'
-  } else {
-    return ''
-  }
-})
-
-const shoppingCart = computed(() => {
-  if (screenWidth.value > 850) {
-    return 'Handleliste'
-  } else {
-    return ''
-  }
-})
-
-const inventory = computed(() => {
-  if (screenWidth.value > 850) {
-    return 'Mitt kjøleskap'
-  } else {
-    return ''
-  }
-})
-
-const profile = computed(() => {
-  if (screenWidth.value > 850) {
-    return 'Min profil'
-  } else {
-    return ''
-  }
-})
-
-const login = computed(() => {
-  if (screenWidth.value > 850) {
-    return 'Logg ut'
-  } else {
-    return ''
-  }
-})
-
 onMounted(() => {
   window.addEventListener('resize', updateScreenWidth)
+  window.addEventListener('click', handleWindowClick)
   showItems.value = utilityStore.navBarItems
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateScreenWidth)
+  window.addEventListener('click', handleWindowClick)
 })
+
+const handleWindowClick = (event: MouseEvent) => {
+  if (!event.target) return
+  const target = event.target as HTMLElement
+  if (!target.closest('.profile')) {
+    closeProfileMenu()
+  }
+}
 
 </script>
 
@@ -218,47 +195,17 @@ onUnmounted(() => {
   height: 75px;
   z-index: 9999;
   width: 100%;
-}
-.navbar.is-opaque {
   background-color: #1A7028;
-  transition: background-color 0.1s ease-in-out;
-}
-.navbar:not(.is-opaque) {
-  background-color: transparent;
-  transition: background-color 0.1s ease-in-out;
+  justify-content: center;
 }
 
 .navbar-container {
   display: flex;
   justify-content: space-between;
-  justify-content: center;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 1300px;
   padding: 0 20px;
-}
-
-.navbar-icons{
-  display: flex;
-  height: 73px;
-  width: 700px;
-  justify-content: right;
   align-items: center;
-  padding: 0;
-}
-
-h1{
-  color: white;
-  text-decoration: none;
-  font-size: 17px;
-  font-family: 'Lato', sans-serif;
-}
-
-a{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
 }
 
 .icon-link{
@@ -276,54 +223,147 @@ a{
   border-bottom: 4px solid white;
 }
 
-.menu-button {
+.logo {
+  margin-bottom: 10px;
+  padding: 0;
+  padding-right: 50px;
+  cursor: pointer;
+  width: 100px;
+  height: 40px;
+  background-image: url('../assets/logo/logoSmall.png');
+  background-position: center center;
+  background-size: cover;
+}
+
+.navbar-icons {
+  display: flex;
+}
+
+.navbar-left {
+  display: flex;
+  padding: 0;
+  align-items: center;
+}
+
+.navbar-left h1 {
+  margin: 0;
+}
+
+.navbar-right {
+  display: flex;
+  height: 100%;
+  width: 110px;
+  justify-content: space-between;
+}
+
+h1{
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+  font-family: 'Lato', sans-serif;
+}
+
+a{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+.profile {
+  height: 30px;
+  position: relative;
+}
+
+.profile-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  min-width: 200px;
+  background-color: white;
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  padding: 10px 0;
+  margin: 0;
+  text-align: left;
+  list-style: none;
+  z-index: 20;
+}
+
+.profile-menu li {
   display: block;
-  width: 50px;
+  padding: 5px 15px;
+}
+
+.profile-menu li:hover {
+  background-color: rgb(184, 184, 184);
+}
+
+.profile-menu li a {
+  display: block;
+  color: #333333;
+  font-size: 16px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 5px 10px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.profile-menu li a:hover {
+  text-decoration: none;
+}
+
+.hamburger-menu {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+}
+
+.hamburger-sub-menu {
+  position: absolute;
+  top: 65px;
+  right: 0;
+  min-width: 240px;
+  background-color: white;
+  border: 1px solid #cccccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  padding: 10px 0;
+  margin: 0;
+  text-align: center;
+  list-style: none;
+  z-index: 20;
+}
+
+.hamburger-menu-button {
+  display: block;
+  width: 80px;
   height: 50px;
   background-repeat: no-repeat;
   background-position: center center;
   background-color: transparent;
   border: none;
   cursor: pointer;
-    background-image: url('../assets/icons/menu.png');
+  background-image: url('../assets/icons/menu-white.svg');
 }
 
-.sub-menu {
-  position: absolute;
-  top: 75px;
-  right: 0px;
-  width: 100%;
-  background-color: #e9f1feff;
-  border: 1px solid #cccccc;
-    border-right-width: 150px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  padding: 10px 0;
-  margin: 0;
-  text-align: center;
-  list-style: none;
-}
-@media only screen and (max-width: 400px) {
-    .sub-menu {
-        right: 10px;
-        width: 90%;
-    }
-}
-
-.sub-menu li {
+.hamburger-sub-menu li {
   display: block;
   padding: 10px 0;
 }
 
-.logo {
-  font-size: 30px;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-  padding-bottom: 17px;
-  cursor: pointer;
+.hamburger-sub-menu li:hover {
+  background-color: rgb(184, 184, 184);
 }
 
-.sub-menu li a {
+.hamburger-sub-menu li a {
   display: block;
   color: #333333;
   font-size: 20px;
@@ -334,24 +374,32 @@ a{
   transition: background-color 0.2s ease;
 }
 
-.sub-menu li a:hover {
-  background-color: #f3f3f3;
+.hamburger-sub-menu li a:hover {
+  background-color: rgb(184, 184, 184);
 }
 
-@media only screen and (min-width: 851px) {
-    .navbar-icons {
-        display: flex;
-    }
-
-    .menu {
-        display: none;
-    }
+.centered {
+  justify-content: center;
 }
 
-.menu {
-    position: fixed;
-    top: 10px;
-    right: 20px;
+@media only screen and (min-width: 300px) {
+  .logo {
+    margin-bottom: 10px;
+    padding: 0;
+    margin-right: auto;
+    cursor: pointer;
+    width: 200px;
+    height: 40px;
+    background-image: url('../assets/logo/logoBig.png');
+    background-position: center center;
+    background-size: cover;
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .logo {
+    margin-right: 50px;
+  }
 }
 
 </style>

@@ -26,7 +26,7 @@
         </div>
         <div
           class="pin-code-field"
-          v-show="subuser.role === 'PARENT' && selectedIndex === index"
+          v-if="subuser.role === 'PARENT' && selectedIndex === index"
           @click.stop
         >
           <div class="pin-inputs">
@@ -91,7 +91,7 @@ function selectAccount (subuser: SubUser, index: number) {
   if (subuser.role === 'CHILD') {
     userStore.subUserLogin(subuser)
     utilityStore.showItems()
-    router.push('/fridge')
+    router.push('/savings')
     return
   }
   if (selectedIndex.value === index) {
@@ -128,7 +128,7 @@ async function validateAndLogin (subuser: SubUser, index: number) {
   const isPinCorrect = pin === subuser.passcode.toString()
   if (isPinCorrect) {
     userStore.subUserLogin(subuser)
-    router.push('/fridge')
+    router.push('/savings')
     utilityStore.showItems()
   } else {
     selectAccount(subuser, index)
@@ -220,7 +220,6 @@ async function setSubUserPasscode (subuser: SubUser) {
   align-items: center;
   justify-content: center;
   height: 100%;
-  flex-wrap: wrap;
   gap: 16px;
 }
 
@@ -228,8 +227,8 @@ async function setSubUserPasscode (subuser: SubUser) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 350px;
-  height: 450px;
+  width: 200;;
+  height: 350px;
   position: relative;
   margin: 30px;
   cursor: pointer;
@@ -242,8 +241,8 @@ async function setSubUserPasscode (subuser: SubUser) {
 
 .profile-image {
   border-radius: 50%;
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   margin-bottom: 10px;
 }
@@ -309,28 +308,36 @@ async function setSubUserPasscode (subuser: SubUser) {
   outline: none;
 }
 
-@media only screen and (max-width: 400px){
+@media only screen and (min-width: 1000px) {
   .profile-image-container {
-    width: 200px;
-    height: 300px;
-  }
-  .profile-image {
-    border-radius: 50%;
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    margin-bottom: 10px;
-  }
-  .sub-user-page-container {
-    padding-top: 60px;
+    scale: 1.3;
+    margin: 100px;
   }
 }
 
-@media only screen and (max-width: 835px) {
+@media only screen and (max-width: 1000px) {
   .profile-image-container {
+    margin: 0;
+    margin: 16px;
     padding: 0;
-    padding-top: 20px;
-    margin-bottom: 30px;
+    scale: 1;
+  }
+}
+
+@media only screen and (max-width: 520px) {
+  .sub-user-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .profile-image-container {
+    flex: 1 0 auto;
+    margin: 16px;
+  }
+  .user-info-div {
+    height: 300px;
   }
 }
 

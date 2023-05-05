@@ -142,7 +142,6 @@ function removeCheckedProducts () {
 .page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   height: 100%;
 }
 
@@ -163,7 +162,7 @@ function removeCheckedProducts () {
 
 .item-cards {
   display: flex;
-  justify-content: center;
+  align-self: center;
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -247,4 +246,23 @@ function removeCheckedProducts () {
   scale: 0.8;
 }
 
+@media only screen and (max-width: 800px) {
+  .search-div {
+    flex-direction: column;
+    justify-content: center;
+  }
+  #search-bar {
+    width: 400px;
+  }
+  .item-cards {
+    width: 80%;
+    min-width: 280px;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  #search-bar {
+    width: 100%;
+  }
+}
 </style>
