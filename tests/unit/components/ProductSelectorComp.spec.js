@@ -28,6 +28,6 @@ describe('ProductSelectorComp form', async () => {
 
   it('has 0 selected products by default', async () => {
     const selectedProducts = wrapper.find('h2')
-    expect(selectedProducts.text()).toBe('Valgt (0)')
+    expect(selectedProducts.text()).toBe('Valgte (0)')
   })
 })

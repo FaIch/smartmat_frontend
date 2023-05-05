@@ -1,10 +1,8 @@
 <template>
-  <div v-if="recipe" class="container">
+  <div v-if="recipe" class="recipe-container">
+    <img class="recipe-image" :src="recipe.image" alt="">
     <h1 class="title">{{ recipe.name }}</h1>
-    <div class="recipe-info">
-      <div class="image-container">
-        <img class="recipe-image" :src="recipe.image" alt="">
-      </div>
+    <div class="recipe-information">
       <div class="recipe-stats">
         <div class="portion-stats">
           <h2 for="portions" class="recipe-title">Porsjoner</h2>
@@ -29,20 +27,14 @@
           <div class="portion-number">{{ recipe.estimatedTime }}</div>
         </div>
       </div>
-    </div>
-    <div class="recipe-steps">
       <div class="ingredients">
-        <h2 class="recipe-title">Ingredients</h2>
-        <div class="buttons">
-          <button @click="addAllToShoppingList">Legg til i handlelista</button>
-          <button @click="removeFromFridge">Jeg har laget denne oppskriften</button>
-        </div>
+        <h2 class="recipe-title">Ingredienser</h2>
         <table>
           <thead>
             <tr>
-              <th>Amount & Unit</th>
-              <th>Ingredient</th>
-              <th>Availability</th>
+              <th class="break-words">Mengde</th>
+              <th class="break-words">Varer</th>
+              <th class="break-words">Tilgjengelighet</th>
               <th>
                 <input
                   type="checkbox"
@@ -54,17 +46,17 @@
           </thead>
           <tbody>
             <tr v-for="(ingredient, index) in adjustedRecipeItems" :key="index">
-              <td>{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
-              <td>{{ ingredient.item.name }}</td>
-              <td>
+              <td class="break-words">{{ ingredient.quantity }} {{ ingredient.item.unit }}</td>
+              <td class="break-words">{{ ingredient.item.name }}</td>
+              <td class="break-words">
                 <span v-if="ingredientAvailable(ingredient)">
-                  In fridge
+                  I kjøleskapet
                 </span>
                 <span v-else-if="inShoppingList(ingredient)">
-                  In shopping list
+                  I handlelisten
                 </span>
                 <span v-else>
-                  Not enough
+                  Ikke nok
                 </span>
               </td>
               <td class="checkbox-cell">
@@ -78,9 +70,15 @@
             </tr>
           </tbody>
         </table>
+        <div class="buttons">
+          <button class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
+        </div>
       </div>
+    </div>
+    <div class="recipe-steps">
       <div class="instructions">
-        <h2 class="recipe-title">Instructions</h2>
+        <h2 class="recipe-title">Fremgangsmåte</h2>
         <div v-html="formattedText"/>
       </div>
     </div>
@@ -405,25 +403,44 @@ async function removeFromFridge () {
 
 <style scoped>
 .checkbox-cell{
-  width: 1%;
+  width: 3%;
   white-space: nowrap;
 }
-.container {
+
+.checkbox-cell input {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+.recipe-container {
   display: flex;
-  margin-top: 100px;
+  padding-top: 100px;
   border: 2px;
   flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .title {
   padding: 20px;
-  color: #25A13A;
   border-bottom-color: black;
+  font-size: 30px;
+}
+
+.recipe-information {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.recipe-title {
+  font-size: 20px;
 }
 
 .icon {
-  width: 150px;
-  height: 150px;
+  width: 50px;
+  height: 50px;
   margin: 10px;
   font-size: 30px;
   line-height: 50px;
@@ -432,9 +449,7 @@ async function removeFromFridge () {
 .ingredients{
   display: flex;
   flex-direction: column;
-  margin-left: auto;
-  margin-right: auto;
-  width: min(100%, 800px);
+  width: min(40%, 800px);
 }
 
 .edit-quantity-div {
@@ -444,31 +459,20 @@ async function removeFromFridge () {
   margin: 0px;
 }
 
-.instructions{
-  margin: auto;
-  margin-top: 30px;
+.edit-quantity-div img {
+  width: 30px;
+  cursor: pointer;
 }
 
-.image-container {
-  display: flex;
-  align-self: center;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-left: auto;
-  margin-right: auto;
-  flex-grow: 9999;
-  max-width: min(90%, 500px);
+.instructions{
+  margin-top: 30px;
+  margin-bottom: 60px;
 }
 
 .recipe-image {
   margin-left: auto;
   margin-right: auto;
-  width: 90%;
-  height: 90%;
-  aspect-ratio: 1/1;
-  border: black;
-  border-style: solid;
+  height: 450px;
 }
 
 .recipe-steps {
@@ -482,13 +486,8 @@ async function removeFromFridge () {
 
 .recipe-stats {
   display: flex;
-  flex-direction: row;
-  flex: 1 1 0px;
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
-  justify-content: center;
-  gap: 10%;
+  flex-direction: column;
+  margin-right: 50px;
 }
 
 .recipe-info {
@@ -503,8 +502,7 @@ async function removeFromFridge () {
 .portion-stats {
   display: flex;
   flex-direction: column;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-bottom: 40px;
   justify-content: center;
   align-items: center;
 }
@@ -512,13 +510,11 @@ async function removeFromFridge () {
 .estimated-time-stats {
   display: flex;
   flex-direction: column;
-  margin-left: 20px;
-  margin-right: 20px;
   justify-content: center;
   align-items: center;
 }
 .portion-number {
-  font-size: 34px;
+  font-size: 20px;
   margin-right: 20px;
   margin-left: 20px;
 }
@@ -526,21 +522,41 @@ async function removeFromFridge () {
 .buttons {
   display: flex;
   flex-direction: row;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 20px;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  align-self: center;
+  width: 100%;
+  max-width: 440px;
 }
 
+.recipe-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 180px;
+  border-radius: 100px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  z-index: 4;
+}
+
+.recipe-button:hover {
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+  background-color: #25A13A;
+}
 button {
   width: 40%;
 }
 
 table {
+  table-layout: auto;
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
   float: left;
+  border: 1px solid black;
 }
 
 th, td {
@@ -554,8 +570,76 @@ th {
   font-weight: bold;
 }
 
+th input {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
 tr:nth-child(even) {
   background-color: #f2f2f2;
+}
+
+.break-words {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media only screen and (max-width: 1100px) {
+
+  .recipe-image {
+    width: 80%;
+    height: auto;
+  }
+  .recipe-information {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recipe-stats {
+    margin-right: 0;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .portion-stats {
+    margin-bottom: 0;
+    margin-right: 50px;
+  }
+
+  .ingredients {
+    margin-top: 30px;
+    width: 80%;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .recipe-button {
+    margin-bottom: 20px;
+  }
+
+  .ingredients table {
+    width: 100%;
+    table-layout: fixed;
+    overflow-y: auto;
+  }
+
+  .ingredients {
+    width: 90%;
+  }
+
+  th,
+  td {
+    padding: 8px 4px;
+  }
 }
 
 </style>

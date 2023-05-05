@@ -114,10 +114,14 @@ async function loadProducts () {
       }
     })
     .catch((error) => {
-      if (error.response.status === 401) {
+      if (error.response && error.response.status === 401) {
         userStore.logout()
       }
-      showUpdateMessage(error.response.data.message)
+      if (error.response && error.response.data && error.response.data.message) {
+        showUpdateMessage(error.response.data.message)
+      } else {
+        showUpdateMessage('An error occurred while loading products')
+      }
     })
 }
 
@@ -344,6 +348,13 @@ async function removeItem (itemId: number) {
   padding: 0;
   z-index: 4;
   margin-left: -50px;
+}
+
+.products-button:hover {
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+  background-color: #25A13A;
 }
 
 .search-div {
