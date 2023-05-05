@@ -15,16 +15,16 @@
         <p class="mainNumbers">{{ co2Emissions }} kg</p>
       </div>
     </div>
-    <div v-if="isExcess && !(flag.value === 'allTime')" >
+    <div v-if="isExcess && !isAllTime" >
       <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
       <img src="../assets/icons/sad.svg" alt="sad image"/>
     </div>
-    <div v-if="!isExcess && !(flag.value === 'allTime')" >
+    <div v-if="!isExcess && !isAllTime" >
       <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
       <img src="../assets/icons/happy.svg" alt="happy image"/>
     </div>
-    <div v-if="flag.value==='allTime'" >
-      <p>{{ averageMoneyLost }}</p>
+    <div v-if="isAllTime" >
+      <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
     </div>
     <br>
     <div class="menu">
@@ -120,6 +120,17 @@ const isExcess = computed(() => {
   }
 
   return percentage > 100
+})
+
+const isAllTime = computed(() => {
+  if (flag.value === 'yearly') {
+    return false
+  } else if (flag.value === 'monthly') {
+    return false
+  } else if (flag.value === 'weekly') {
+    return false
+  }
+  return true
 })
 
 const showLastMonth = () => {
