@@ -71,8 +71,8 @@
           </tbody>
         </table>
         <div class="buttons">
-          <button class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
-          <button class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
+          <button v-if="!allIngredientsInShoppingListOrFridge" class="recipe-button" @click="addAllToShoppingList">Legg til i handlelista</button>
+          <button v-if="allIngredientsInFridge" class="recipe-button" @click="removeFromFridge">Marker som lagd</button>
         </div>
       </div>
     </div>
@@ -261,44 +261,51 @@ async function fetchFridgeItems () {
 
 function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
   const adjustedIngredient = adjustedRecipeItems.value.find(
-    item => item.item.id === ingredient.item.id
+    (item) => item.item.id === ingredient.item.id
   )
 
   if (!adjustedIngredient) return
 
   const index = selectedItems.value.findIndex(
-    item => item.id === adjustedIngredient.item.id
+    (item) => item.id === adjustedIngredient.item.id
   )
 
-  const fridgeItem = fridgeItems.value.find(
-    item => item.item.id === adjustedIngredient.item.id
-  )
+  if (ingredient.selected) {
+    const fridgeItem = fridgeItems.value.find(
+      (item) => item.item.id === adjustedIngredient.item.id
+    )
 
-  const shoppingListItem = shoppingList.value.find(
-    listItem => listItem.item.id === adjustedIngredient.item.id
-  )
+    const shoppingListItem = shoppingList.value.find(
+      (listItem) => listItem.item.id === adjustedIngredient.item.id
+    )
 
-  let requiredQuantity =
-    fridgeItem && fridgeItem.quantity < adjustedIngredient.quantity
-      ? Math.ceil(
-        (adjustedIngredient.quantity - fridgeItem.quantity) /
-            adjustedIngredient.item.baseAmount
-      )
-      : Math.ceil(
-        adjustedIngredient.quantity / adjustedIngredient.item.baseAmount
-      )
+    let requiredQuantity =
+      fridgeItem && fridgeItem.quantity < adjustedIngredient.quantity
+        ? Math.ceil(
+          (adjustedIngredient.quantity - fridgeItem.quantity) /
+              adjustedIngredient.item.baseAmount
+        )
+        : Math.ceil(
+          adjustedIngredient.quantity / adjustedIngredient.item.baseAmount
+        )
 
-  requiredQuantity = shoppingListItem
-    ? requiredQuantity - shoppingListItem.quantity
-    : requiredQuantity
+    requiredQuantity = shoppingListItem
+      ? requiredQuantity - shoppingListItem.quantity
+      : requiredQuantity
 
-  if (index === -1) {
-    selectedItems.value.push({
-      id: adjustedIngredient.item.id,
-      quantity: requiredQuantity
-    })
+    if (index === -1) {
+      selectedItems.value.push({
+        id: adjustedIngredient.item.id,
+        quantity: requiredQuantity
+      })
+    } else {
+      selectedItems.value[index].quantity = requiredQuantity
+    }
   } else {
-    selectedItems.value[index].quantity = requiredQuantity
+    // Remove the ingredient from the selectedItems array if the checkbox is unchecked
+    if (index !== -1) {
+      selectedItems.value.splice(index, 1)
+    }
   }
 }
 
@@ -391,6 +398,18 @@ async function removeFromFridge () {
       })
   }
 }
+
+const allIngredientsInFridge = computed(() => {
+  return adjustedRecipeItems.value.every(ingredient =>
+    ingredientAvailable(ingredient)
+  )
+})
+
+const allIngredientsInShoppingListOrFridge = computed(() => {
+  return adjustedRecipeItems.value.every(ingredient =>
+    ingredientAvailable(ingredient) || inShoppingList(ingredient)
+  )
+})
 
 </script>
 
