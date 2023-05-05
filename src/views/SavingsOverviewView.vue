@@ -15,9 +15,18 @@
         <p class="mainNumbers">{{ co2Emissions }} kg</p>
       </div>
     </div>
-    <div>
-        <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
+    <div v-if="isExcess && !(flag.value === 'allTime')" >
+      <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
+      <img src="../assets/icons/sad.svg" alt="sad image"/>
     </div>
+    <div v-if="!isExcess && !(flag.value === 'allTime')" >
+      <p :class="{averages: true, excess: isExcess}">{{ averageMoneyLost }}</p>
+      <img src="../assets/icons/happy.svg" alt="happy image"/>
+    </div>
+    <div v-if="flag.value==='allTime'" >
+      <p>{{ averageMoneyLost }}</p>
+    </div>
+    <br>
     <div class="menu">
       <button :class="{'selector': true, 'selected': flag === 'weekly'}" @click="showLastWeek()">Siste Uke</button>
       <button :class="{'selector': true, 'selected': flag === 'monthly'}" @click="showLastMonth()">Siste Måned</button>
@@ -31,6 +40,12 @@
 
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+
+const flag = ref('')
+const foodWaste = ref<number>(0)
+const moneyLost = ref<number>(0)
+const co2Emissions = ref<number>(0)
+const numberOfHouseholdMembers = ref<number>(1)
 
 // Calculating percentage for each time period based on the average value for money lost
 // The same formula applies to foodWaste and CO2Emissions, because they're products of each other
@@ -55,12 +70,6 @@ const averageMoneyLost = computed(() => {
     return ''
   }
 })
-
-const flag = ref('')
-const foodWaste = ref<number>(0)
-const moneyLost = ref<number>(0)
-const co2Emissions = ref<number>(0)
-const numberOfHouseholdMembers = ref<number>(1)
 
 onMounted(async () => {
   showLastWeek()
@@ -261,8 +270,4 @@ p {
     padding: 0;
   }
 }
-.excess {
-    color: red;
-}
-
 </style>
