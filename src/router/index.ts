@@ -71,15 +71,6 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/addProduct',
-    name: 'addProduct',
-    component: () => import('../views/AddProductView.vue'),
-    beforeEnter: async (to, from, next) => {
-      const isLoggedIn = await checkIsSubUserLoggedIn()
-      requireAuth(isLoggedIn, to, from, next)
-    }
-  },
-  {
     path: '/weekMenu',
     name: 'weekMenu',
     component: () => import('../views/WeekMenuView.vue'),

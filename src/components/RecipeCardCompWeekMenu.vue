@@ -1,19 +1,5 @@
 <template>
   <div class="recipe-container">
-    <div v-if="userStore.role === Role.PARENT" class="buttons">
-      <div v-tippy="'Bytt med tilfeldig'" class="reroll" v-if="!props.recipe.completed">
-        <img
-          src="../assets/icons/refresh.svg"
-          class="refresh-icon"
-          @click="reroll"/>
-      </div>
-      <div v-tippy="'Marker som lagd'" class="checkmark" v-if="!props.recipe.completed">
-        <img
-          src="../assets/icons/check.svg"
-          class="checkmark-icon"
-          @click="prepared">
-      </div>
-    </div>
     <div class="recipe-card" @click="handleClick()">
       <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
       <div class="recipe-details">
@@ -28,9 +14,24 @@
       </div>
         <div class="completed-overlay" v-if="props.recipe.completed">
          <img
+          @click="prepared"
           src="../assets/icons/check.svg"
           class="marked-completed"
           >
+      </div>
+    </div>
+    <div v-if="userStore.role === Role.PARENT" class="buttons">
+      <div v-tippy="'Bytt med tilfeldig'" class="reroll" v-if="!props.recipe.completed">
+        <img
+          src="../assets/icons/refresh.svg"
+          class="refresh-icon"
+          @click="reroll"/>
+      </div>
+      <div v-tippy="'Marker som lagd'" class="checkmark" v-if="!props.recipe.completed">
+        <img
+          src="../assets/icons/check.svg"
+          class="checkmark-icon"
+          @click="prepared">
       </div>
     </div>
   </div>
@@ -106,6 +107,7 @@ async function reroll () {
   display: flex;
   flex-direction: row;
   height: 40px;
+  margin-top: 10px;
 }
 
 .checkmark {
@@ -147,6 +149,7 @@ async function reroll () {
   position: absolute;
   top: 0;
   right: 0;
+  cursor: pointer;
 }
 
 .completed-checkmark {

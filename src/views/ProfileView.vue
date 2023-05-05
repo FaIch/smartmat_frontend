@@ -97,11 +97,6 @@ const submitForm = async () => {
   wrongOldPassword.value = false
   errorMessage.value = ''
 
-  if (!userStore.loggedIn) {
-    console.error('You are not logged in')
-    return
-  }
-
   if (phoneNumber.value) {
     const phoneNumberRegex = /^\d{8}$/
     if (!phoneNumberRegex.test(phoneNumber.value)) {
@@ -112,7 +107,6 @@ const submitForm = async () => {
       await api.put('/user/edit/phone?phoneNumber=' + phoneNumber.value, null)
       changesMade.value = true
     } catch (error) {
-      console.error('Error updating phone number', error)
     }
   }
 
@@ -126,7 +120,6 @@ const submitForm = async () => {
       await api.put('/user/edit/address?address=' + address.value, null)
       changesMade.value = true
     } catch (error) {
-      console.error('Error updating address', error)
     }
   }
 
@@ -156,7 +149,6 @@ const submitForm = async () => {
         '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
         .then(() => { changesMade.value = true })
     } catch (error) {
-      console.error('Error updating household members', error)
     }
   }
 }

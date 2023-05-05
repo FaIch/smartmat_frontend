@@ -134,7 +134,7 @@ h1 {
 
 @media only screen and (max-width: 480px) {
     h1 {
-        font-size: 28px;
+        font-size: 20px;
         margin-top: 1rem;
     }
 

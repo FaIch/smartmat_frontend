@@ -1,11 +1,12 @@
 <template>
   <div class="week-menu-container" v-if="menu">
-    <h1 class="title">Din ukemeny </h1>
+    <div class="title-div">
+      <h1 class="title">Din ukemeny </h1>
+    </div>
     <p> Ukesmenyen består av fem ulike retter. Du kan klikke deg inn på hver rett for mer informasjon.</p>
     <br>
     <div class="ingredients-container">
       <div class="required-ingredients">
-      <button @click="newMenu">Ny meny</button>
         <button class="button-toggle" @click="toggleDropdown">Vis ingredienser</button>
         <div ref="ingredientsList" class="ingredients-list">
             <button class="button" v-if="userStore.role === Role.PARENT" @click="addAllToShoppingList">Legg til i handleliste</button>
@@ -75,14 +76,13 @@
       </div>
     </div>
     <div class="recipe-row">
-      <RecipeCardCompWeekMenu v-for="(recipe, index) in menu?.weekMenuRecipes" :key="index" :recipe="recipe" @update-card="updateCard"/>
+      <RecipeCardCompWeekMenu v-for="(recipe, index) in menu.weekMenuRecipes" :key="index" :recipe="recipe" @update-card="updateCard"/>
     </div>
   </div>
+  <button class="new-menu-button" @click="newMenu">Ny meny</button>
 </template>
 
 <script setup lang="ts">
-// TODO: hvorfor forsvinner på refresh?!
-
 import { computed, onMounted, ref, watch } from 'vue'
 import api from '../utils/httputils'
 import { useUserStore } from '../stores/UserStore'
@@ -115,7 +115,6 @@ function increment () {
     return
   }
   portions.value++
-  updateQuantity()
 }
 
 function decrement () {
@@ -123,17 +122,7 @@ function decrement () {
     return
   }
   portions.value--
-  updateQuantity()
 }
-
-function updateQuantity () {
-  /*
-  getRecipes().then(() => {
-    filteredRecipes.value = recipes.value
-  })
-  */
-}
-// const selectedItems = ref<ShoppingListItem[]>([])
 
 onMounted(() => {
   fetchData()
@@ -143,10 +132,10 @@ async function fetchData () {
   getWeekMenu()
   getShoppingList()
   getFridgeItems()
+  fetchUserData()
 }
 
 const updateCard = () => {
-  // Update your data here, e.g., fetch the new data from the API
   fetchData()
 }
 
@@ -216,7 +205,6 @@ async function getFridgeItems () {
   await api.get(path)
     .then(async (response) => {
       if (response.status === 200) {
-        // Aggregate the quantities of items with the same ID
         const aggregatedFridgeItems: FridgeItemCardInterface[] = response.data.reduce((acc: FridgeItemCardInterface[], item: FridgeItemCardInterface) => {
           const existingItemIndex = acc.findIndex((accItem: FridgeItemCardInterface) => accItem.item.id === item.item.id)
 
@@ -236,6 +224,14 @@ async function getFridgeItems () {
         userStore.logout()
       }
     })
+}
+
+async function fetchUserData () {
+  api.get('/user/details').then((response) => {
+    if (response.status === 200) {
+      portions.value = response.data.numberOfHouseholdMembers
+    }
+  })
 }
 
 watch(
@@ -355,18 +351,14 @@ async function addAllToShoppingList () {
     await api.post(path, checkedProductsData)
       .then(async (response) => {
         if (response.status === 200) {
-          // Refresh the shopping list
           getShoppingList()
-          // Clear the selected items
           selectedItems.value = []
 
-          // Uncheck the added items
           recipeItems.value.forEach((ingredient) => {
             if (!ingredientAvailable(ingredient) && !inShoppingList(ingredient)) {
               ingredient.selected = false
             }
           })
-          // Uncheck the 'select all' checkbox
           selectAllChecked.value = false
         }
       })
@@ -422,6 +414,11 @@ async function newMenu () {
   flex-direction: row;
 }
 
+.title-div {
+  display: flex;
+  align-items: center;
+}
+
 .title {
   padding: 20px;
 }
@@ -435,7 +432,7 @@ async function newMenu () {
   margin-bottom: 50px;
   min-width: 300px;
   width: 80%;
-  max-width: 1500px;
+  max-width: 1100px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -560,6 +557,7 @@ th input {
 
 .selector-outer {
   margin-top: -30px;
+  margin-left: 60px;
 }
 
 .selector {
@@ -592,6 +590,29 @@ th input {
   hyphens: auto;
 }
 
+.new-menu-button {
+  background-color: #1A7028;
+  color: white;
+  height: 40px;
+  width: 150px;
+  border-radius: 100px;
+  margin-left: 20px;
+  border: none;
+}
+
+.new-menu-button:hover {
+  background-color: #25A13A;
+  transform: scale(1.1);
+  color: white;
+  box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+}
+
+.new-menu-button:active {
+  background-color: black;
+  box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+  transform: scale(.90);
+}
+
 @media only screen and (max-width: 700px) {
   .ingredients-container {
     flex-direction: column;
@@ -600,10 +621,19 @@ th input {
     justify-content: center;
     align-self: center;
     justify-self: center;
+    margin-top: 20px;
   }
   .selector-outer {
     width: 80%;
     align-self: center;
+  }
+
+  .title-div {
+    flex-direction: column;
+  }
+  .new-menu-button {
+    margin: 0;
+    margin-bottom: 20px;
   }
 }
 

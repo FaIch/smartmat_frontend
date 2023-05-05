@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar">
-    <div class="navbar-container" :class="{ centered: centeredNavbarLeft }">
+    <div class="navbar-container">
       <div class="navbar-left">
         <div
           class="logo icon-link"
@@ -66,7 +66,7 @@
           </ul>
         </div>
 
-        <div class="hamburger-menu" v-if="showHamburgerMenu">
+        <div class="hamburger-menu" v-if="showHamburgerMenu && showItems">
           <button class="hamburger-menu-button" @click="toggleMenu">
           </button>
             <ul class="hamburger-sub-menu" v-if="isMenuVisible">
@@ -125,14 +125,14 @@ const isProfileMenuVisible = ref(false)
 const route = useRoute()
 const showItems = ref(false)
 
-const centeredNavbarLeft = computed(() => !showItems.value)
-
 const isActiveLink = (path: string) => {
   return route.path === path
 }
 
 const navigate = (route: string) => {
-  if (!userStore.loggedIn) {
+  if (route === '/savings' && !userStore.loggedIn) {
+    router.push('/')
+  } else if (!userStore.loggedIn) {
     userStore.logout()
   } else {
     router.push(route)
@@ -377,10 +377,6 @@ a{
   background-color: rgb(184, 184, 184);
 }
 
-.centered {
-  justify-content: center;
-}
-
 @media only screen and (min-width: 300px) {
   .logo {
     margin-bottom: 10px;
@@ -392,12 +388,6 @@ a{
     background-image: url('../assets/logo/logoBig.png');
     background-position: center center;
     background-size: cover;
-  }
-}
-
-@media only screen and (min-width: 1000px) {
-  .logo {
-    margin-right: 50px;
   }
 }
 

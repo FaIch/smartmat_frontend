@@ -1,18 +1,18 @@
 <template>
-    <div id="app">
-        <div class="notification-button-container">
-            <button class="notification-button" @click="toggleNotifications">
-                <img src="../assets/icons/notification.svg" alt="NotificationBell" />
-            </button>
-            <div v-if="showNotifications" class="notifications-popup">
-                <NotificationView />
-            </div>
-        </div>
+  <div id="notification-container">
+    <div class="notification-button-container">
+      <button class="notification-button" @click.prevent="toggleNotifications">
+        <img src="../assets/icons/notification.svg" alt="NotificationBell" />
+      </button>
+      <div v-if="showNotifications" class="notifications-popup">
+        <NotificationView/>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import NotificationView from '../views/NotificationView.vue'
 
 const showNotifications = ref(false)
@@ -21,6 +21,25 @@ const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value
 }
 
+const closeMenu = () => {
+  showNotifications.value = false
+}
+
+onMounted(() => {
+  window.addEventListener('click', handleWindowClick)
+})
+
+onUnmounted(() => {
+  window.addEventListener('click', handleWindowClick)
+})
+
+const handleWindowClick = (event: MouseEvent) => {
+  if (!event.target) return
+  const target = event.target as HTMLElement
+  if (!target.closest('.notification-button')) {
+    closeMenu()
+  }
+}
 </script>
 
 <style scoped>
@@ -32,16 +51,17 @@ const toggleNotifications = () => {
 }
 
 .notification-button img {
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
 }
 
+.notification-button-container {
+  position: relative;
+}
 .notifications-popup {
     position: absolute;
     top: 100%;
-    /* Set the top to 100% to position the popup right below the notification button */
-    left: 60%;
-    transform: translateX(-57%);
+    right: 0;
     width: 600px;
     height: 700px;
     z-index: 1000;

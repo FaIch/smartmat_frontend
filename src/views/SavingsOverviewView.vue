@@ -186,13 +186,13 @@ const fetchNumberOfHouseholdMembers = async () => {
 }
 
 .selector:hover {
-  color: #25A13A;
-  background: #fff;
+  color: #1A7028;
+  background: #eee;
 }
 
 .selector.selected {
-  color: #25A13A;
-  background: #fff;
+  color: #1A7028;
+  background: #eee;
 }
 
 h1 {

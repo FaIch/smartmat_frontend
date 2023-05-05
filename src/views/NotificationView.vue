@@ -28,7 +28,6 @@ const products = ref<FridgeItemCardInterface[]>([])
 const productsExpired = ref<FridgeItemCardInterface[]>([])
 const userStore = useUserStore()
 const isViewOpen = ref(true)
-
 onMounted(() => {
   getItemsExpired()
   getItemsAlmostExpired()

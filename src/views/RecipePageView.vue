@@ -186,6 +186,7 @@ onMounted(() => {
   fetchRecipeItems()
   fetchShoppingList()
   fetchFridgeItems()
+  fetchUserData()
 })
 
 async function fetchRecipe () {
@@ -258,6 +259,14 @@ async function fetchFridgeItems () {
         userStore.logout()
       }
     })
+}
+
+async function fetchUserData () {
+  api.get('/user/details').then((response) => {
+    if (response.status === 200) {
+      portions.value = response.data.numberOfHouseholdMembers
+    }
+  })
 }
 
 function toggleSelectedItem (ingredient: RecipeIngredientInterface) {
