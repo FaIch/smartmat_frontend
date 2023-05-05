@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, onMounted } from 'vue'
-import { AxiosError } from 'axios'
 import api from '../utils/httputils'
 import router from '../router/index'
 import { Role, SubUser } from '../components/types'
@@ -18,9 +17,7 @@ export const useUserStore = defineStore('userStore', () => {
     try {
       await api.post(path, null)
     } catch (error: unknown) {
-      if (error instanceof AxiosError && error.response?.status === 600) {
-        logout()
-      }
+      logout()
     } finally {
       startRefreshTimer()
     }
