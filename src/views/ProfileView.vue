@@ -2,32 +2,33 @@
     <div class="formBody">
         <form @submit.prevent="submitForm">
             <fieldset class="row">
-              <h1>Innloggings Detaljer</h1>
+              <h1>Innloggingsdetaljer</h1>
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Email adresse" readonly disabled>
+                    <label for="email">E-post Adresse</label>
+                    <input id="email" type="email" name="email" autocomplete="email" v-model="email" placeholder="Din e-post adresse" readonly disabled>
                     <label for="oldPassword">Gammelt Passord</label>
-                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Gammelt passord">
+                    <input id="oldPassword" type="password" name="oldPassword" v-model="oldPassword" placeholder="Ditt gamle passord">
                     <div v-if="wrongOldPassword" class="error-message">
-                        Incorrect old password
+                        Feil gammelt passord
                     </div>
                     <label for="newPassword">Nytt Passord</label>
-                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Nytt passord">
+                    <input id="newPassword" type="password" name="newPassword" v-model="newPassword" placeholder="Ditt nye passord">
                 </div>
             </fieldset>
             <fieldset class="row">
-              <h1>Personlige detaljer</h1>
+              <h1>Personlige Detaljer</h1>
                 <div class="form-group">
-                    <label for="mobileNumber">Telefon Nummer</label>
-                    <input id="mobileNumber" type="tel" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Telefon nummer">
+                    <label for="mobileNumber">Mobilnummer</label>
+                    <input id="mobileNumber" type="number" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Ditt mobilnummer">
                     <label for="address">Adresse</label>
                     <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
-                    <label for="numberOfHouseholdMembers">Antall I Husholdning</label>
-                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall i husholdning">
+                    <label for="numberOfHouseholdMembers">Antall Personer I Husholdning</label>
+                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall personer i husholdningen din">
+                    <label id="errorLabel"> {{ errorMessage }}</label>
                 </div>
             </fieldset>
             <div v-if="changesMade" id="response-wrapper">
-              <h3 >Endringer lagret! </h3>
+              <h3 >Endringer lagret </h3>
               <i class="material-symbols-outlined">task_alt</i>
             </div>
             <div class="submit-button">
@@ -54,6 +55,7 @@ const address = ref('')
 const wrongOldPassword = ref(false)
 const numberOfHouseholdMembers = ref('')
 const changesMade = ref(false)
+const errorMessage = ref('')
 
 onMounted(async () => {
   if (userStore.loggedIn) {
@@ -75,6 +77,8 @@ onMounted(async () => {
 
 const submitForm = async () => {
   changesMade.value = false
+  wrongOldPassword.value = false
+  errorMessage.value = ''
 
   if (!userStore.loggedIn) {
     console.error('You are not logged in')
@@ -84,7 +88,7 @@ const submitForm = async () => {
   if (phoneNumber.value) {
     const phoneNumberRegex = /^\d{8}$/
     if (!phoneNumberRegex.test(phoneNumber.value)) {
-      console.error('Invalid phone format')
+      errorMessage.value = 'Ugyldig mobilnummer'
       return
     }
     try {
@@ -96,9 +100,9 @@ const submitForm = async () => {
   }
 
   if (address.value) {
-    const addressRegex = /^[a-zA-Z\s]+\d+/
+    const addressRegex = /^[a-zA-ZøæåØÆÅ\s]+\d+/
     if (!addressRegex.test(address.value)) {
-      console.error('Invalid address format')
+      errorMessage.value = 'Ugyldig adresse format'
       return
     }
     try {
@@ -120,12 +124,8 @@ const submitForm = async () => {
       }
       changesMade.value = true
     } catch (error: unknown) {
-      if (error instanceof AxiosError && error.response && error.response.data === 'Incorrect password') {
-        // Handle the incorrect old password exception here
-        console.error('Error: Incorrect old password')
+      if (error instanceof AxiosError && error.response && error.response.data === 'Feil passord') {
         wrongOldPassword.value = true
-      } else {
-        console.error('Error updating password', error)
       }
     }
   }
@@ -134,6 +134,7 @@ const submitForm = async () => {
     try {
       await api.put(
         '/user/edit/household?numberOfHouseholdMembers=' + numberOfHouseholdMembers.value, null)
+        .then(() => { changesMade.value = true })
     } catch (error) {
       console.error('Error updating household members', error)
     }
@@ -194,6 +195,10 @@ defineExpose({
   'wght' 600,
   'GRAD' 0,
   'opsz' 248
+}
+
+#errorLabel {
+  color: red
 }
 
 h1 {

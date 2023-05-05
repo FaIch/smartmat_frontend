@@ -1,66 +1,118 @@
 <template>
-  <div :class="[recipeStore.getHasWeekMenu() ? 'recipe-card-saved-menu' : 'recipe-card']" @click="goToRecipe(props.recipe.recipe.id)">
-    <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
-    <div class="recipe-details">
-      <div class="recipe-details-top">
-        <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
-        <div class="recipe-warning">
-          <img v-tippy="tooltipOptions" v-show="props.recipe.amountNearlyExpired > 0" src="../assets/icons/warning.svg"/>
-          <h5 v-show="props.recipe.amountNearlyExpired > 0">{{ props.recipe.amountNearlyExpired }}</h5>
+  <div class="recipe-container">
+    <div class="recipe-card" @click="goToRecipe(props.recipe.recipe.id)">
+      <img class="recipe-image" :src="props.recipe.recipe.image" alt="">
+      <div class="recipe-details">
+        <div class="recipe-details-top">
+          <h2 class="recipe-title">{{ props.recipe.recipe.name }}</h2>
+        </div>
+        <div class="recipe-details-bot">
+          <div class="recipe-time">
+            <h4>{{ props.recipe.recipe.estimatedTime }}</h4>
+          </div>
         </div>
       </div>
-      <div class="recipe-eaten" v-if="recipeStore.getHasWeekMenu()">
-        <input type="checkbox" :checked="recipeStore.getRecipeIdsCompleted().includes(props.recipe.recipe.id)">
-        <label>Spist</label>
-      </div>
-      <div class="recipe-details-bot">
-        <div class="recipe-time">
-          <h4>{{ props.recipe.recipe.estimatedTime }}</h4>
-        </div>
-        <div class="recipe-missing">
-          <h5> {{ missingIngredients }} </h5>
-        </div>
-      </div>
+    </div>
+    <div class="completed-overlay" v-if="props.recipe.completed">
+      <i class="fas fa-check completed-checkmark"></i>
+    </div>
+    <div class="recipeButtons">
+      <button class="prepared checkmark-icon" @click="prepared" v-if="props.recipe.completed"><i class="fas fa-check"></i></button>
+      <button class="prepared checkmark-icon" @click="prepared" v-else><i class="fas fa-check"></i></button>
+      <button class="reroll refresh-icon" @click="reroll"><i class="fas fa-sync"></i></button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RecipeCardInterface } from './types'
-import { computed, reactive } from 'vue'
+import { WeekMenuRecipeInterface } from './types'
 import { useRouter } from 'vue-router'
-import { useRecipeStore } from '../stores/RecipeStore'
+import api from '../utils/httputils'
 
+const emits = defineEmits(['update-card'])
 const router = useRouter()
-const recipeStore = useRecipeStore()
 const goToRecipe = (id: number) => {
   router.push({ name: 'recipe', params: { id } })
 }
 
 const props = defineProps({
   recipe: {
-    type: Object as () => RecipeCardInterface,
+    type: Object as () => WeekMenuRecipeInterface,
     required: true
   }
 })
 
-const missingIngredients = computed(() => {
-  const numberMissing = props.recipe.recipe.numberOfItems - props.recipe.amountInFridge
-  if (numberMissing === 0) {
-    return 'Du har alt'
-  } else {
-    return `Du mangler ${numberMissing} ingredienser`
-  }
-})
+async function prepared () {
+  console.log(props.recipe.completed)
+  const path = `/week-menu/week-menu-recipe/${props.recipe.id}/toggle-completed`
+  api.put(path)
+    .then((response) => {
+      console.log(response)
+      emits('update-card')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
 
-const tooltipOptions = reactive({
-  content: `${props.recipe.amountNearlyExpired} varer går snart ut på dato`,
-  placement: 'bottom'
-})
+async function reroll () {
+  const path = `/week-menu/reroll/${props.recipe.recipe.id}`
+  api.put(path)
+    .then((response) => {
+      console.log(response)
+      emits('update-card')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
 
 </script>
 
 <style scoped>
+
+.recipe-container {
+  position: relative;
+  display: inline-block;
+}
+
+.recipeButtons {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  margin-top: 15px;
+}
+
+.prepared, .reroll {
+  width: 50%;
+  height: 40px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkmark-icon i, .refresh-icon i {
+  margin: 0;
+}
+
+.completed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 280px; /* match the height of the recipe card */
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.completed-checkmark {
+  color: #1A7028;
+  font-size: 48px;
+}
 
 .recipe-card {
   background-color: #fff;
@@ -70,6 +122,30 @@ const tooltipOptions = reactive({
   max-height: 280px;
   cursor: pointer;
   margin: 15px;
+}
+
+.recipe-card.completed {
+  position: relative;
+}
+
+.recipe-card.completed::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 255, 0, 0.75);
+  z-index: 1;
+}
+
+.recipe-card.completed .recipe-image {
+  filter: grayscale(100%);
+}
+
+.recipe-card.completed .recipe-title {
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 .recipe-card-saved-menu {
