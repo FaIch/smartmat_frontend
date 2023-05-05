@@ -21,9 +21,28 @@
                     <label for="mobileNumber">Mobilnummer</label>
                     <input id="mobileNumber" type="number" name="mobileNumber" autocomplete="tel" v-model="phoneNumber" placeholder="Ditt mobilnummer">
                     <label for="address">Adresse</label>
-                    <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
-                    <label for="numberOfHouseholdMembers">Antall Personer I Husholdning</label>
-                    <input id="numberOfHouseholdMembers" type="number" name="postalCode" autocomplete="postal-code" v-model="numberOfHouseholdMembers" placeholder="Antall personer i husholdningen din">
+                  <input id="address" type="text" name="address" autocomplete="street-address" v-model="address" placeholder="Din adresse">
+                  <br><label for="numberOfHouseholdMembers">Antall personer i husstanden</label>
+                  <div class="input-box">
+                    <i class="fas fa-users"></i>
+                    <select
+                        name="household-members"
+                        id="household-members"
+                        v-model="numberOfHouseholdMembers"
+                        required
+                    >
+                      <option value="" disabled selected>Hvor mange i din husstand?</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                    </select>
+                    <div class="select-arrow"></div>
+                  </div><br>
                     <label id="errorLabel"> {{ errorMessage }}</label>
                 </div>
             </fieldset>
